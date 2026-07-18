@@ -24,6 +24,10 @@
     "./languages": {
       "types": "./dist/languages/index.d.ts",
       "default": "./dist/languages/index.js"
+    },
+    "./figma": {
+      "types": "./dist/figma/index.d.ts",
+      "default": "./dist/figma/index.js"
     }
   },
   "scripts": {
@@ -51,6 +55,7 @@
     "tree-sitter-python": "^0.25.0",
     "tree-sitter-ruby": "^0.23.1",
     "tree-sitter-rust": "^0.24.0",
+    "tree-sitter-scala": "^0.24.0",
     "tree-sitter-typescript": "^0.23.2",
     "web-tree-sitter": "^0.26.6",
     "yaml": "^2.8.3",
