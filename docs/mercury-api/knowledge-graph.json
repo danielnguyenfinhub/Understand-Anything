@@ -1,0 +1,4375 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "Mercury Public API (Sandbox) — Field Knowledge",
+    "languages": [
+      "yaml",
+      "typescript"
+    ],
+    "frameworks": [
+      "Swagger 2.0"
+    ],
+    "description": "A hand-curated knowledge graph of Connective's Mercury Public API (Sandbox) — every documented endpoint and schema field, the 6 endpoints and ~20 Opportunity fields production has that the spec doesn't, spec bugs, and live-CRM-constrained enum values pulled from Finhub's connected Mercury CRM on 2026-07-17.",
+    "analyzedAt": "2026-07-18T00:00:00.000Z",
+    "gitCommitHash": "n/a"
+  },
+  "nodes": [
+    {
+      "id": "domain:mercury-api",
+      "type": "domain",
+      "name": "Mercury Public API (Sandbox)",
+      "summary": "Connective's Mercury loan/CRM REST API. Swagger 2.0 spec, host apis.connective.com.au, basePath /mercury/v1. Auth is a {token} path segment plus an x-api-key header (not a bearer header). 53 documented endpoints across 4 resource groups (Opportunities, Contacts, Partner Config, Categories) plus 6 endpoints that exist in production but are entirely absent from the Swagger spec (the extension/livingExpense and extension/otherIncome routes).",
+      "tags": [
+        "mercury",
+        "connective",
+        "rest-api",
+        "swagger-2.0",
+        "loan-crm",
+        "root"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "Opportunity",
+          "Contact",
+          "PartnerConfig",
+          "Category",
+          "Asset",
+          "Liability",
+          "RelatedParty",
+          "Address"
+        ]
+      }
+    },
+    {
+      "id": "domain:opportunities",
+      "type": "domain",
+      "name": "Opportunities",
+      "summary": "Loan/deal records and their nested sub-resources: assets, liabilities, related parties, plus webhook subscriptions. 15 documented endpoints. An Opportunity is the loan-application-level object — amount, lender, status, settlement dates — with an isDeleted soft-delete flag.",
+      "tags": [
+        "opportunities",
+        "loans",
+        "deals"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "domain:contacts",
+      "type": "domain",
+      "name": "Contacts",
+      "summary": "Person/entity records and their nested sub-resources: contact methods, expenses, incomes, identification documents, addresses, employments. 25 documented endpoints. Contact.isDeleted must be filtered false on every search unless deleted records are explicitly wanted.",
+      "tags": [
+        "contacts",
+        "people",
+        "crm"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "domain:partner-config-categories",
+      "type": "domain",
+      "name": "Partner Config & Categories",
+      "summary": "Broker-group-level configuration (branding, feature toggles via PartnerConfig key/value pairs) and Contact categorisation (Category, used for marketing segmentation). 7 documented endpoints.",
+      "tags": [
+        "partner-config",
+        "categories",
+        "branding",
+        "segmentation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "domain:extension-endpoints",
+      "type": "domain",
+      "name": "Extension Endpoints (undocumented)",
+      "summary": "6 Opportunity sub-resource endpoints (livingExpense, otherIncome — GET/POST/PUT each) that exist in production but are entirely absent from the Swagger YAML. Only discoverable via a wiki export sitting alongside the spec, not the spec itself. Both follow the same shape: a wrapper record whose `value` field is a JSON-encoded string (not structured JSON) containing an array of line items.",
+      "tags": [
+        "extension",
+        "undocumented",
+        "living-expense",
+        "other-income"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "domain:live-crm-data",
+      "type": "domain",
+      "name": "Live Data, Spec Issues & Field-Level Gotchas",
+      "summary": "Cross-cutting knowledge that doesn't live in any single endpoint or schema: bugs in the static Swagger spec, fields the spec declares as unconstrained free text but that production actually constrains to fixed value sets (pulled live from Finhub's connected Mercury CRM on 2026-07-17), and fields present on live records with no equivalent in the spec at all.",
+      "tags": [
+        "spec-issues",
+        "live-data",
+        "gotchas",
+        "field-quirks"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "source:mercury-sandbox-swagger-yaml",
+      "type": "source",
+      "name": "Mercury Public API (Sandbox).yaml",
+      "summary": "Swagger 2.0 spec, the canonical machine-readable definition of the Mercury Public API — host apis.connective.com.au, basePath /mercury/v1. 39 documented endpoints (the Opportunities/Contacts/Partner Config/Categories groups) and 26 schema definitions. Known to contain at least 3 bugs: the Address.country enum YAML-parses Norway's `NO` code as boolean false, an operationId typo (Contact-dentification-create), and a field-name typo (motorVehiceYear).",
+      "tags": [
+        "swagger",
+        "source-spec",
+        "yaml"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "category": "primary-source"
+      }
+    },
+    {
+      "id": "source:connective-wiki-export",
+      "type": "source",
+      "name": "Connective wiki export (usage guide + undocumented endpoints)",
+      "summary": "\"Managing Opportunities and contact.txt\" and a LOAN STATUS NAME export, found alongside the Swagger spec in the same reference folder but not part of the spec itself. The only source that documents the nested-entity CRUD-via-PUT convention, search/pagination query params, date-range search syntax, lead-source assignment merge logic, and the 6 extension/* endpoints entirely missing from the YAML.",
+      "tags": [
+        "wiki-export",
+        "usage-guide",
+        "secondary-source"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "category": "secondary-source"
+      }
+    },
+    {
+      "id": "source:live-mercury-crm-pull-20260717",
+      "type": "source",
+      "name": "Live Finhub Mercury CRM pull (2026-07-17)",
+      "summary": "Live data pulled via the Mercury CRM MCP (list_loan_statuses, list_contact_categories, list_panel_lenders) and a live authenticated GET against a real Finhub branch token/API key (schema-only inspection — field names/types extracted, response values never logged, raw response deleted). Confirms this hit a live production account (invoiceCafStatus, applicationPlatform, peBuildYear fields), not the sandbox. SECURITY NOTE: the API key and token used were pasted directly into chat rather than set as environment variables — rotate/regenerate both in the Mercury/Connective admin panel before relying on this account further.",
+      "tags": [
+        "live-data",
+        "production",
+        "security-note",
+        "credential-exposure"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "category": "live-pull",
+        "content": "Broker-group-specific data — not part of the generic Mercury spec."
+      }
+    },
+    {
+      "id": "endpoint:opportunity-search",
+      "type": "endpoint",
+      "name": "GET /{token}/opportunities",
+      "summary": "Opportunity-search — GET /{token}/opportunities. search=true (or present), count (max 100, default 25), offset (default 0), sortKey (creationDate|lastModifiedDate), sortOrder (ASC|DESC); complex filters via URL-encoded JSON in searchParams. Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "opportunities"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/opportunities",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:opportunity-create",
+      "type": "endpoint",
+      "name": "POST /{token}/opportunities",
+      "summary": "Opportunity-create — POST /{token}/opportunities. Can create with nested assets/liabilities/relatedParties in the same call without supplying nested uniqueIds — Mercury auto-generates them. Returns { uniqueId, emailId }. Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "opportunities"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/opportunities",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:opportunity-get",
+      "type": "endpoint",
+      "name": "GET /{token}/opportunities/{id}",
+      "summary": "Opportunity-get — GET /{token}/opportunities/{id} Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "opportunities"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/opportunities/{id}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:opportunity-update",
+      "type": "endpoint",
+      "name": "PUT /{token}/opportunities/{id}",
+      "summary": "Opportunity-update — PUT /{token}/opportunities/{id}. Also the sole mechanism for nested-entity create/update/soft-delete (keyed on uniqueId+isDeleted) and for top-level soft-delete ({ isDeleted: true }). No hard DELETE for Opportunities. Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "put",
+        "endpoint",
+        "opportunities"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/opportunities/{id}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:opportunity-trigger",
+      "type": "endpoint",
+      "name": "POST /{token}/opportunities/hooks",
+      "summary": "Opportunity-trigger — POST /{token}/opportunities/hooks. Webhook subscription. Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "opportunities",
+        "hooks"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/opportunities/hooks",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:delete-opportunity-trigger",
+      "type": "endpoint",
+      "name": "DELETE /{token}/opportunities/hooks/{hookId}",
+      "summary": "Delete-opportunity-trigger — DELETE /{token}/opportunities/hooks/{hookId}. The one true DELETE verb in the whole API — every other resource soft-deletes via PUT. Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "delete",
+        "endpoint",
+        "opportunities",
+        "hooks"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "DELETE /{token}/opportunities/hooks/{hookId}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:opportunity-assets-get",
+      "type": "endpoint",
+      "name": "GET /{token}/opportunities/{id}/assets",
+      "summary": "Opportunity-assets-get — GET /{token}/opportunities/{id}/assets Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "opportunities",
+        "assets"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/opportunities/{id}/assets",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:opportunity-asset-create",
+      "type": "endpoint",
+      "name": "POST /{token}/opportunities/{id}/assets",
+      "summary": "Opportunity-asset-create — POST /{token}/opportunities/{id}/assets Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "opportunities",
+        "assets"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/opportunities/{id}/assets",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:opportunity-asset-update",
+      "type": "endpoint",
+      "name": "PUT /{token}/opportunities/{id}/assets/{assetId}",
+      "summary": "Opportunity-asset-update — PUT /{token}/opportunities/{id}/assets/{assetId} Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "put",
+        "endpoint",
+        "opportunities",
+        "assets"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/opportunities/{id}/assets/{assetId}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:opportunity-liabilities-get",
+      "type": "endpoint",
+      "name": "GET /{token}/opportunities/{id}/liabilities",
+      "summary": "Opportunity-liabilities-get — GET /{token}/opportunities/{id}/liabilities Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "opportunities",
+        "liabilities"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/opportunities/{id}/liabilities",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:opportunity-liability-create",
+      "type": "endpoint",
+      "name": "POST /{token}/opportunities/{id}/liabilities",
+      "summary": "Opportunity-liability-create — POST /{token}/opportunities/{id}/liabilities Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "opportunities",
+        "liabilities"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/opportunities/{id}/liabilities",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:opportunity-liability-update",
+      "type": "endpoint",
+      "name": "PUT /{token}/opportunities/{id}/liabilities/{liabilityId}",
+      "summary": "Opportunity-liability-update — PUT /{token}/opportunities/{id}/liabilities/{liabilityId} Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "put",
+        "endpoint",
+        "opportunities",
+        "liabilities"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/opportunities/{id}/liabilities/{liabilityId}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:opportunity-related-party-get",
+      "type": "endpoint",
+      "name": "GET /{token}/opportunities/{id}/relatedParties",
+      "summary": "Opportunity-related-party-get — GET /{token}/opportunities/{id}/relatedParties Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "opportunities",
+        "relatedParties"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/opportunities/{id}/relatedParties",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:opportunity-related-party-create",
+      "type": "endpoint",
+      "name": "POST /{token}/opportunities/{id}/relatedParties",
+      "summary": "Opportunity-related-party-create — POST /{token}/opportunities/{id}/relatedParties Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "opportunities",
+        "relatedParties"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/opportunities/{id}/relatedParties",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:opportunity-related-party-update",
+      "type": "endpoint",
+      "name": "PUT /{token}/opportunities/{id}/relatedParties/{relatedPartyId}",
+      "summary": "Opportunity-related-party-update — PUT /{token}/opportunities/{id}/relatedParties/{relatedPartyId} Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "put",
+        "endpoint",
+        "opportunities",
+        "relatedParties"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/opportunities/{id}/relatedParties/{relatedPartyId}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:extension-livingexpense-get",
+      "type": "endpoint",
+      "name": "GET /{token}/opportunities/{id}/extension/livingExpense",
+      "summary": "Extension-livingExpense-get — GET /{token}/opportunities/{id}/extension/livingExpense. Returns living-expense line items as a JSON-string blob in `value`. Undocumented in the Swagger spec — found in wiki export only. Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "opportunities",
+        "extension",
+        "livingExpense"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/opportunities/{id}/extension/livingExpense",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:extension-livingexpense-create",
+      "type": "endpoint",
+      "name": "POST /{token}/opportunities/{id}/extension/livingExpense",
+      "summary": "Extension-livingExpense-create — POST /{token}/opportunities/{id}/extension/livingExpense. Only call if GET did NOT already return a uniqueId — the extension record already existing means go straight to PUT. Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "opportunities",
+        "extension",
+        "livingExpense"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/opportunities/{id}/extension/livingExpense",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:extension-livingexpense-update",
+      "type": "endpoint",
+      "name": "PUT /{token}/opportunities/{id}/extension/livingExpense",
+      "summary": "Extension-livingExpense-update — PUT /{token}/opportunities/{id}/extension/livingExpense. Destructive full-replace of the value array — must resend every existing line item or they are silently deleted. No partial-update/append semantic. Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "put",
+        "endpoint",
+        "opportunities",
+        "extension",
+        "livingExpense"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/opportunities/{id}/extension/livingExpense",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:extension-otherincome-get",
+      "type": "endpoint",
+      "name": "GET /{token}/opportunities/{id}/extension/otherIncome",
+      "summary": "Extension-otherIncome-get — GET /{token}/opportunities/{id}/extension/otherIncome. Returns other-income line items as a JSON-string blob in `value`. Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "opportunities",
+        "extension",
+        "otherIncome"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/opportunities/{id}/extension/otherIncome",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:extension-otherincome-create",
+      "type": "endpoint",
+      "name": "POST /{token}/opportunities/{id}/extension/otherIncome",
+      "summary": "Extension-otherIncome-create — POST /{token}/opportunities/{id}/extension/otherIncome Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "opportunities",
+        "extension",
+        "otherIncome"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/opportunities/{id}/extension/otherIncome",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:extension-otherincome-update",
+      "type": "endpoint",
+      "name": "PUT /{token}/opportunities/{id}/extension/otherIncome",
+      "summary": "Extension-otherIncome-update — PUT /{token}/opportunities/{id}/extension/otherIncome. Destructive full-replace, same rule as livingExpense PUT. Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "put",
+        "endpoint",
+        "opportunities",
+        "extension",
+        "otherIncome"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/opportunities/{id}/extension/otherIncome",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-search",
+      "type": "endpoint",
+      "name": "GET /{token}/contacts",
+      "summary": "Contact-search — GET /{token}/contacts Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "contacts"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/contacts",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-create",
+      "type": "endpoint",
+      "name": "POST /{token}/contacts",
+      "summary": "Contact-create — POST /{token}/contacts Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "contacts"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/contacts",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-get",
+      "type": "endpoint",
+      "name": "GET /{token}/contacts/{id}",
+      "summary": "Contact-get — GET /{token}/contacts/{id} Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "contacts"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/contacts/{id}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-update",
+      "type": "endpoint",
+      "name": "PUT /{token}/contacts/{id}",
+      "summary": "Contact-update — PUT /{token}/contacts/{id}. Also handles nested-entity create/update/soft-delete for contactMethods/expenses/incomes/Identification/addresses, same uniqueId+isDeleted convention as Opportunity. Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "put",
+        "endpoint",
+        "contacts"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/contacts/{id}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-trigger",
+      "type": "endpoint",
+      "name": "POST /{token}/contacts/hooks",
+      "summary": "Contact-trigger — POST /{token}/contacts/hooks Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "contacts",
+        "hooks"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/contacts/hooks",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:delete-contact-trigger",
+      "type": "endpoint",
+      "name": "DELETE /{token}/contacts/hooks/{hookId}",
+      "summary": "Delete-contact-trigger — DELETE /{token}/contacts/hooks/{hookId} Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "delete",
+        "endpoint",
+        "contacts",
+        "hooks"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "DELETE /{token}/contacts/hooks/{hookId}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-method-get",
+      "type": "endpoint",
+      "name": "GET /{token}/contacts/{id}/contactMethods",
+      "summary": "Contact-method-get — GET /{token}/contacts/{id}/contactMethods Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "contacts",
+        "contactMethods"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/contacts/{id}/contactMethods",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-method-create",
+      "type": "endpoint",
+      "name": "POST /{token}/contacts/{id}/contactMethods",
+      "summary": "Contact-method-create — POST /{token}/contacts/{id}/contactMethods Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "contacts",
+        "contactMethods"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/contacts/{id}/contactMethods",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-method-update",
+      "type": "endpoint",
+      "name": "PUT /{token}/contacts/{id}/contactMethods/{contactMethodId}",
+      "summary": "Contact-method-update — PUT /{token}/contacts/{id}/contactMethods/{contactMethodId} Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "put",
+        "endpoint",
+        "contacts",
+        "contactMethods"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/contacts/{id}/contactMethods/{contactMethodId}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-expense-get",
+      "type": "endpoint",
+      "name": "GET /{token}/contacts/{id}/expenses",
+      "summary": "Contact-expense-get — GET /{token}/contacts/{id}/expenses Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "contacts",
+        "expenses"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/contacts/{id}/expenses",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-expense-create",
+      "type": "endpoint",
+      "name": "POST /{token}/contacts/{id}/expenses",
+      "summary": "Contact-expense-create — POST /{token}/contacts/{id}/expenses Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "contacts",
+        "expenses"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/contacts/{id}/expenses",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-expense-update",
+      "type": "endpoint",
+      "name": "PUT /{token}/contacts/{id}/expenses/{expenseId}",
+      "summary": "Contact-expense-update — PUT /{token}/contacts/{id}/expenses/{expenseId} Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "put",
+        "endpoint",
+        "contacts",
+        "expenses"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/contacts/{id}/expenses/{expenseId}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-income-get",
+      "type": "endpoint",
+      "name": "GET /{token}/contacts/{id}/incomes",
+      "summary": "Contact-income-get — GET /{token}/contacts/{id}/incomes Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "contacts",
+        "incomes"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/contacts/{id}/incomes",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-income-create",
+      "type": "endpoint",
+      "name": "POST /{token}/contacts/{id}/incomes",
+      "summary": "Contact-income-create — POST /{token}/contacts/{id}/incomes Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "contacts",
+        "incomes"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/contacts/{id}/incomes",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-income-update",
+      "type": "endpoint",
+      "name": "PUT /{token}/contacts/{id}/incomes/{incomeId}",
+      "summary": "Contact-income-update — PUT /{token}/contacts/{id}/incomes/{incomeId} Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "put",
+        "endpoint",
+        "contacts",
+        "incomes"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/contacts/{id}/incomes/{incomeId}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-identification-get",
+      "type": "endpoint",
+      "name": "GET /{token}/contacts/{id}/identification",
+      "summary": "Contact-identification-get — GET /{token}/contacts/{id}/identification Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "contacts",
+        "identification"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/contacts/{id}/identification",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-dentification-create",
+      "type": "endpoint",
+      "name": "POST /{token}/contacts/{id}/identification",
+      "summary": "Contact-dentification-create — POST /{token}/contacts/{id}/identification. sic — typo in source spec operationId, missing the \"I\" (should read Contact-Identification-create). Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "contacts",
+        "identification"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/contacts/{id}/identification",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-identification-update",
+      "type": "endpoint",
+      "name": "PUT /{token}/contacts/{id}/identification/{identificationId}",
+      "summary": "Contact-identification-update — PUT /{token}/contacts/{id}/identification/{identificationId} Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "put",
+        "endpoint",
+        "contacts",
+        "identification"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/contacts/{id}/identification/{identificationId}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-address-get",
+      "type": "endpoint",
+      "name": "GET /{token}/contacts/{id}/addresses",
+      "summary": "Contact-address-get — GET /{token}/contacts/{id}/addresses Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "contacts",
+        "addresses"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/contacts/{id}/addresses",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-address-create",
+      "type": "endpoint",
+      "name": "POST /{token}/contacts/{id}/addresses",
+      "summary": "Contact-address-create — POST /{token}/contacts/{id}/addresses Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "contacts",
+        "addresses"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/contacts/{id}/addresses",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-address-update",
+      "type": "endpoint",
+      "name": "PUT /{token}/contacts/{id}/addresses/{addressId}",
+      "summary": "Contact-address-update — PUT /{token}/contacts/{id}/addresses/{addressId} Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "put",
+        "endpoint",
+        "contacts",
+        "addresses"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/contacts/{id}/addresses/{addressId}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-employment-get",
+      "type": "endpoint",
+      "name": "GET /{token}/contacts/{id}/employments",
+      "summary": "Contact-employment-get — GET /{token}/contacts/{id}/employments Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "contacts",
+        "employments"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/contacts/{id}/employments",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-employment-create",
+      "type": "endpoint",
+      "name": "POST /{token}/contacts/{id}/employments",
+      "summary": "Contact-employment-create — POST /{token}/contacts/{id}/employments Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "contacts",
+        "employments"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/contacts/{id}/employments",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-employment-update",
+      "type": "endpoint",
+      "name": "PUT /{token}/contacts/{id}/employments/{employmentId}",
+      "summary": "Contact-employment-update — PUT /{token}/contacts/{id}/employments/{employmentId} Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "put",
+        "endpoint",
+        "contacts",
+        "employments"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/contacts/{id}/employments/{employmentId}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:contact-opportunity-get",
+      "type": "endpoint",
+      "name": "GET /{token}/contacts/{id}/opportunities",
+      "summary": "Contact-opportunity-get — GET /{token}/contacts/{id}/opportunities Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "contacts",
+        "opportunities"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/contacts/{id}/opportunities",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:partnerconfig-search",
+      "type": "endpoint",
+      "name": "GET /{token}/partner/config",
+      "summary": "PartnerConfig-search — GET /{token}/partner/config Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "partner",
+        "config"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/partner/config",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:partnerconfig-create",
+      "type": "endpoint",
+      "name": "POST /{token}/partner/config",
+      "summary": "PartnerConfig-create — POST /{token}/partner/config Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "partner",
+        "config"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/partner/config",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:partnerconfig-update",
+      "type": "endpoint",
+      "name": "PUT /{token}/partner/config/{id}",
+      "summary": "PartnerConfig-update — PUT /{token}/partner/config/{id} Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "put",
+        "endpoint",
+        "partner",
+        "config"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/partner/config/{id}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:category-search",
+      "type": "endpoint",
+      "name": "GET /{token}/categories",
+      "summary": "Category-search — GET /{token}/categories Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "categories"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/categories",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:category-create",
+      "type": "endpoint",
+      "name": "POST /{token}/categories",
+      "summary": "Category-create — POST /{token}/categories Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "post",
+        "endpoint",
+        "categories"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/categories",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:category-get",
+      "type": "endpoint",
+      "name": "GET /{token}/categories/{id}",
+      "summary": "Category-get — GET /{token}/categories/{id} Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "get",
+        "endpoint",
+        "categories"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/categories/{id}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "endpoint:category-update",
+      "type": "endpoint",
+      "name": "PUT /{token}/categories/{id}",
+      "summary": "Category-update — PUT /{token}/categories/{id} Shares common responses 200/400/401/403/404/500 (error bodies use the Error schema).",
+      "tags": [
+        "put",
+        "endpoint",
+        "categories"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/categories/{id}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "schema:PartnerConfig",
+      "type": "schema",
+      "name": "PartnerConfig",
+      "summary": "uniqueId (string (uuid)) — maxLength 44; partnerId (string) — maxLength 45; key (string) — maxLength 45; value (string) — maxLength 225; primaryBg (string) — maxLength 10; secondaryBg (string) — maxLength 10; defaultBg (string) — maxLength 10; primaryFont (string) — maxLength 10; secondaryFont (string) — maxLength 10; defaultFont (string) — maxLength 10; vbInherit (integer (int32)) — is virtual branch.",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "partnerid",
+        "key",
+        "value",
+        "primarybg",
+        "secondarybg",
+        "defaultbg",
+        "primaryfont",
+        "secondaryfont",
+        "defaultfont",
+        "vbinherit"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "schema:Contact",
+      "type": "schema",
+      "name": "Contact",
+      "summary": "uniqueId (string (uuid)) — maxLength 44; company (string) — Partner id, maxLength 36; isDeleted (boolean) — soft-delete flag — filter isDeleted=false on all queries; deletedBy (string) — maxLength 64; deletedOn (string (date-time)); createdOn (string (date-time)); createdBy (string) — maxLength 45; firstName (string) — maxLength 64; lastName (string) — maxLength 124; middleName (string) — maxLength 44; salutation (string) — maxLength 64; title (string) — enum: Dr, Miss, Ms, Mr, Mrs, Prof, Rev — maxLength 24; occupation (string); employer (string) — maxLength 164; jobTitle (string) — maxLength 64; maritalStatus (string) — enum: Single, Married, DeFacto, Separated, Divorced, Widowed, Other — maxLength 34; driversLicenceNumber (string) — maxLength 64; driversLicenceExpiry (string (date)); driversLicenceState (string) — enum: ACT, NSW, NT, QLD, SA, TAS, VIC, WA, OTHER — maxLength 16; gender (string) — enum: M, F — maxLength 8; dateOfBirth (string (date)); employmentStatus (string) — enum: Full Time, Part Time, Contract, Temporary, Commission, Seasonal, Casual, Self-Employed, Unemployed — maxLength 104; employmentCommenced (string (date)); phoneDisplayType1-4 (string (x4)) — enum each: Business, Business 2, Business Fax, Home, Home 2, Home Fax, Mobile, Mobile 2 — maxLength 45; addressDisplay (string) — maxLength 45; homePhone (string) — maxLength 44; businessPhone (string) — maxLength 44; mobile (string) — maxLength 44; email (string (email)) — maxLength 65535; personDataType (string) — maxLength 7; notes (string) — maxLength 65535; relationshipManager (string) — maxLength 45; annualSalary (number (float)); contactType (string) — maxLength 45; abn (string) — maxLength 45; acn (string) — maxLength 45; trustName (string) — maxLength 100; homeSuburb (string) — maxLength 104; numberOfDependents (integer (int32)); doNotMail (boolean); funambolUsers (string) — maxLength 200; markAsPrivate (boolean); importDocumentId (string) — maxLength 45; partnerName (string) — maxLength 255; emailBounced (boolean); webPassword (string (password)) — maxLength 64 — never log; webAccess (boolean); relationshipManagerName (string) — maxLength 45; lastUpdated (string (date-time)); lastUpdatedBy (string) — maxLength 45; externalId (string) — maxLength 45; leadSourceId (string) — maxLength 124 (iConnect only); leadSourceName (string) — maxLength 255 (iConnect only); contactMethods (array<ContactMethod>); Identification (array<Identification>) — capitalized field name, unlike sibling arrays; expenses (array<Expense>); incomes (array<Income>); addresses (array<Address>); categories (array<Category>); myMarketingTactics (array<MyMarketingTactics>).",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "company",
+        "isdeleted",
+        "deletedby",
+        "deletedon",
+        "createdon",
+        "createdby",
+        "firstname",
+        "lastname",
+        "middlename",
+        "salutation",
+        "title",
+        "occupation",
+        "employer",
+        "jobtitle",
+        "maritalstatus",
+        "driverslicencenumber",
+        "driverslicenceexpiry",
+        "driverslicencestate",
+        "gender",
+        "dateofbirth",
+        "employmentstatus",
+        "employmentcommenced",
+        "phonedisplaytype1-4",
+        "addressdisplay",
+        "homephone",
+        "businessphone",
+        "mobile",
+        "email",
+        "persondatatype",
+        "notes",
+        "relationshipmanager",
+        "annualsalary",
+        "contacttype",
+        "abn",
+        "acn",
+        "trustname",
+        "homesuburb",
+        "numberofdependents",
+        "donotmail",
+        "funambolusers",
+        "markasprivate",
+        "importdocumentid",
+        "partnername",
+        "emailbounced",
+        "webpassword",
+        "webaccess",
+        "relationshipmanagername",
+        "lastupdated",
+        "lastupdatedby",
+        "externalid",
+        "leadsourceid",
+        "leadsourcename",
+        "contactmethods",
+        "identification",
+        "expenses",
+        "incomes",
+        "addresses",
+        "categories",
+        "mymarketingtactics"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "schema:ContactMethod",
+      "type": "schema",
+      "name": "ContactMethod",
+      "summary": "uniqueId (string (uuid)) — maxLength 40; company (string) — internal, maxLength 36; isDeleted (boolean) — internal; personID (string (uuid)) — internal, maxLength 40; contactMethod (string) — enum: Business, Business 2, Business Fax, Email 1, Email 2, Email 3, Home, Home 2, Home Fax, Mobile, Mobile 2 — maxLength 20; content (string) — maxLength 100; type (string) — enum: email, home, mobile, phone — maxLength 45.",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "company",
+        "isdeleted",
+        "personid",
+        "contactmethod",
+        "content",
+        "type"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:Identification",
+      "type": "schema",
+      "name": "Identification",
+      "summary": "uniqueId (string (uuid)) — maxLength 44; company (string) — internal, maxLength 36; createdBy (string) — maxLength 45; createdOn (string (date-time)); documentIssuedBy (string) — maxLength 45; documentNumber (string) — maxLength 45; endDate (string (date-time)) — expiry; isDeleted (boolean) — internal; parentId (string (uuid)) — internal, maxLength 36; nameOnDocument (string) — maxLength 128; personId (string (uuid)) — internal, maxLength 45; placeOfIssue (string) — enum: ACT, NSW, NT, QLD, SA, TAS, VIC, WA, OTHER — maxLength 45; startDate (string (date-time)); versionSighted (string) — enum: Original, Certified — maxLength 45; documentType (string) — enum of 49 values (DriversLicenceAust, PassportAust, MedicareCard, BirthCertAust, ... see reference doc) — maxLength 45.",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "company",
+        "createdby",
+        "createdon",
+        "documentissuedby",
+        "documentnumber",
+        "enddate",
+        "isdeleted",
+        "parentid",
+        "nameondocument",
+        "personid",
+        "placeofissue",
+        "startdate",
+        "versionsighted",
+        "documenttype"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "schema:Expense",
+      "type": "schema",
+      "name": "Expense",
+      "summary": "uniqueId (string (uuid)) — maxLength 36; company (string) — internal, maxLength 36; isDeleted (boolean) — internal; personID (string (uuid)) — internal, maxLength 36; personName (string) — maxLength 189; amount (number (float)); type (string) — enum: Credit Card, Home Loan, Investment Loan, Car Loan, Personal Loan, Maintenance, Rent Paid, Living Expenses, Education, Insurance, Other — maxLength 44; frequency (string) — enum: Annual, Fortnightly, Monthly, Weekly — maxLength 44; balance (number (float)); creditLimit (number (float)); comment (string) — maxLength 104.",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "company",
+        "isdeleted",
+        "personid",
+        "personname",
+        "amount",
+        "type",
+        "frequency",
+        "balance",
+        "creditlimit",
+        "comment"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "schema:Employment",
+      "type": "schema",
+      "name": "Employment",
+      "summary": "uniqueId (string (uuid)); employerName (string); employmentBasis (string) — maxLength 104 — free text (Full time, Part time, etc), no enum; employmentStatus (string) — maxLength 45 — free text (Primary, Secondary, Previous); employmentType (string) — maxLength 45 — free text (Payg, self employment, etc); jobTitle (string) — maxLength 64; natureOfBusiness (string); operatingStructure (string) — maxLength 45; paygEmployerType (string) — maxLength 45 — free text (Public or Private); abn (string) — maxLength 45; personId (string (uuid)); role (string) — maxLength 64; startDate (string (date)); endDate (string (date)); onBenefits (boolean); onProbation (boolean); student (boolean); incomes (array<Income>); address (Address) — single object, not an array.",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "employername",
+        "employmentbasis",
+        "employmentstatus",
+        "employmenttype",
+        "jobtitle",
+        "natureofbusiness",
+        "operatingstructure",
+        "paygemployertype",
+        "abn",
+        "personid",
+        "role",
+        "startdate",
+        "enddate",
+        "onbenefits",
+        "onprobation",
+        "student",
+        "incomes",
+        "address"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "schema:Income",
+      "type": "schema",
+      "name": "Income",
+      "summary": "uniqueId (string (uuid)) — maxLength 36; company (string) — internal, maxLength 36; isDeleted (boolean) — internal; personID (string (uuid)) — internal, maxLength 36; personName (string) — maxLength 189; amount (number (float)); type (string) — enum: Bonus, Business Income, Dividends, Family Allowance, Maintenance, Overtime, Pension, Rental, Salary, Self Employed, Other — maxLength 44; frequency (string) — enum: Annual, Fortnightly, Monthly, Weekly — maxLength 44; dateCommenced (string (date)); sortKey (integer (int32)) — internal; comment (string) — maxLength 104.",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "company",
+        "isdeleted",
+        "personid",
+        "personname",
+        "amount",
+        "type",
+        "frequency",
+        "datecommenced",
+        "sortkey",
+        "comment"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "schema:Opportunity",
+      "type": "schema",
+      "name": "Opportunity",
+      "summary": "uniqueId (string (uuid)); company (string) — maxLength 36; isDeleted (boolean) — soft-delete flag; deletedBy (string) — maxLength 64; deletedOn (string (date-time)) — LIVE DATA RETURNS Unix epoch ms (number), not the date-time string the spec declares; createdOn (string (date-time)) — LIVE DATA RETURNS Unix epoch ms (number); createdBy (string) — maxLength 64; opportunityName (string) — maxLength 164; amount (number (float)) — amount borrowed; lender (string) — maxLength 30; lenderNameShort (string) — maxLength 45; status (string) — maxLength 84 — free text in spec, but live Finhub Mercury CRM constrains this to 30 canonical values (see the LoanStatus claim nodes); agent (string) — maxLength 64 — CA number; personActing (string) — maxLength 64 — CA number; personResponsible (string) — maxLength 44 — CA number; lenderReference (string) — maxLength 100; financeDate (string (date-time)); expectedSettlementDate (string (date-time)); confirmedSettlementDate (string (date-time)); leadSourceId (string) — maxLength 104; leadSourceDisplay (string) — maxLength 255; discount (number (float)); existingAmount (number (float)); lmi (number (float)) — loan mortgage insurance; settlementDateConfirmed (boolean); discountType (string) — maxLength 44; loanPersonRelationship (string) — maxLength 164; transactionType (string) — enum: Loan, CommercialLoans, PlantAndEquipment, PersonalLoans, Property, FinancialPlanning, Insurance, LifeInsurance, Accounting, TermDeposit, PremiumFunding, CreditCard, CashManagementAcc — maxLength 45; notePadText (string) — maxLength 21000; partnerReference (string) — maxLength 44; nextGenId (string) — maxLength 12; parentId (string) — internal, maxLength 44; workspaceUsers (string) — maxLength 100 — CA numbers; tranxType (string) — enum: Pre-Approval, Purchase, Refinance, Top Up, Variation — maxLength 44; connectiveLodgeId (string) — maxLength 10; peResidualAmount (number (float)); peRepaymentAmount (number (float)); peEffectiveRate (number (float)); peInterestRate (number (float)); peBrokerage (number (float)); assetDescription (string) — maxLength 21000; nextAction (string (date-time)); loanTerm (number (int32)); fixedRateExpiry (string (date-time)); depositDueDate (string (date-time)); barCodeId (string) — maxLength 45; agentName (string) — maxLength 511; personActingName (string) — maxLength 511; personResponsibleName (string) — maxLength 44; defaultPath (string) — maxLength 21000; partnerName (string) — maxLength 255; partnerSharedWithId (string) — maxLength 45; partnerSharedWithName (string) — maxLength 255; statusLastUpdated (string (date-time)) — LIVE DATA RETURNS Unix epoch ms (number); lastUpdatedBy (string) — maxLength 45; lenderComments (string) — maxLength 21000; sitRep (string) — maxLength 21000; campaignId (string) — maxLength 45; campaignName (string) — maxLength 255; securityValue (number (float)); aliApplicationId (string) — maxLength 40; metlifeApplicationId (string) — maxLength 40; interestOnlyExpiry (string (date-time)); lastUpdated (string (date-time)) — LIVE DATA RETURNS Unix epoch ms (number); emailAccountAddress (string (email)) — maxLength 70; originationFee (number (float)); metaData (string) — maxLength 255 — semicolon-separated categories; relatedParties (array<RelatedParty>); assets (array<Asset>); liabilities (array<Liability>); volume (number) — UNDOCUMENTED — new top-level pagination field on live search responses alongside totalCount/count/offset; deletedByDisplay (string) — UNDOCUMENTED — display-name companion to deletedBy; lenderDisplayName (string) — UNDOCUMENTED — companion to lender/lenderNameShort; peResidualPercentage (number) — UNDOCUMENTED — additional plant & equipment field; peFinanceType (string) — UNDOCUMENTED; peAssetType (string) — UNDOCUMENTED; peBuildYear (string) — UNDOCUMENTED; agentEmail (string) — UNDOCUMENTED — companion to agentName; salePrice (number) — UNDOCUMENTED; referrerFee (number) — UNDOCUMENTED — fee field beyond originationFee; docFee (number) — UNDOCUMENTED — fee field beyond originationFee; invoiceId (string) — UNDOCUMENTED — part of an entirely undocumented invoicing sub-system; invoicePaymentReceived (boolean) — UNDOCUMENTED; invoicePersonName (string) — UNDOCUMENTED; invoicePersonAddress (string) — UNDOCUMENTED; invoiceBrokerReference (string) — UNDOCUMENTED; invoiceCafStatus (string) — UNDOCUMENTED; applicationPlatform (string) — UNDOCUMENTED; otherLoanPeople (array (shape unknown)) — UNDOCUMENTED, distinct from relatedParties — empty in the sample record used for discovery; assetLiabilityLinks (array (shape unknown)) — UNDOCUMENTED, distinct from assets/liabilities — likely links assets to the liabilities they secure.",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "company",
+        "isdeleted",
+        "deletedby",
+        "deletedon",
+        "createdon",
+        "createdby",
+        "opportunityname",
+        "amount",
+        "lender",
+        "lendernameshort",
+        "status",
+        "agent",
+        "personacting",
+        "personresponsible",
+        "lenderreference",
+        "financedate",
+        "expectedsettlementdate",
+        "confirmedsettlementdate",
+        "leadsourceid",
+        "leadsourcedisplay",
+        "discount",
+        "existingamount",
+        "lmi",
+        "settlementdateconfirmed",
+        "discounttype",
+        "loanpersonrelationship",
+        "transactiontype",
+        "notepadtext",
+        "partnerreference",
+        "nextgenid",
+        "parentid",
+        "workspaceusers",
+        "tranxtype",
+        "connectivelodgeid",
+        "peresidualamount",
+        "perepaymentamount",
+        "peeffectiverate",
+        "peinterestrate",
+        "pebrokerage",
+        "assetdescription",
+        "nextaction",
+        "loanterm",
+        "fixedrateexpiry",
+        "depositduedate",
+        "barcodeid",
+        "agentname",
+        "personactingname",
+        "personresponsiblename",
+        "defaultpath",
+        "partnername",
+        "partnersharedwithid",
+        "partnersharedwithname",
+        "statuslastupdated",
+        "lastupdatedby",
+        "lendercomments",
+        "sitrep",
+        "campaignid",
+        "campaignname",
+        "securityvalue",
+        "aliapplicationid",
+        "metlifeapplicationid",
+        "interestonlyexpiry",
+        "lastupdated",
+        "emailaccountaddress",
+        "originationfee",
+        "metadata",
+        "relatedparties",
+        "assets",
+        "liabilities",
+        "volume",
+        "deletedbydisplay",
+        "lenderdisplayname",
+        "peresidualpercentage",
+        "pefinancetype",
+        "peassettype",
+        "pebuildyear",
+        "agentemail",
+        "saleprice",
+        "referrerfee",
+        "docfee",
+        "invoiceid",
+        "invoicepaymentreceived",
+        "invoicepersonname",
+        "invoicepersonaddress",
+        "invoicebrokerreference",
+        "invoicecafstatus",
+        "applicationplatform",
+        "otherloanpeople",
+        "assetliabilitylinks"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "schema:Address",
+      "type": "schema",
+      "name": "Address",
+      "summary": "uniqueId (string (uuid)) — maxLength 36; company (string) — internal, maxLength 36; isDeleted (boolean) — internal; deletedBy (string) — internal, maxLength 64; deletedOn (string (date-time)) — internal; parentType (string) — maxLength 20; parentId (string (uuid)) — internal, maxLength 36; type (string) — residence type, maxLength 64 — free text, no enum; streetName (string) — maxLength 164; streetNumber (string) — maxLength 20; streetType (string) — maxLength 64; city (string) — maxLength 104; state (string) — enum: ACT, NSW, NT, QLD, SA, TAS, VIC, WA, OTHER — maxLength 12; postcode (string (postcode)) — maxLength 16; country (string) — enum: full ISO-3166-1 alpha-2 list — SPEC BUG: NO (Norway) rendered as unquoted YAML no -> parsed as boolean false, see the address-country-enum-bug concept node; unitNumber (string) — maxLength 44; buildingName (string) — maxLength 164; floorNumber (string) — maxLength 44; isCorrespondenceAddress (boolean); fromDate (string (date-time)); toDate (string (date-time)); addressBlock (string) — maxLength 65535; format (string) — maxLength 45; housingSituation (string) — enum: Boarding, Caravan, Own Home, Own Home - Mortgage, Renting, With Parents, Other — maxLength 45; requiresConfirmation (boolean); poBoxNumber (string) — maxLength 10; poBoxType (string) — maxLength 6; personName (string) — maxLength 189; addrGeoLatitude (string) — maxLength 15; addrGeoLongitude (string) — maxLength 15.",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "company",
+        "isdeleted",
+        "deletedby",
+        "deletedon",
+        "parenttype",
+        "parentid",
+        "type",
+        "streetname",
+        "streetnumber",
+        "streettype",
+        "city",
+        "state",
+        "postcode",
+        "country",
+        "unitnumber",
+        "buildingname",
+        "floornumber",
+        "iscorrespondenceaddress",
+        "fromdate",
+        "todate",
+        "addressblock",
+        "format",
+        "housingsituation",
+        "requiresconfirmation",
+        "poboxnumber",
+        "poboxtype",
+        "personname",
+        "addrgeolatitude",
+        "addrgeolongitude"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "schema:RelatedParty",
+      "type": "schema",
+      "name": "RelatedParty",
+      "summary": "uniqueId (string (uuid)) — maxLength 36; isDeleted (boolean) — internal; personID (string (uuid)) — mandatory when adding a related party, maxLength 36; relationship (string) — enum: Adviser, Agent, Primary applicant, Secondary applicant, Assessor, Bank / Lender, Banker, Broker, Builder, Accountant, Conveyancer, Solicitor, Co-Applicant, Director, Employer, Financial Planner, Insurance referral, Insurer, Joint Borrower, JSG/ PRE, Land Agent, Lender, Loan Writer, NonApplicant, Other — maxLength 164.",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "isdeleted",
+        "personid",
+        "relationship"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:Asset",
+      "type": "schema",
+      "name": "Asset",
+      "summary": "uniqueId (string (uuid)) — maxLength 36; company (string) — internal, maxLength 36; isDeleted (boolean) — internal; deletedBy (string) — internal, maxLength 64; deletedOn (string (date-time)) — internal; parentType (string) — internal, default \"Asset\", maxLength 20; parentId (string (uuid)) — internal, maxLength 36; name (string) — enum: Real Estate, Boat, Business Equity, Cash Management, Charge Over Cash, Cheque Account, Debenture Charge, Gifts, Guarantee, Home Contents, Investment Savings, Life Insurance, Managed Funds, Motor Vehicle, Savings Account, Shares, Superannuation, Term Deposit, Other — maxLength 44; type (string) — enum: account, realEstate, vehicle, standard — maxLength 45; value (number (float)); valueBasis (string) — enum: Applicant Estimate, Certified Valuation, Actual Value — maxLength 45; details (string) — maxLength 164 — also carries motorVehicleMake on write when type is Motor Vehicle; institution (string) — maxLength 44; accountName (string) — maxLength 80; accountNumber (string) — maxLength 30; accountBSB (string) — maxLength 15; realEstateUseAsSecurity (boolean); realEstatePurpose (string) — enum: Owner Occupied, Investment — maxLength 45; realEstateZoning (string) — maxLength 45; address (Address) — single object; realEstateToBePurchased (boolean); realEstateRentalIncome (number (float)); realEstateRentalIncomeFrequency (string) — enum: annually, fortnightly, monthly, weekly — maxLength 45; realEstateRentalEvidenceOfTenancy (boolean); existingMortgageCreditor (string) — maxLength 45; existingMortgageInterestRate (number (float)); existingMortgageBalance (number (float)); existingMortgageRepayment (number (float)); existingMortgageRepaymentFrequency (string) — enum: annually, fortnightly, monthly, weekly — maxLength 15; existingMortgageRepaymentClearing (boolean); motorVehicleType (string) — maxLength 44 — free text; motorVehiceYear (string) — maxLength 12 — sic, spec typo, missing the \"l\" (should read motorVehicleYear); motorVehicleMake (string) — maxLength 164 — display-only; use the `details` field for writes.",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "company",
+        "isdeleted",
+        "deletedby",
+        "deletedon",
+        "parenttype",
+        "parentid",
+        "name",
+        "type",
+        "value",
+        "valuebasis",
+        "details",
+        "institution",
+        "accountname",
+        "accountnumber",
+        "accountbsb",
+        "realestateuseassecurity",
+        "realestatepurpose",
+        "realestatezoning",
+        "address",
+        "realestatetobepurchased",
+        "realestaterentalincome",
+        "realestaterentalincomefrequency",
+        "realestaterentalevidenceoftenancy",
+        "existingmortgagecreditor",
+        "existingmortgageinterestrate",
+        "existingmortgagebalance",
+        "existingmortgagerepayment",
+        "existingmortgagerepaymentfrequency",
+        "existingmortgagerepaymentclearing",
+        "motorvehicletype",
+        "motorvehiceyear",
+        "motorvehiclemake"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "schema:Liability",
+      "type": "schema",
+      "name": "Liability",
+      "summary": "uniqueId (string (uuid)) — maxLength 36; company (string) — internal, maxLength 36; isDeleted (boolean) — internal; deletedBy (string) — internal, maxLength 64; deletedOn (string (date-time)) — internal; parentType (string) — maxLength 20; parentId (string (uuid)) — internal, maxLength 36; name (string) — enum: Commercial Bill, Credit Card, HECS, Hire Purchase, Lease, Line Of Credit, Loan As Guarantor, Maintenance, Mortgage Loan, Other Loan, Outstanding Taxation, Overdraft, Personal Loan, Store Card, Term Loan, Other — maxLength 44; type (string) — enum: account, realEstate, vehicle, standard — maxLength 45; value (number (float)); details (string) — maxLength 164; limit (integer (int32)); institution (string) — maxLength 44; accountName (string) — maxLength 80; accountNumber (string) — maxLength 30; accountBSB (string) — maxLength 15; accountRepayment (number (float)); accountRepaymentFrequency (string) — enum: annually, fortnightly, monthly, weekly — maxLength 15; creditCardType (string) — enum: Amex, Diners, Mastercard, Visa — maxLength 45; accountClearingFromLoan (boolean).",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "company",
+        "isdeleted",
+        "deletedby",
+        "deletedon",
+        "parenttype",
+        "parentid",
+        "name",
+        "type",
+        "value",
+        "details",
+        "limit",
+        "institution",
+        "accountname",
+        "accountnumber",
+        "accountbsb",
+        "accountrepayment",
+        "accountrepaymentfrequency",
+        "creditcardtype",
+        "accountclearingfromloan"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "schema:Category",
+      "type": "schema",
+      "name": "Category",
+      "summary": "uniqueId (string (uuid)) — maxLength 36; categoryName (string) — maxLength 80 — live Finhub values follow a PREF - * / FREQ - * / REVIEW - * naming convention, see the contact-category-name-convention claim node; categoryNotes (string) — maxLength 65535; activeCampaignId (string) — maxLength 10.",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "categoryname",
+        "categorynotes",
+        "activecampaignid"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:MyMarketingTactics",
+      "type": "schema",
+      "name": "MyMarketingTactics",
+      "summary": "uniqueId (string (uuid)) — maxLength 45; itemName (string) — maxLength 45.",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "itemname"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:OpportunitySearchResult",
+      "type": "schema",
+      "name": "OpportunitySearchResult",
+      "summary": "totalCount (integer (int32)) — total matches in DB; count (integer (int32)) — returned in this page; offset (integer (int32)) — as requested; results (array<Opportunity>).",
+      "tags": [
+        "schema",
+        "totalcount",
+        "count",
+        "offset",
+        "results"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:ContactSearchResult",
+      "type": "schema",
+      "name": "ContactSearchResult",
+      "summary": "totalCount (integer (int32)); count (integer (int32)); offset (integer (int32)); results (array<Contact>).",
+      "tags": [
+        "schema",
+        "totalcount",
+        "count",
+        "offset",
+        "results"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:PartnerConfigSearchResult",
+      "type": "schema",
+      "name": "PartnerConfigSearchResult",
+      "summary": "totalCount (integer (int32)); count (integer (int32)); offset (integer (int32)); results (array<PartnerConfig>).",
+      "tags": [
+        "schema",
+        "totalcount",
+        "count",
+        "offset",
+        "results"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:CategorySearchResult",
+      "type": "schema",
+      "name": "CategorySearchResult",
+      "summary": "totalCount (integer (int32)); count (integer (int32)); offset (integer (int32)); results (array<Category>).",
+      "tags": [
+        "schema",
+        "totalcount",
+        "count",
+        "offset",
+        "results"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:Error",
+      "type": "schema",
+      "name": "Error",
+      "summary": "code (integer (int32)) — HTTP status; contactEmail (string (email)); description (string); homeRef (string); reasonPhrase (integer (int32)); uri (string (url)).",
+      "tags": [
+        "schema",
+        "code",
+        "contactemail",
+        "description",
+        "homeref",
+        "reasonphrase",
+        "uri"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:Success",
+      "type": "schema",
+      "name": "Success",
+      "summary": "status (integer (int32)); uniqueId (string (uuid)).",
+      "tags": [
+        "schema",
+        "status",
+        "uniqueid"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:OpportunitySearchParams",
+      "type": "schema",
+      "name": "OpportunitySearchParams",
+      "summary": "name (string); isDeleted (boolean) — default false; statuses (array<string>); lastUpdated (string) — yyyy-mm-dd or yyyy-mm-dd HH:MM:SS, supports ranges; transactionType (string) — default \"all\"; user (string) — CA number; createdOn (string) — date/range; interestOnlyExpiry (string) — date/range; fixedRateExpiry (string) — date/range; confirmedSettlementDate (string) — date/range.",
+      "tags": [
+        "schema",
+        "name",
+        "isdeleted",
+        "statuses",
+        "lastupdated",
+        "transactiontype",
+        "user",
+        "createdon",
+        "interestonlyexpiry",
+        "fixedrateexpiry",
+        "confirmedsettlementdate"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:PartnerConfigSearchParams",
+      "type": "schema",
+      "name": "PartnerConfigSearchParams",
+      "summary": "key (string); partnerId (string).",
+      "tags": [
+        "schema",
+        "key",
+        "partnerid"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:ContactSearchParams",
+      "type": "schema",
+      "name": "ContactSearchParams",
+      "summary": "name (string); isDeleted (boolean) — default false; excludeDoNotMail (boolean) — default false; excludeEmailBounced (boolean) — default false; lastUpdated (string) — date/range; companyName (string); personType (string); categoryId (string); campaignId (string); contactNumber (string); email (string); createdOn (string) — date/range; dateOfBirth (string) — date/range; birthday (string) — date/range (anniversary).",
+      "tags": [
+        "schema",
+        "name",
+        "isdeleted",
+        "excludedonotmail",
+        "excludeemailbounced",
+        "lastupdated",
+        "companyname",
+        "persontype",
+        "categoryid",
+        "campaignid",
+        "contactnumber",
+        "email",
+        "createdon",
+        "dateofbirth",
+        "birthday"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "schema:ContactHookRequestBody",
+      "type": "schema",
+      "name": "ContactHookRequestBody",
+      "summary": "active (boolean) — default true, internal; name (string) — default \"web\", internal; config.subscription_type (string) — enum: All available contacts, Contacts in my branch/office, Contacts where I am the relationship manager; config.content_type (string) — default \"json\", internal; config.url (string) — notification URL, internal; event (string) — enum: Created, Created or updated, Deleted — default \"Created\".",
+      "tags": [
+        "schema",
+        "active",
+        "name",
+        "config.subscription_type",
+        "config.content_type",
+        "config.url",
+        "event"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:OppHookRequestBody",
+      "type": "schema",
+      "name": "OppHookRequestBody",
+      "summary": "active (boolean) — default true, internal; name (string) — default \"web\", internal; config.subscription_type (string) — enum: All available opportunities, Opportunities in my branch/office, Opportunities where I am the agent, Opportunities where I am the admin/supervisor; config.content_type (string) — default \"json\", internal; config.url (string) — notification URL, internal; event (string) — enum: Created, Created or updated, Deleted, Opportunity Status Changed — default \"Created\".",
+      "tags": [
+        "schema",
+        "active",
+        "name",
+        "config.subscription_type",
+        "config.content_type",
+        "config.url",
+        "event"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:WebhookCreationResponse",
+      "type": "schema",
+      "name": "WebhookCreationResponse",
+      "summary": "type (string); id (integer); name (string); active (boolean); events (array<string>); config.content_type (string); config.url (string); updated_at (string); created_at (string); url (string); test_url (string); ping_url (string); last_response.code (string); last_response.status (string); last_response.message (string).",
+      "tags": [
+        "schema",
+        "type",
+        "id",
+        "name",
+        "active",
+        "events",
+        "config.content_type",
+        "config.url",
+        "updated_at",
+        "created_at",
+        "url",
+        "test_url",
+        "ping_url",
+        "last_response.code",
+        "last_response.status",
+        "last_response.message"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "schema:OpportunityExtensionRecord",
+      "type": "schema",
+      "name": "OpportunityExtensionRecord",
+      "summary": "uniqueId (string (uuid)); parentType (\"loan\" | string); parentId (string); key (\"livingExpense\" | \"otherIncome\" | string); value (string) — JSON.stringify(LivingExpenseLineItem[] | OtherIncomeLineItem[]) — a JSON-encoded string, NOT structured JSON; parse client-side, re-stringify the FULL array before PUT.",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "parenttype",
+        "parentid",
+        "key",
+        "value"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:LivingExpenseLineItem",
+      "type": "schema",
+      "name": "LivingExpenseLineItem",
+      "summary": "uniqueId (string) — client-generated UUID v4 for new items (use crypto.randomUUID(), not a website); amount (string) — note: string, not number, per observed payloads; type (string) — e.g. Clothing & Personal Care, Child & Spouse Maintenance (open string union); frequency (string) — enum: Annual, Fortnightly, Monthly, Weekly; splits (array<ExtensionSplit>) — optional on write — if omitted, ownership is split evenly across linked contacts.",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "amount",
+        "type",
+        "frequency",
+        "splits"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:OtherIncomeLineItem",
+      "type": "schema",
+      "name": "OtherIncomeLineItem",
+      "summary": "uniqueId (string); amount (string); type (string) — Income.type enum or open string; frequency (string) — enum: Annual, Fortnightly, Monthly, Weekly; splits (array<ExtensionSplit>) — optional on write, same even-split default as LivingExpenseLineItem.",
+      "tags": [
+        "schema",
+        "uniqueid",
+        "amount",
+        "type",
+        "frequency",
+        "splits"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "schema:ExtensionSplit",
+      "type": "schema",
+      "name": "ExtensionSplit",
+      "summary": "personId (string); percent (number) — percentage ownership/attribution across a linked contact.",
+      "tags": [
+        "schema",
+        "personid",
+        "percent"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:address-country-enum-bug",
+      "type": "concept",
+      "name": "Address.country YAML parsing bug (NO -> false)",
+      "summary": "Spec bug at the source YAML's line 4545: Norway's ISO-3166-1 alpha-2 code `NO` was written unquoted inside the country enum. YAML 1.1 parses the bareword `no` as the boolean `false`, so the generated enum contains a stray boolean instead of the string \"NO\". If building a typed client, patch this manually to the string \"NO\" — the TypeScript types file in this repo already does so (see the `/* fixed: spec had false */` comment on CountryCode).",
+      "tags": [
+        "address",
+        "country",
+        "spec-bug",
+        "yaml",
+        "norway"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:motor-vehicle-year-typo",
+      "type": "concept",
+      "name": "Asset.motorVehiceYear field-name typo",
+      "summary": "The Asset schema's vehicle-year field is spelled `motorVehiceYear` in the spec (missing the \"l\" from Vehicle) — sic, a genuine typo carried through to the live API contract, not a transcription error in this reference. Clients must use the misspelled name on the wire; do not \"fix\" it to motorVehicleYear or requests will silently drop the field.",
+      "tags": [
+        "asset",
+        "motorvehiceyear",
+        "typo",
+        "spec-bug"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:contact-identification-casing",
+      "type": "concept",
+      "name": "Contact.Identification is capitalized, unlike sibling arrays",
+      "summary": "Contact's nested identification-documents array is named `Identification` (capital I) while every sibling array field on Contact — contactMethods, expenses, incomes, addresses, categories — is lowerCamelCase. This inconsistency is in the live spec/API contract itself; a client that lowercases all field names generically will break this one field.",
+      "tags": [
+        "contact",
+        "identification",
+        "casing",
+        "inconsistency"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:contact-dentification-typo",
+      "type": "concept",
+      "name": "Contact-dentification-create operationId typo",
+      "summary": "The POST /contacts/{id}/identification endpoint's operationId is `Contact-dentification-create` — missing the \"I\" from Identification — in the source spec. Purely a spec-metadata typo (doesn't affect the URL path, only generated-client method names if operationId is used for codegen).",
+      "tags": [
+        "contact",
+        "identification",
+        "operationid",
+        "typo"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:opportunity-status-free-text",
+      "type": "concept",
+      "name": "Opportunity.status: spec free-text vs live 30-value constraint",
+      "summary": "The Swagger spec declares Opportunity.status as unconstrained free text (string, maxLength 84, no enum). In practice, live Finhub Mercury CRM data constrains this to exactly 30 canonical pipeline-stage strings (27 active + 3 inactive) — see the loan-status-30-values claim node for the full list. Never hardcode status strings inline; pull from a live source (e.g. list_loan_statuses) rather than trusting the empty spec enum. Note some values include en-dashes (–), not hyphens.",
+      "tags": [
+        "opportunity",
+        "status",
+        "enum",
+        "free-text",
+        "pipeline"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:date-fields-epoch-ms",
+      "type": "concept",
+      "name": "createdOn/lastUpdated/statusLastUpdated/deletedOn are epoch ms, not date-time strings",
+      "summary": "The Swagger spec declares these Opportunity (and likely Contact/Asset/Liability etc.) timestamp fields as `type: string, format: date-time`. Live production data actually returns them as NUMBERS — Unix epoch milliseconds, e.g. 1490756658000 — not \"2017-03-29T00:00:00Z\"-style strings. A client parsing these with a date-string parser will silently produce Invalid Date; use `new Date(epochMs)` instead. This is a format discrepancy between the declared spec and live behaviour, not a documentation gap.",
+      "tags": [
+        "opportunity",
+        "createdon",
+        "lastupdated",
+        "statuslastupdated",
+        "deletedon",
+        "epoch",
+        "date-time",
+        "format-mismatch"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:opportunity-undocumented-fields",
+      "type": "concept",
+      "name": "~20 live Opportunity fields absent from the Swagger spec entirely",
+      "summary": "A live authenticated GET against a real Finhub branch token/API key (schema-only inspection, 2026-07-17) returned roughly 20 top-level Opportunity fields with no equivalent anywhere in the Swagger YAML: volume (new pagination field alongside totalCount/count/offset), deletedByDisplay, lenderDisplayName, peResidualPercentage, peFinanceType, peAssetType, peBuildYear, agentEmail, salePrice, referrerFee, docFee, and an entirely undocumented invoicing sub-system (invoiceId, invoicePaymentReceived, invoicePersonName, invoicePersonAddress, invoiceBrokerReference, invoiceCafStatus), plus applicationPlatform, otherLoanPeople[] and assetLiabilityLinks[] (both empty in the sample, item shapes unconfirmed). Don't assume the Swagger spec is a complete field list for Opportunity.",
+      "tags": [
+        "opportunity",
+        "undocumented",
+        "invoicing",
+        "live-data",
+        "incomplete-spec"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:webpassword-never-log",
+      "type": "concept",
+      "name": "Contact.webPassword is a sensitive field — never log",
+      "summary": "Contact.webPassword (string, format password, maxLength 64) is a live credential field for client-portal web access, gated by the separate webAccess boolean. Must be excluded from logs, error messages, and any general-purpose field-dump tooling.",
+      "tags": [
+        "contact",
+        "webpassword",
+        "webaccess",
+        "pii",
+        "sensitive",
+        "never-log"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:extension-value-json-string",
+      "type": "concept",
+      "name": "extension/* `value` field is a JSON-encoded string, not structured JSON",
+      "summary": "OpportunityExtensionRecord.value (on both the livingExpense and otherIncome extension endpoints) is a JSON.stringify()'d array — e.g. `\"[{\\\"uniqueId\\\":\\\"29a49080-...\\\",\\\"amount\\\":\\\"1000.00\\\",...}]\"` — not a nested JSON array/object as the rest of the API's nested resources are. A client must JSON.parse() it after GET and JSON.stringify() the full array again before PUT. This is the single most surprising field-shape quirk in the whole API.",
+      "tags": [
+        "extension",
+        "livingexpense",
+        "otherincome",
+        "value",
+        "json-string",
+        "quirk"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:extension-put-destructive-replace",
+      "type": "concept",
+      "name": "extension/* PUT is a destructive full-replace, no partial update",
+      "summary": "PUT on either extension/livingExpense or extension/otherIncome replaces the ENTIRE value array — every existing line item not resent is silently deleted. There is no PATCH-style partial-update or append semantic. Client pattern must be fetch-merge-put: GET, JSON.parse the value, mutate the in-memory array, JSON.stringify the FULL result, then PUT.",
+      "tags": [
+        "extension",
+        "put",
+        "destructive",
+        "full-replace",
+        "fetch-merge-put"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:leadsource-silent-noop",
+      "type": "concept",
+      "name": "leadSourceId-only-and-not-found silently no-ops",
+      "summary": "Opportunity lead-source assignment merge logic: if only leadSourceId is given and it doesn't exist, NO assignment happens at all — no error, no creation, just a silent no-op. (Compare: leadSourceDisplay-only always assigns, creating a new Lead Source if needed.) Client code should guard this case explicitly rather than assuming the write succeeded.",
+      "tags": [
+        "opportunity",
+        "leadsourceid",
+        "leadsourcedisplay",
+        "silent-noop",
+        "merge-logic"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:category-name-convention",
+      "type": "concept",
+      "name": "Category.categoryName: spec free-text vs live PREF-/FREQ-/REVIEW- convention",
+      "summary": "The spec declares categoryName as free text (maxLength 80, no enum). Live Finhub production values all follow one of three naming families: `PREF - *` (communication topic preference, e.g. \"PREF - Loan Reminders\"), `FREQ - *` (contact frequency, e.g. \"FREQ - Monthly\"), `REVIEW - *` (review cadence, e.g. \"REVIEW - 12 Monthly\"). This is a broker-group convention, not a Mercury spec constraint — don't use it to validate incoming API responses from other Mercury tenants, only to understand Finhub's own category taxonomy.",
+      "tags": [
+        "category",
+        "categoryname",
+        "pref",
+        "freq",
+        "review",
+        "naming-convention"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:motorvehiclemake-display-only",
+      "type": "concept",
+      "name": "Asset.motorVehicleMake is display-only — use `details` for writes",
+      "summary": "Asset.motorVehicleMake (maxLength 164) is returned on read but is display-only; the field actually used to carry the make value on write (when Asset.type is Motor Vehicle) is `details` (maxLength 164, dual-purpose field). Writing to motorVehicleMake directly has no effect.",
+      "tags": [
+        "asset",
+        "motorvehiclemake",
+        "details",
+        "display-only",
+        "write-quirk"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:nested-entity-crud-rule",
+      "type": "concept",
+      "name": "Nested entity create/update/delete is one PUT, keyed on uniqueId + isDeleted",
+      "summary": "There is no separate create/update/delete endpoint for most nested entities (assets, liabilities, relatedParties on Opportunity; contactMethods, expenses, incomes, Identification, addresses on Contact). A single PUT on the parent handles all three operations, disambiguated purely by payload shape: uniqueId absent -> creates a new nested entity; uniqueId present + isDeleted absent/false -> updates the existing entity; uniqueId present + isDeleted true -> soft-deletes it. The same pattern applied at the top level (PUT { isDeleted: true }) deletes the whole Opportunity/Contact. The one true DELETE verb in the entire API is for webhooks only.",
+      "tags": [
+        "nested-entity",
+        "crud",
+        "uniqueid",
+        "isdeleted",
+        "put",
+        "soft-delete"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:date-range-search-syntax",
+      "type": "concept",
+      "name": "searchParams date-range syntax (start/end, /date, date/, etc.)",
+      "summary": "Date-valued fields inside the URL-encoded searchParams JSON object (OpportunitySearchParams.lastUpdated/createdOn/etc, ContactSearchParams.lastUpdated/createdOn/dateOfBirth/birthday) accept a mini range grammar: \"start/end\" for between two dates, \"date/\" for on-or-after (inclusive), \"/date\" for on-or-before (inclusive), \"date\" for an exact date, \"date time\" for an exact AEST timestamp, and \"start time/end time\" for a timestamp range. The separator accepts `/`, `..`, or the literal word `to`.",
+      "tags": [
+        "searchparams",
+        "date-range",
+        "lastupdated",
+        "createdon",
+        "query-syntax"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "claim:loan-status-30-values",
+      "type": "claim",
+      "name": "Opportunity.status — 30 canonical Finhub pipeline values",
+      "summary": "Pulled live via list_loan_statuses (2026-07-17), cross-checked against a LOAN STATUS NAME export — both sources match exactly. 27 active values: 1. Lead – Discovery; 2. Strategy Appointment Booked & Client Center Portal Send to Clients; 2.1 Appointment Conduct & Completed; 2.2 Follow-Up Required; 2.3 Follow Up Opportunities; 3.0 Awaiting Client Documents; 3.1 Documents Received & Uploaded; 4. Lender Selection & Policy Review; 5. Loan Proposal Sent to Client Via Email; 5.1 Prepare For Application Lodgement; 6. Application Submitted to Lender; 6.1 Lender Queries / Outstanding Items (MIR); 6.2 Pre-Approval Issued; 6.3. Unconditional Approval Issued; 7.0. Loan Documents Issued; 7.1 Documents Returned & Certified; 8.0 Ready for Settlement; 8.1 Settled/Funded; 8.2 Settled – Commission Paid; 8.3 Construction Loan – Progress Payments; 8.4 Loan Currently In Arrear; 9.0 Financial Passport Invite Sent; 9.1 Financial Passport Invite -Active; 9.2 Financial Passport Invite -Expired; 9.3 Mortgage Review – 24 Month; 9.4 Mortgage Review – 30 Month; 9.5 Mortgage Review – 36 Month. 3 inactive values: 12. Loan Discharged; 13. Declined by Lender; 14. Client Not Proceeding. Use these exact strings (including en-dashes, not hyphens) in status filters; omitting a status filter defaults to the active set.",
+      "tags": [
+        "opportunity",
+        "status",
+        "loanstatus",
+        "pipeline-stage",
+        "live-data"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "claim:contact-categories-15-values",
+      "type": "claim",
+      "name": "Category.categoryName — 15 live Finhub contact categories",
+      "summary": "Pulled live via list_contact_categories (2026-07-17). 15 values across 3 families — REVIEW - Client Will Call, REVIEW - 24 Monthly, REVIEW - 12 Monthly, REVIEW - 6 Monthly; PREF - Loan Reminders, PREF - Property Market, PREF - Ad Hoc Only, PREF - RBA Updates, PREF - Lender News, PREF - Investment Property, PREF - First Home Buyer; FREQ - Important Only, FREQ - Half Yearly, FREQ - Monthly, FREQ - Quarterly. Each has a stable uniqueId (e.g. 0634f266-57ad-4678-b6f9-b0d0f613910e = PREF - Loan Reminders).",
+      "tags": [
+        "category",
+        "categoryname",
+        "contact-category",
+        "live-data"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "claim:panel-lenders-live",
+      "type": "claim",
+      "name": "Panel lenders — 10 CDR-connected + 13 non-CDR (mainstream compare group)",
+      "summary": "Pulled live via list_panel_lenders (2026-07-17). CDR-connected (Open Banking-capable, 10): ANZ, CommBank, NAB, Westpac, St.George, Bank of Melbourne, BankSA, Macquarie, ING, Bankwest. Non-CDR panel lenders (13, no Open Banking API — structural, not a data gap): Firstmac, Pepper Money, La Trobe Financial, Resimac, Bluebay, RedZed, Better Choice, Better Mortgage Management, Granite Home Loans, HomeStart Finance, Keystart, OwnHome, Deposit Power. This is a mainstream default-compare subset of a much larger 40-lender CDR set — pass relevance: \"all\" on list_panel_lenders to get the full set.",
+      "tags": [
+        "lender",
+        "panel",
+        "cdr",
+        "open-banking",
+        "live-data"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "flow:create-opportunity-with-nested-entities",
+      "type": "flow",
+      "name": "Create an Opportunity, capturing the returned uniqueId",
+      "summary": "POST /{token}/opportunities with at minimum { opportunityName, amount } returns { uniqueId, emailId }. Nested entities (assets, liabilities, relatedParties) can be included in the same create call without supplying their own uniqueIds — Mercury auto-generates them server-side.",
+      "tags": [
+        "opportunity",
+        "create",
+        "nested-entities"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "POST /{token}/opportunities",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "flow:nested-entity-crud-via-put",
+      "type": "flow",
+      "name": "Nested entity CRUD via a single parent PUT",
+      "summary": "The universal pattern for creating, updating, or soft-deleting nested entities (assets/liabilities/relatedParties on Opportunity; contactMethods/expenses/incomes/Identification/addresses on Contact) — see concept:nested-entity-crud-rule for the exact keying rule.",
+      "tags": [
+        "nested-entity",
+        "crud",
+        "put"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/opportunities/{id}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:nested-entity-crud:create",
+      "type": "step",
+      "name": "uniqueId absent -> create",
+      "summary": "Omit uniqueId on the nested entity object in the PUT payload; Mercury creates a new nested entity and assigns it a uniqueId.",
+      "tags": [
+        "create"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "step:nested-entity-crud:update",
+      "type": "step",
+      "name": "uniqueId present, isDeleted absent/false -> update",
+      "summary": "Include the existing uniqueId with only the changed fields; Mercury merges into the existing nested entity.",
+      "tags": [
+        "update"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "step:nested-entity-crud:delete",
+      "type": "step",
+      "name": "uniqueId present, isDeleted true -> soft-delete",
+      "summary": "Include the existing uniqueId with isDeleted: true; the nested entity (or, at the top level, the whole Opportunity/Contact) is soft-deleted. There is no hard DELETE for these resources.",
+      "tags": [
+        "delete",
+        "soft-delete"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "flow:soft-delete-opportunity",
+      "type": "flow",
+      "name": "Soft-delete a whole Opportunity",
+      "summary": "PUT /{token}/opportunities/{id} with { isDeleted: true } — the same uniqueId+isDeleted convention applied at the top level instead of on a nested entity. There is no hard DELETE for Opportunities or Contacts.",
+      "tags": [
+        "opportunity",
+        "delete",
+        "soft-delete"
+      ],
+      "complexity": "simple",
+      "domainMeta": {
+        "entryPoint": "PUT /{token}/opportunities/{id}",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "flow:search-and-pagination",
+      "type": "flow",
+      "name": "Search & pagination — query params, not a separate verb",
+      "summary": "GET /{token}/opportunities?search=true&count=50&offset=50&sortKey=lastModifiedDate&sortOrder=ASC — search/search=true are equivalent (the param just needs to be present); count max 100 (values above are silently clamped), default 25; offset default 0; sortKey is creationDate|lastModifiedDate (default creationDate); sortOrder is ASC|DESC (default DESC). Every search response returns totalCount (total matches), count (returned this page), offset (as requested). Complex filters go through a URL-encoded JSON object in the searchParams query param, shaped by OpportunitySearchParams/ContactSearchParams — see concept:date-range-search-syntax for the date-range grammar used inside it.",
+      "tags": [
+        "search",
+        "pagination",
+        "count",
+        "offset",
+        "sortkey",
+        "sortorder",
+        "searchparams"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/opportunities",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "flow:lead-source-assignment",
+      "type": "flow",
+      "name": "Lead source assignment merge logic",
+      "summary": "Lead source is assigned via leadSourceId and/or leadSourceDisplay on the Opportunity payload: only leadSourceDisplay given -> assigns if it exists, else creates a new Lead Source and assigns it; only leadSourceId given -> assigns if it exists, else silently no-ops (see concept:leadsource-silent-noop); both given and matching -> assigns normally; both given and not matching -> if leadSourceId exists, only its display name is updated (no assignment); if leadSourceId doesn't exist but the display does, a new Lead Source is created and assigned.",
+      "tags": [
+        "opportunity",
+        "leadsourceid",
+        "leadsourcedisplay",
+        "lead-source"
+      ],
+      "complexity": "moderate",
+      "domainMeta": {
+        "entryPoint": "POST or PUT /{token}/opportunities",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "flow:extension-living-expense-lifecycle",
+      "type": "flow",
+      "name": "Extension record lifecycle (livingExpense / otherIncome)",
+      "summary": "GET first to check for an existing uniqueId (if present, do NOT POST — go straight to PUT); JSON.parse the value string into line items; merge in the client-generated new/changed items (new items need a client-generated UUID v4, e.g. crypto.randomUUID()); JSON.stringify the FULL resulting array and PUT it — this is a destructive full-replace, so every existing line item must be resent or it's silently deleted. splits (percentage ownership across linked contacts) is optional on write; if omitted, ownership is split evenly across all linked contacts.",
+      "tags": [
+        "extension",
+        "livingexpense",
+        "otherincome",
+        "fetch-merge-put"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entryPoint": "GET /{token}/opportunities/{id}/extension/livingExpense",
+        "entryType": "http"
+      }
+    },
+    {
+      "id": "step:extension-living-expense:get-check",
+      "type": "step",
+      "name": "1. GET, check for existing uniqueId",
+      "summary": "If the extension record already has a uniqueId, the record exists — skip POST entirely and go straight to PUT for any change.",
+      "tags": [
+        "extension",
+        "get-check"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "step:extension-living-expense:parse-value",
+      "type": "step",
+      "name": "2. JSON.parse the value string",
+      "summary": "value is a JSON-encoded string, not structured JSON — parse it client-side into LivingExpenseLineItem[] / OtherIncomeLineItem[].",
+      "tags": [
+        "extension",
+        "parse-value"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "step:extension-living-expense:merge-client-side",
+      "type": "step",
+      "name": "3. Merge new/changed line items client-side",
+      "summary": "New items need a client-generated UUID v4 (crypto.randomUUID()). splits is optional — omitted means even split across linked contacts.",
+      "tags": [
+        "extension",
+        "merge-client-side"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "step:extension-living-expense:put-replace",
+      "type": "step",
+      "name": "4. PUT the full array back (destructive replace)",
+      "summary": "JSON.stringify the complete resulting array and PUT it. Any existing item not included is silently deleted — there is no partial-update/append semantic.",
+      "tags": [
+        "extension",
+        "put-replace"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "domain:mercury-api",
+      "target": "domain:opportunities",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:mercury-api",
+      "target": "domain:contacts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:mercury-api",
+      "target": "domain:partner-config-categories",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:mercury-api",
+      "target": "domain:extension-endpoints",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:mercury-api",
+      "target": "domain:live-crm-data",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "domain:mercury-api",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "source:connective-wiki-export",
+      "target": "domain:extension-endpoints",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "source:live-mercury-crm-pull-20260717",
+      "target": "domain:live-crm-data",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "endpoint:opportunity-search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:opportunity-search",
+      "target": "schema:OpportunitySearchResult",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:opportunity-search",
+      "target": "schema:OpportunitySearchParams",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "endpoint:opportunity-create",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:opportunity-create",
+      "target": "schema:Opportunity",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "endpoint:opportunity-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:opportunity-get",
+      "target": "schema:Opportunity",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "endpoint:opportunity-update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:opportunity-update",
+      "target": "schema:Opportunity",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "endpoint:opportunity-trigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:opportunity-trigger",
+      "target": "schema:OppHookRequestBody",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:opportunity-trigger",
+      "target": "schema:WebhookCreationResponse",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "endpoint:delete-opportunity-trigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "endpoint:opportunity-assets-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:opportunity-assets-get",
+      "target": "schema:Asset",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "endpoint:opportunity-asset-create",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:opportunity-asset-create",
+      "target": "schema:Asset",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "endpoint:opportunity-asset-update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:opportunity-asset-update",
+      "target": "schema:Asset",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "endpoint:opportunity-liabilities-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:opportunity-liabilities-get",
+      "target": "schema:Liability",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "endpoint:opportunity-liability-create",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:opportunity-liability-create",
+      "target": "schema:Liability",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "endpoint:opportunity-liability-update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:opportunity-liability-update",
+      "target": "schema:Liability",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "endpoint:opportunity-related-party-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:opportunity-related-party-get",
+      "target": "schema:RelatedParty",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "endpoint:opportunity-related-party-create",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:opportunity-related-party-create",
+      "target": "schema:RelatedParty",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "endpoint:opportunity-related-party-update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:opportunity-related-party-update",
+      "target": "schema:RelatedParty",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:extension-endpoints",
+      "target": "endpoint:extension-livingexpense-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:extension-livingexpense-get",
+      "target": "schema:OpportunityExtensionRecord",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:extension-livingexpense-get",
+      "target": "schema:LivingExpenseLineItem",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:extension-endpoints",
+      "target": "endpoint:extension-livingexpense-create",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:extension-livingexpense-create",
+      "target": "schema:OpportunityExtensionRecord",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:extension-endpoints",
+      "target": "endpoint:extension-livingexpense-update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:extension-livingexpense-update",
+      "target": "schema:OpportunityExtensionRecord",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:extension-endpoints",
+      "target": "endpoint:extension-otherincome-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:extension-otherincome-get",
+      "target": "schema:OpportunityExtensionRecord",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:extension-otherincome-get",
+      "target": "schema:OtherIncomeLineItem",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:extension-endpoints",
+      "target": "endpoint:extension-otherincome-create",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:extension-otherincome-create",
+      "target": "schema:OpportunityExtensionRecord",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:extension-endpoints",
+      "target": "endpoint:extension-otherincome-update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:extension-otherincome-update",
+      "target": "schema:OpportunityExtensionRecord",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-search",
+      "target": "schema:ContactSearchResult",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:contact-search",
+      "target": "schema:ContactSearchParams",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-create",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-create",
+      "target": "schema:Contact",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-get",
+      "target": "schema:Contact",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-update",
+      "target": "schema:Contact",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-trigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-trigger",
+      "target": "schema:ContactHookRequestBody",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:contact-trigger",
+      "target": "schema:WebhookCreationResponse",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:delete-contact-trigger",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-method-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-method-get",
+      "target": "schema:ContactMethod",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-method-create",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-method-create",
+      "target": "schema:ContactMethod",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-method-update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-method-update",
+      "target": "schema:ContactMethod",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-expense-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-expense-get",
+      "target": "schema:Expense",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-expense-create",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-expense-create",
+      "target": "schema:Expense",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-expense-update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-expense-update",
+      "target": "schema:Expense",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-income-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-income-get",
+      "target": "schema:Income",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-income-create",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-income-create",
+      "target": "schema:Income",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-income-update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-income-update",
+      "target": "schema:Income",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-identification-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-identification-get",
+      "target": "schema:Identification",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-dentification-create",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-dentification-create",
+      "target": "schema:Identification",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-identification-update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-identification-update",
+      "target": "schema:Identification",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-address-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-address-get",
+      "target": "schema:Address",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-address-create",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-address-create",
+      "target": "schema:Address",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-address-update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-address-update",
+      "target": "schema:Address",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-employment-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-employment-get",
+      "target": "schema:Employment",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-employment-create",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-employment-create",
+      "target": "schema:Employment",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-employment-update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-employment-update",
+      "target": "schema:Employment",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "endpoint:contact-opportunity-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:contact-opportunity-get",
+      "target": "schema:Opportunity",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:partner-config-categories",
+      "target": "endpoint:partnerconfig-search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:partnerconfig-search",
+      "target": "schema:PartnerConfigSearchResult",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "endpoint:partnerconfig-search",
+      "target": "schema:PartnerConfigSearchParams",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:partner-config-categories",
+      "target": "endpoint:partnerconfig-create",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:partnerconfig-create",
+      "target": "schema:PartnerConfig",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:partner-config-categories",
+      "target": "endpoint:partnerconfig-update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:partnerconfig-update",
+      "target": "schema:PartnerConfig",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:partner-config-categories",
+      "target": "endpoint:category-search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:category-search",
+      "target": "schema:CategorySearchResult",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:partner-config-categories",
+      "target": "endpoint:category-create",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:category-create",
+      "target": "schema:Category",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:partner-config-categories",
+      "target": "endpoint:category-get",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:category-get",
+      "target": "schema:Category",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:partner-config-categories",
+      "target": "endpoint:category-update",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "endpoint:category-update",
+      "target": "schema:Category",
+      "type": "defines_schema",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:partner-config-categories",
+      "target": "schema:PartnerConfig",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:contacts",
+      "target": "schema:Contact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "schema:Contact",
+      "target": "schema:ContactMethod",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "schema:Contact",
+      "target": "schema:Identification",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "schema:Contact",
+      "target": "schema:Expense",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "schema:Contact",
+      "target": "schema:Income",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "schema:Contact",
+      "target": "schema:Address",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "schema:Contact",
+      "target": "schema:Category",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "schema:Contact",
+      "target": "schema:MyMarketingTactics",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "domain:contacts",
+      "target": "schema:ContactMethod",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:contacts",
+      "target": "schema:Identification",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:contacts",
+      "target": "schema:Expense",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:contacts",
+      "target": "schema:Employment",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "schema:Employment",
+      "target": "schema:Income",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "schema:Employment",
+      "target": "schema:Address",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "domain:contacts",
+      "target": "schema:Income",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "schema:Opportunity",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "schema:Opportunity",
+      "target": "schema:RelatedParty",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "schema:Opportunity",
+      "target": "schema:Asset",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "schema:Opportunity",
+      "target": "schema:Liability",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "domain:contacts",
+      "target": "schema:Address",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "schema:RelatedParty",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "schema:Asset",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "schema:Asset",
+      "target": "schema:Address",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "schema:Liability",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:partner-config-categories",
+      "target": "schema:Category",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:contacts",
+      "target": "schema:MyMarketingTactics",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "schema:OpportunitySearchResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "schema:OpportunitySearchResult",
+      "target": "schema:Opportunity",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "domain:contacts",
+      "target": "schema:ContactSearchResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "schema:ContactSearchResult",
+      "target": "schema:Contact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "domain:partner-config-categories",
+      "target": "schema:PartnerConfigSearchResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "schema:PartnerConfigSearchResult",
+      "target": "schema:PartnerConfig",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "domain:partner-config-categories",
+      "target": "schema:CategorySearchResult",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "schema:CategorySearchResult",
+      "target": "schema:Category",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "domain:mercury-api",
+      "target": "schema:Error",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:mercury-api",
+      "target": "schema:Success",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "schema:OpportunitySearchParams",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:partner-config-categories",
+      "target": "schema:PartnerConfigSearchParams",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:contacts",
+      "target": "schema:ContactSearchParams",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:contacts",
+      "target": "schema:ContactHookRequestBody",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "schema:OppHookRequestBody",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:mercury-api",
+      "target": "schema:WebhookCreationResponse",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:extension-endpoints",
+      "target": "schema:OpportunityExtensionRecord",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "schema:OpportunityExtensionRecord",
+      "target": "schema:LivingExpenseLineItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "schema:OpportunityExtensionRecord",
+      "target": "schema:OtherIncomeLineItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "domain:extension-endpoints",
+      "target": "schema:LivingExpenseLineItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "schema:LivingExpenseLineItem",
+      "target": "schema:ExtensionSplit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "domain:extension-endpoints",
+      "target": "schema:OtherIncomeLineItem",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "schema:OtherIncomeLineItem",
+      "target": "schema:ExtensionSplit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "nested field on this schema"
+    },
+    {
+      "source": "domain:extension-endpoints",
+      "target": "schema:ExtensionSplit",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "concept:address-country-enum-bug",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "concept:address-country-enum-bug",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "spec issue found in / relevant to this source"
+    },
+    {
+      "source": "concept:address-country-enum-bug",
+      "target": "schema:Address",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "concept:motor-vehicle-year-typo",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "concept:motor-vehicle-year-typo",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "spec issue found in / relevant to this source"
+    },
+    {
+      "source": "concept:motor-vehicle-year-typo",
+      "target": "schema:Asset",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "concept:contact-identification-casing",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "concept:contact-identification-casing",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "spec issue found in / relevant to this source"
+    },
+    {
+      "source": "concept:contact-identification-casing",
+      "target": "schema:Contact",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "concept:contact-dentification-typo",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "concept:contact-dentification-typo",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "spec issue found in / relevant to this source"
+    },
+    {
+      "source": "concept:contact-dentification-typo",
+      "target": "endpoint:contact-dentification-create",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "concept:opportunity-status-free-text",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "concept:opportunity-status-free-text",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "spec issue found in / relevant to this source"
+    },
+    {
+      "source": "concept:opportunity-status-free-text",
+      "target": "schema:Opportunity",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "concept:date-fields-epoch-ms",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "concept:date-fields-epoch-ms",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "spec issue found in / relevant to this source"
+    },
+    {
+      "source": "concept:date-fields-epoch-ms",
+      "target": "schema:Opportunity",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "concept:opportunity-undocumented-fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "concept:opportunity-undocumented-fields",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "spec issue found in / relevant to this source"
+    },
+    {
+      "source": "concept:opportunity-undocumented-fields",
+      "target": "schema:Opportunity",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.85
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "concept:webpassword-never-log",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "concept:webpassword-never-log",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "spec issue found in / relevant to this source"
+    },
+    {
+      "source": "concept:webpassword-never-log",
+      "target": "schema:Contact",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "concept:extension-value-json-string",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "concept:extension-value-json-string",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "spec issue found in / relevant to this source"
+    },
+    {
+      "source": "concept:extension-value-json-string",
+      "target": "schema:OpportunityExtensionRecord",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "concept:extension-put-destructive-replace",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "concept:extension-put-destructive-replace",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "spec issue found in / relevant to this source"
+    },
+    {
+      "source": "concept:extension-put-destructive-replace",
+      "target": "flow:extension-living-expense-lifecycle",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "concept:leadsource-silent-noop",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "concept:leadsource-silent-noop",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "spec issue found in / relevant to this source"
+    },
+    {
+      "source": "concept:leadsource-silent-noop",
+      "target": "schema:Opportunity",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.75
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "concept:category-name-convention",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "concept:category-name-convention",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "spec issue found in / relevant to this source"
+    },
+    {
+      "source": "concept:category-name-convention",
+      "target": "schema:Category",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "concept:motorvehiclemake-display-only",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "concept:motorvehiclemake-display-only",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "spec issue found in / relevant to this source"
+    },
+    {
+      "source": "concept:motorvehiclemake-display-only",
+      "target": "schema:Asset",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "concept:nested-entity-crud-rule",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "concept:nested-entity-crud-rule",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "spec issue found in / relevant to this source"
+    },
+    {
+      "source": "concept:nested-entity-crud-rule",
+      "target": "flow:nested-entity-crud-via-put",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "concept:date-range-search-syntax",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:mercury-sandbox-swagger-yaml",
+      "target": "concept:date-range-search-syntax",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "spec issue found in / relevant to this source"
+    },
+    {
+      "source": "concept:date-range-search-syntax",
+      "target": "schema:OpportunitySearchParams",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:date-range-search-syntax",
+      "target": "schema:ContactSearchParams",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "claim:loan-status-30-values",
+      "target": "schema:Opportunity",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "claim:loan-status-30-values",
+      "target": "source:live-mercury-crm-pull-20260717",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "claim:loan-status-30-values",
+      "target": "concept:opportunity-status-free-text",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "claim:loan-status-30-values",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "claim:contact-categories-15-values",
+      "target": "schema:Category",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "claim:contact-categories-15-values",
+      "target": "source:live-mercury-crm-pull-20260717",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "claim:contact-categories-15-values",
+      "target": "concept:category-name-convention",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "claim:contact-categories-15-values",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "claim:panel-lenders-live",
+      "target": "domain:opportunities",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "claim:panel-lenders-live",
+      "target": "schema:Opportunity",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "documents the value domain of Opportunity.lender / lenderNameShort"
+    },
+    {
+      "source": "claim:panel-lenders-live",
+      "target": "source:live-mercury-crm-pull-20260717",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:live-crm-data",
+      "target": "claim:panel-lenders-live",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "flow:create-opportunity-with-nested-entities",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:create-opportunity-with-nested-entities",
+      "target": "endpoint:opportunity-create",
+      "type": "routes",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "flow:nested-entity-crud-via-put",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:contacts",
+      "target": "flow:nested-entity-crud-via-put",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "same PUT-based convention applies to Contact's nested sub-resources"
+    },
+    {
+      "source": "flow:nested-entity-crud-via-put",
+      "target": "endpoint:opportunity-update",
+      "type": "routes",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "flow:nested-entity-crud-via-put",
+      "target": "endpoint:contact-update",
+      "type": "routes",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:nested-entity-crud-via-put",
+      "target": "step:nested-entity-crud:create",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.3
+    },
+    {
+      "source": "flow:nested-entity-crud-via-put",
+      "target": "step:nested-entity-crud:update",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:nested-entity-crud-via-put",
+      "target": "step:nested-entity-crud:delete",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "flow:soft-delete-opportunity",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:soft-delete-opportunity",
+      "target": "endpoint:opportunity-update",
+      "type": "routes",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:mercury-api",
+      "target": "flow:search-and-pagination",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "cross-cutting — same search/pagination convention applies to Opportunities and Contacts"
+    },
+    {
+      "source": "flow:search-and-pagination",
+      "target": "endpoint:opportunity-search",
+      "type": "routes",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "flow:search-and-pagination",
+      "target": "endpoint:contact-search",
+      "type": "routes",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "flow:search-and-pagination",
+      "target": "concept:date-range-search-syntax",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "domain:opportunities",
+      "target": "flow:lead-source-assignment",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:lead-source-assignment",
+      "target": "endpoint:opportunity-create",
+      "type": "routes",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:lead-source-assignment",
+      "target": "endpoint:opportunity-update",
+      "type": "routes",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:lead-source-assignment",
+      "target": "concept:leadsource-silent-noop",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:extension-endpoints",
+      "target": "flow:extension-living-expense-lifecycle",
+      "type": "contains_flow",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "flow:extension-living-expense-lifecycle",
+      "target": "endpoint:extension-livingexpense-get",
+      "type": "routes",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "flow:extension-living-expense-lifecycle",
+      "target": "endpoint:extension-livingexpense-create",
+      "type": "routes",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "flow:extension-living-expense-lifecycle",
+      "target": "endpoint:extension-livingexpense-update",
+      "type": "routes",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "flow:extension-living-expense-lifecycle",
+      "target": "endpoint:extension-otherincome-get",
+      "type": "routes",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "flow:extension-living-expense-lifecycle",
+      "target": "endpoint:extension-otherincome-create",
+      "type": "routes",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "flow:extension-living-expense-lifecycle",
+      "target": "endpoint:extension-otherincome-update",
+      "type": "routes",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "flow:extension-living-expense-lifecycle",
+      "target": "concept:extension-value-json-string",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:extension-living-expense-lifecycle",
+      "target": "concept:extension-put-destructive-replace",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "flow:extension-living-expense-lifecycle",
+      "target": "step:extension-living-expense:get-check",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.25
+    },
+    {
+      "source": "flow:extension-living-expense-lifecycle",
+      "target": "step:extension-living-expense:parse-value",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "step:extension-living-expense:get-check",
+      "target": "step:extension-living-expense:parse-value",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "sequential step"
+    },
+    {
+      "source": "flow:extension-living-expense-lifecycle",
+      "target": "step:extension-living-expense:merge-client-side",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.75
+    },
+    {
+      "source": "step:extension-living-expense:parse-value",
+      "target": "step:extension-living-expense:merge-client-side",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "sequential step"
+    },
+    {
+      "source": "flow:extension-living-expense-lifecycle",
+      "target": "step:extension-living-expense:put-replace",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "step:extension-living-expense:merge-client-side",
+      "target": "step:extension-living-expense:put-replace",
+      "type": "flow_step",
+      "direction": "forward",
+      "weight": 0.5,
+      "description": "sequential step"
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:overview",
+      "name": "API Overview",
+      "description": "Root domain, resource-group domains, and source documents for the Mercury Public API.",
+      "nodeIds": [
+        "domain:mercury-api",
+        "domain:opportunities",
+        "domain:contacts",
+        "domain:partner-config-categories",
+        "domain:extension-endpoints",
+        "domain:live-crm-data",
+        "source:mercury-sandbox-swagger-yaml",
+        "source:connective-wiki-export",
+        "source:live-mercury-crm-pull-20260717"
+      ]
+    },
+    {
+      "id": "layer:opportunities-endpoints",
+      "name": "Opportunities — Endpoints",
+      "description": "The 15 documented Opportunity endpoints (opportunity CRUD, webhooks, and nested assets/liabilities/relatedParties).",
+      "nodeIds": [
+        "endpoint:opportunity-search",
+        "endpoint:opportunity-create",
+        "endpoint:opportunity-get",
+        "endpoint:opportunity-update",
+        "endpoint:opportunity-trigger",
+        "endpoint:delete-opportunity-trigger",
+        "endpoint:opportunity-assets-get",
+        "endpoint:opportunity-asset-create",
+        "endpoint:opportunity-asset-update",
+        "endpoint:opportunity-liabilities-get",
+        "endpoint:opportunity-liability-create",
+        "endpoint:opportunity-liability-update",
+        "endpoint:opportunity-related-party-get",
+        "endpoint:opportunity-related-party-create",
+        "endpoint:opportunity-related-party-update"
+      ]
+    },
+    {
+      "id": "layer:contacts-endpoints",
+      "name": "Contacts — Endpoints",
+      "description": "The 25 documented Contact endpoints (contact CRUD, webhooks, and nested contactMethods/expenses/incomes/identification/addresses/employments).",
+      "nodeIds": [
+        "endpoint:contact-search",
+        "endpoint:contact-create",
+        "endpoint:contact-get",
+        "endpoint:contact-update",
+        "endpoint:contact-trigger",
+        "endpoint:delete-contact-trigger",
+        "endpoint:contact-method-get",
+        "endpoint:contact-method-create",
+        "endpoint:contact-method-update",
+        "endpoint:contact-expense-get",
+        "endpoint:contact-expense-create",
+        "endpoint:contact-expense-update",
+        "endpoint:contact-income-get",
+        "endpoint:contact-income-create",
+        "endpoint:contact-income-update",
+        "endpoint:contact-identification-get",
+        "endpoint:contact-dentification-create",
+        "endpoint:contact-identification-update",
+        "endpoint:contact-address-get",
+        "endpoint:contact-address-create",
+        "endpoint:contact-address-update",
+        "endpoint:contact-employment-get",
+        "endpoint:contact-employment-create",
+        "endpoint:contact-employment-update",
+        "endpoint:contact-opportunity-get"
+      ]
+    },
+    {
+      "id": "layer:partner-categories-endpoints",
+      "name": "Partner Config & Categories — Endpoints",
+      "description": "PartnerConfig and Category CRUD endpoints.",
+      "nodeIds": [
+        "endpoint:partnerconfig-search",
+        "endpoint:partnerconfig-create",
+        "endpoint:partnerconfig-update",
+        "endpoint:category-search",
+        "endpoint:category-create",
+        "endpoint:category-get",
+        "endpoint:category-update"
+      ]
+    },
+    {
+      "id": "layer:extension-endpoints",
+      "name": "Extension Endpoints (undocumented)",
+      "description": "The 6 livingExpense/otherIncome endpoints missing from the Swagger spec, plus their flow and step nodes.",
+      "nodeIds": [
+        "endpoint:extension-livingexpense-get",
+        "endpoint:extension-livingexpense-create",
+        "endpoint:extension-livingexpense-update",
+        "endpoint:extension-otherincome-get",
+        "endpoint:extension-otherincome-create",
+        "endpoint:extension-otherincome-update",
+        "flow:extension-living-expense-lifecycle",
+        "step:extension-living-expense:get-check",
+        "step:extension-living-expense:parse-value",
+        "step:extension-living-expense:merge-client-side",
+        "step:extension-living-expense:put-replace"
+      ]
+    },
+    {
+      "id": "layer:core-schemas",
+      "name": "Core Schemas",
+      "description": "Opportunity, Contact, Address, and the primary nested-entity schemas (Asset, Liability, RelatedParty, Employment, ContactMethod, Identification, Expense, Income).",
+      "nodeIds": [
+        "schema:Opportunity",
+        "schema:Contact",
+        "schema:Address",
+        "schema:Asset",
+        "schema:Liability",
+        "schema:RelatedParty",
+        "schema:Employment",
+        "schema:ContactMethod",
+        "schema:Identification",
+        "schema:Expense",
+        "schema:Income"
+      ]
+    },
+    {
+      "id": "layer:support-schemas",
+      "name": "Config, Search & Webhook Schemas",
+      "description": "PartnerConfig, Category, MyMarketingTactics, the four SearchResult wrappers, the three SearchParams shapes, Error/Success, and the webhook request/response shapes.",
+      "nodeIds": [
+        "schema:PartnerConfig",
+        "schema:Category",
+        "schema:MyMarketingTactics",
+        "schema:OpportunitySearchResult",
+        "schema:ContactSearchResult",
+        "schema:PartnerConfigSearchResult",
+        "schema:CategorySearchResult",
+        "schema:OpportunitySearchParams",
+        "schema:PartnerConfigSearchParams",
+        "schema:ContactSearchParams",
+        "schema:Error",
+        "schema:Success",
+        "schema:ContactHookRequestBody",
+        "schema:OppHookRequestBody",
+        "schema:WebhookCreationResponse"
+      ]
+    },
+    {
+      "id": "layer:extension-schemas",
+      "name": "Extension Schemas (TS-types-only)",
+      "description": "OpportunityExtensionRecord and its line-item shapes — defined in the generated TypeScript types but absent from the Swagger spec's own schema catalog.",
+      "nodeIds": [
+        "schema:OpportunityExtensionRecord",
+        "schema:LivingExpenseLineItem",
+        "schema:OtherIncomeLineItem",
+        "schema:ExtensionSplit"
+      ]
+    },
+    {
+      "id": "layer:usage-flows",
+      "name": "Usage Flows",
+      "description": "Documented usage patterns: creating opportunities with nested entities, the universal nested-entity CRUD-via-PUT rule, soft-delete, search/pagination, and lead-source assignment.",
+      "nodeIds": [
+        "flow:create-opportunity-with-nested-entities",
+        "flow:nested-entity-crud-via-put",
+        "step:nested-entity-crud:create",
+        "step:nested-entity-crud:update",
+        "step:nested-entity-crud:delete",
+        "flow:soft-delete-opportunity",
+        "flow:search-and-pagination",
+        "flow:lead-source-assignment"
+      ]
+    },
+    {
+      "id": "layer:field-quirks-and-live-data",
+      "name": "Field-Level Quirks & Live Data",
+      "description": "Spec bugs, format mismatches, undocumented fields, and live-CRM-constrained value sets — the knowledge that doesn't live in the formal schema at all.",
+      "nodeIds": [
+        "concept:address-country-enum-bug",
+        "concept:motor-vehicle-year-typo",
+        "concept:contact-identification-casing",
+        "concept:contact-dentification-typo",
+        "concept:opportunity-status-free-text",
+        "concept:date-fields-epoch-ms",
+        "concept:opportunity-undocumented-fields",
+        "concept:webpassword-never-log",
+        "concept:extension-value-json-string",
+        "concept:extension-put-destructive-replace",
+        "concept:leadsource-silent-noop",
+        "concept:category-name-convention",
+        "concept:motorvehiclemake-display-only",
+        "concept:nested-entity-crud-rule",
+        "concept:date-range-search-syntax",
+        "claim:loan-status-30-values",
+        "claim:contact-categories-15-values",
+        "claim:panel-lenders-live"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Start here: the Mercury Public API at a glance",
+      "description": "The Mercury Public API (Sandbox) is Connective's loan/CRM REST API — Swagger 2.0, host apis.connective.com.au, basePath /mercury/v1. Auth is a {token} URL path segment plus an x-api-key header (not a bearer header). This tour walks through its 4 documented resource groups, 6 undocumented extension endpoints, 30 schema shapes, and the field-level gotchas that only show up in live production data.",
+      "nodeIds": [
+        "domain:mercury-api"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Opportunities: the loan/deal record",
+      "description": "An Opportunity is the loan-application-level object: amount, lender, status, settlement dates. It nests assets, liabilities, and relatedParties. Notice status is spec'd as free text but production actually constrains it to 30 canonical pipeline-stage strings.",
+      "nodeIds": [
+        "domain:opportunities",
+        "schema:Opportunity",
+        "claim:loan-status-30-values"
+      ],
+      "languageLesson": "A REST field spec'd as free-text string doesn't mean the producing system treats it as unconstrained — always check live data before trusting an empty enum."
+    },
+    {
+      "order": 3,
+      "title": "Creating an Opportunity with nested entities in one call",
+      "description": "POST /{token}/opportunities can include assets/liabilities/relatedParties in the same create call without supplying their own uniqueIds — Mercury auto-generates them server-side. The response returns { uniqueId, emailId }.",
+      "nodeIds": [
+        "flow:create-opportunity-with-nested-entities",
+        "endpoint:opportunity-create"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "The universal nested-entity CRUD rule",
+      "description": "There's no separate create/update/delete endpoint for nested entities. One PUT on the parent handles all three, disambiguated by uniqueId + isDeleted: absent uniqueId creates; present uniqueId with isDeleted absent/false updates; present uniqueId with isDeleted: true soft-deletes. The same pattern deletes the whole Opportunity at the top level. The one true DELETE verb in the entire API is for webhooks only.",
+      "nodeIds": [
+        "flow:nested-entity-crud-via-put",
+        "step:nested-entity-crud:create",
+        "step:nested-entity-crud:update",
+        "step:nested-entity-crud:delete",
+        "concept:nested-entity-crud-rule"
+      ],
+      "languageLesson": "Encoding CRUD intent into payload shape (presence/absence of a key field) instead of the HTTP verb is a common pattern in CRM-style APIs that predate REST purism — worth recognising rather than fighting when building a client."
+    },
+    {
+      "order": 5,
+      "title": "Contacts and their nested sub-resources",
+      "description": "Contact mirrors Opportunity's nesting pattern (contactMethods, expenses, incomes, addresses, employments, and — inconsistently capitalized — Identification). Always filter isDeleted=false unless you explicitly want deleted records.",
+      "nodeIds": [
+        "domain:contacts",
+        "schema:Contact",
+        "concept:contact-identification-casing"
+      ]
+    },
+    {
+      "order": 6,
+      "title": "Search & pagination: query params, not a separate verb",
+      "description": "GET with search=true, count (max 100, default 25), offset (default 0), sortKey, sortOrder. Complex filters go through a URL-encoded JSON object in searchParams, which supports a compact date-range grammar (start/end, /date, date/, etc).",
+      "nodeIds": [
+        "flow:search-and-pagination",
+        "concept:date-range-search-syntax"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "The extension endpoints: entirely missing from the spec",
+      "description": "livingExpense and otherIncome exist as real production endpoints under /opportunities/{id}/extension/* but appear nowhere in the Swagger YAML — only in a wiki export. Their value field is a JSON-encoded STRING, not structured JSON, and PUT is a destructive full-replace of the entire array.",
+      "nodeIds": [
+        "domain:extension-endpoints",
+        "flow:extension-living-expense-lifecycle",
+        "concept:extension-value-json-string",
+        "concept:extension-put-destructive-replace"
+      ],
+      "languageLesson": "When a spec is auto-generated from a subset of the real API surface, always look for a secondary source (wiki, changelog, live traffic capture) before assuming the spec is complete."
+    },
+    {
+      "order": 8,
+      "title": "Format mismatch: dates come back as epoch milliseconds",
+      "description": "The spec declares createdOn/lastUpdated/statusLastUpdated/deletedOn as date-time strings. Live production actually returns Unix epoch milliseconds (numbers). Parsing with a date-string parser silently produces Invalid Date — use new Date(epochMs) instead.",
+      "nodeIds": [
+        "concept:date-fields-epoch-ms"
+      ]
+    },
+    {
+      "order": 9,
+      "title": "Fields production has that the spec doesn't",
+      "description": "A live schema-only inspection turned up roughly 20 Opportunity fields absent from the Swagger spec entirely, including a whole undocumented invoicing sub-system (invoiceId, invoiceCafStatus, etc). Never assume the spec is a complete field list.",
+      "nodeIds": [
+        "concept:opportunity-undocumented-fields",
+        "schema:Opportunity"
+      ]
+    },
+    {
+      "order": 10,
+      "title": "Known spec bugs worth patching in a typed client",
+      "description": "Address.country has a YAML bug where Norway's ISO code NO parses as the boolean false instead of the string \"NO\". Asset.motorVehiceYear is a genuine typo in the wire contract (not a typo to fix). Both must be handled as-is by any client that talks to the real API.",
+      "nodeIds": [
+        "concept:address-country-enum-bug",
+        "concept:motor-vehicle-year-typo",
+        "schema:Address",
+        "schema:Asset"
+      ]
+    }
+  ]
+}
