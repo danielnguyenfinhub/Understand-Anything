@@ -27,6 +27,7 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildFieldEnumModel } from "./lib/mercury-field-enum-model.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..");
@@ -1096,6 +1097,171 @@ edge(CLAIM_LENDERS, "schema:Opportunity", "documents", { weight: 0.6, descriptio
 edge(CLAIM_LENDERS, SOURCE_LIVE_PULL, "cites", { weight: 1 });
 edge(DOMAIN_LIVE_DATA, CLAIM_LENDERS, "contains", { weight: 0.6 });
 
+// ───────────────────────── field & UI-enum model ─────────────────────────
+//
+// Everything below this point is derived from the live-audited OpenAPI contract
+// and the enum catalog (see scripts/lib/mercury-field-enum-model.mjs) rather
+// than hand-typed, so a contract refresh flows straight through: new enums, new
+// values and new field bindings appear without touching this file. The curated
+// half — which control each enum implies and what makes a naive binding wrong —
+// lives in the model module alongside the derivation.
+
+const model = buildFieldEnumModel();
+
+const SOURCE_LIVE_AUDITED = node({
+  id: "source:live-audited-contract-20260718",
+  type: "source",
+  name: "Live-audited contract + enum catalog (2026-07-18)",
+  summary: `OpenAPI 3.1 re-issue of the Mercury contract, reconciled against a read-only census of 2,402 opportunities, 4,604 contacts and 15 categories. Supersedes the Swagger 2.0 source for field-level questions: ${model.stats.paths} path templates, ${model.stats.operations} operations, ${model.stats.objectSchemas} object schemas, ${model.stats.fields} fields, and a separate catalog of ${model.stats.enums} enums totalling ${model.stats.enumValues} values. Every path carries an x-evidence marker. What it still does NOT establish: requiredness, read-only/write-only flags, validation boundaries, create/update semantics, pagination limits, and the item shapes of valueObjectOwnershipList, otherLoanPeople and assetLiabilityLinks — all of which need sandbox write probes. Also fixes the Address.country YAML bug: Norway is the string "NO" here, not boolean false.`,
+  tags: ["openapi-3.1", "live-audit", "enum-catalog", "primary-source", "2026-07-18"],
+  complexity: "simple",
+  knowledgeMeta: { category: "primary-source" },
+});
+
+const DOMAIN_FIELD_MODEL = node({
+  id: "domain:field-enum-model",
+  type: "domain",
+  name: "Field & UI-enum model",
+  summary: `The form-building view of the API: ${model.stats.fields} fields across ${model.stats.objectSchemas} object schemas, ${model.stats.enums} enums covering ${model.stats.enumValues} values, and the mapping from each enum to the UI control it implies. ${model.stats.apiValidatedEnums} enums are validated by the contract and bind to ${model.stats.enumBoundFields} fields; ${model.stats.catalogOnlyEnums} are branch catalogs against free-text fields and must not be rendered as closed dropdowns. A further ${model.stats.softEnumFields} fields are plain strings on the wire but constrained in practice, and ${model.stats.hazardGroups} groups of fields carry format or writability traps that no enum describes.`,
+  tags: ["fields", "enums", "ui", "forms", "controls", "validation"],
+  complexity: "complex",
+  domainMeta: {
+    entities: ["Enum", "Field", "UI control", "Soft enum", "Field hazard"],
+    businessRules: [
+      "A closed dropdown is only safe where the contract validates the value set; catalog-derived lists must stay creatable.",
+      "Control choice follows option count unless the data shape overrides it.",
+      "Fields the API returns for display only must render read-only, not as editable inputs whose edits are discarded.",
+    ],
+  },
+});
+edge(DOMAIN_ROOT, DOMAIN_FIELD_MODEL, "contains", { weight: 0.9 });
+edge(SOURCE_LIVE_AUDITED, DOMAIN_FIELD_MODEL, "documents", { weight: 1 });
+edge(SOURCE_LIVE_AUDITED, DOMAIN_ROOT, "documents", { weight: 0.9 });
+
+const CONCEPT_CONTROL_RULES = node({
+  id: "concept:ui-control-selection-rules",
+  type: "concept",
+  name: "Choosing a control: option-count thresholds",
+  summary:
+    "Default control follows the option count — " +
+    model.controlRules
+      .map((r) => `${r.control} (${r.maxOptions === null ? ">60" : `≤${r.maxOptions}`})`)
+      .join(", ") +
+    ". The thresholds are deliberately conservative in both directions: a 51-option native <select> makes a user scroll blind, and a typeahead on a 4-option enum adds a click that used to be zero. Two things override the arithmetic — a free-text field (which needs a creatable control however short its catalog) and an enum whose values gate other form sections rather than merely record a choice.",
+  tags: ["ui", "controls", "radio", "select", "combobox", "typeahead", "thresholds"],
+  complexity: "simple",
+});
+edge(DOMAIN_FIELD_MODEL, CONCEPT_CONTROL_RULES, "contains", { weight: 0.8 });
+
+const existingSchemaIds = new Set(nodes.filter((n) => n.type === "schema").map((n) => n.id));
+
+/** Link a node to `Schema.field` references, one edge per distinct schema that exists in the graph. */
+function linkToSchemas(fromId, fieldRefs, type, weight, describe) {
+  const schemasTouched = [...new Set(fieldRefs.map((f) => f.split(".")[0]))];
+  for (const schemaName of schemasTouched) {
+    const schemaId = `schema:${schemaName}`;
+    if (!existingSchemaIds.has(schemaId)) continue;
+    const fields = fieldRefs.filter((f) => f.startsWith(`${schemaName}.`));
+    edge(fromId, schemaId, type, { weight, description: describe(fields) });
+  }
+}
+
+const ENUM_NODE_IDS = [];
+for (const e of model.enums) {
+  const bindingText = e.isApiValidated
+    ? `Carried by ${e.boundFields.length} field${e.boundFields.length === 1 ? "" : "s"}: ${e.boundFields.join(", ")}.`
+    : `No field binds this as an enum — ${e.softFor.length > 0 ? `${e.softFor.join(" / ")} ${e.softFor.length === 1 ? "is" : "are"} free text on the wire` : "the field it describes is free text on the wire"}, so these values are a catalog, not a constraint.`;
+  const id = node({
+    id: `enum:${e.name}`,
+    type: "schema",
+    name: `${e.name} (${e.valueCount} values → ${e.control})`,
+    summary: [
+      `${e.label}. ${e.valueCount} values. Suggested control: ${e.control} — ${e.controlRationale}`,
+      bindingText,
+      `Values: ${e.valueCount > 24 ? `${e.values.slice(0, 24).join(", ")}, … (+${e.valueCount - 24} more)` : e.values.join(", ")}`,
+      ...e.hazards,
+    ].join(" "),
+    tags: [
+      "enum",
+      "ui-control",
+      e.control,
+      e.isApiValidated ? "api-validated" : "catalog-only",
+      e.name.toLowerCase(),
+      ...e.boundFields.map((f) => f.split(".")[1].toLowerCase()),
+    ],
+    complexity: e.hazards.length > 1 ? "complex" : e.hazards.length === 1 ? "moderate" : "simple",
+  });
+  ENUM_NODE_IDS.push(id);
+  edge(DOMAIN_FIELD_MODEL, id, "contains", { weight: 0.6 });
+  edge(CONCEPT_CONTROL_RULES, id, "related", { weight: 0.4, description: `${e.valueCount} options → ${e.control}` });
+  linkToSchemas(id, e.boundFields, "validates", 0.8, (fields) => `constrains ${fields.join(", ")}`);
+  linkToSchemas(id, e.softFor, "related", 0.6, (fields) => `catalog of observed values for ${fields.join(", ")} (free text on the wire)`);
+}
+
+const SOFT_ENUM_NODE_IDS = [];
+for (const s of model.softEnumFields) {
+  const slug = s.field.replace(/\./g, "-").toLowerCase();
+  const knownValues = s.values ?? [];
+  const id = node({
+    id: `soft-enum:${slug}`,
+    type: "concept",
+    name: `${s.field} — string on the wire, constrained in practice`,
+    summary: [
+      `${s.field} is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: ${s.control}.`,
+      knownValues.length > 0 ? `Known values: ${knownValues.join(", ")}.` : "",
+      s.catalog?.length ? `Draws its vocabulary from ${s.catalog.join(" + ")}.` : "",
+      s.note,
+    ]
+      .filter(Boolean)
+      .join(" "),
+    tags: ["soft-enum", "free-text", s.control, s.field.split(".")[1].toLowerCase(), s.field.split(".")[0].toLowerCase()],
+    complexity: "moderate",
+  });
+  SOFT_ENUM_NODE_IDS.push(id);
+  edge(DOMAIN_FIELD_MODEL, id, "contains", { weight: 0.5 });
+  linkToSchemas(id, [s.field], "related", 0.6, (fields) => `unvalidated field ${fields.join(", ")}`);
+  for (const catalogName of s.catalog ?? []) {
+    edge(id, `enum:${catalogName}`, "related", { weight: 0.7, description: "suggested values come from this catalog" });
+  }
+}
+
+const HAZARD_NODE_IDS = [];
+for (const h of model.fieldHazards) {
+  const fieldRefs = h.fields.filter((f) => f.includes(".") && !f.startsWith("GET "));
+  const id = node({
+    id: `concept:field-hazard:${h.id}`,
+    type: "concept",
+    name: `Field hazard (${h.severity}): ${h.id.replace(/-/g, " ")}`,
+    summary: `${h.note} Affects: ${h.fields.join(", ")}.`,
+    tags: [
+      "field-hazard",
+      h.severity,
+      h.id,
+      ...fieldRefs.map((f) => f.split(".")[1].toLowerCase()),
+    ],
+    complexity: h.severity === "critical" ? "complex" : h.severity === "high" ? "moderate" : "simple",
+  });
+  HAZARD_NODE_IDS.push(id);
+  edge(DOMAIN_FIELD_MODEL, id, "contains", { weight: h.severity === "critical" ? 0.9 : 0.6 });
+  linkToSchemas(id, fieldRefs, "related", 0.7, (fields) => `affects ${fields.join(", ")}`);
+}
+
+// Tie the new field-level hazards back to the quirk concepts the earlier pass
+// already recorded, so the two vocabularies don't read as unrelated findings.
+edge("concept:field-hazard:webpassword-never-render", "concept:webpassword-never-log", "related", { weight: 0.9 });
+edge("concept:field-hazard:date-epoch-or-string", "concept:date-fields-epoch-ms", "related", { weight: 0.9 });
+edge("concept:field-hazard:extension-put-full-replace", "concept:extension-put-destructive-replace", "related", { weight: 0.9 });
+edge("concept:field-hazard:extension-put-full-replace", "concept:extension-value-json-string", "related", { weight: 0.8 });
+edge("concept:field-hazard:readonly-hydrated-fields", "concept:motorvehiclemake-display-only", "related", { weight: 0.9 });
+edge("concept:field-hazard:field-name-typo-is-the-contract", "concept:motor-vehicle-year-typo", "related", { weight: 0.9 });
+edge("concept:field-hazard:casing-duplicates", "concept:contact-identification-casing", "related", { weight: 0.9 });
+edge("enum:CountryCode", "concept:address-country-enum-bug", "related", { weight: 0.8 });
+edge("enum:LoanStatusActive", "concept:opportunity-status-free-text", "related", { weight: 0.9 });
+edge("enum:LoanStatusActive", CLAIM_STATUS, "cites", { weight: 0.9 });
+edge("enum:LoanStatusInactive", CLAIM_STATUS, "cites", { weight: 0.9 });
+edge("enum:FinhubContactCategoryName", CLAIM_CATEGORIES, "cites", { weight: 0.9 });
+edge("enum:FinhubContactCategoryName", "concept:category-name-convention", "related", { weight: 0.9 });
+
 // ───────────────────────── flows & steps ─────────────────────────
 
 const FLOW_CREATE_OPP = node({
@@ -1281,6 +1447,18 @@ const layers = [
     nodeIds: [FLOW_CREATE_OPP, FLOW_NESTED_CRUD, STEP_CREATE, STEP_UPDATE, STEP_DELETE, FLOW_SOFT_DELETE, FLOW_SEARCH, FLOW_LEAD_SOURCE],
   },
   {
+    id: "layer:enums-and-ui-controls",
+    name: "Enums & UI Controls",
+    description: `All ${model.stats.enums} enums (${model.stats.enumValues} values), each mapped to the UI control its option count and data shape imply, and to the fields that carry it. ${model.stats.catalogOnlyEnums} of them are branch catalogs against free-text fields — tagged catalog-only, and unsafe as closed dropdowns.`,
+    nodeIds: [DOMAIN_FIELD_MODEL, CONCEPT_CONTROL_RULES, ...ENUM_NODE_IDS],
+  },
+  {
+    id: "layer:soft-enums-and-field-hazards",
+    name: "Soft Enums & Field Hazards",
+    description: `The ${model.stats.softEnumFields} fields the contract types as plain strings but which are constrained in practice, plus ${model.stats.hazardGroups} groups of format, casing and writability traps that no enum describes — epoch-or-string dates, booleans serialised as strings, money as a string on the extension routes, display-only fields, and the one field that must never reach a UI at all.`,
+    nodeIds: [...SOFT_ENUM_NODE_IDS, ...HAZARD_NODE_IDS],
+  },
+  {
     id: "layer:field-quirks-and-live-data",
     name: "Field-Level Quirks & Live Data",
     description: "Spec bugs, format mismatches, undocumented fields, and live-CRM-constrained value sets — the knowledge that doesn't live in the formal schema at all.",
@@ -1364,6 +1542,43 @@ const tour = [
       "Address.country has a YAML bug where Norway's ISO code NO parses as the boolean false instead of the string \"NO\". Asset.motorVehiceYear is a genuine typo in the wire contract (not a typo to fix). Both must be handled as-is by any client that talks to the real API.",
     nodeIds: ["concept:address-country-enum-bug", "concept:motor-vehicle-year-typo", "schema:Address", "schema:Asset"],
   },
+  {
+    order: 11,
+    title: `The enum layer: ${model.stats.enums} value sets, only ${model.stats.apiValidatedEnums} of them enforced`,
+    description: `${model.stats.enumBoundFields} fields across the API are constrained to a fixed value set by the contract. Three more value sets — the active and closed pipeline stages, and the contact-category names — look exactly like enums and are catalogued alongside them, but the fields they describe (Opportunity.status, Category.categoryName) are plain strings on the wire. Rendering those as closed dropdowns breaks the first time the branch adds a stage. The distinction is carried on every enum node as the api-validated / catalog-only tag.`,
+    nodeIds: [DOMAIN_FIELD_MODEL, "enum:LoanStatusActive", "enum:FinhubContactCategoryName", "enum:AssetLiabilityType"],
+    languageLesson:
+      "\"Has a documented list of values\" and \"rejects values outside that list\" are independent properties. Conflating them is how a client ends up unable to represent data the server will happily store.",
+  },
+  {
+    order: 12,
+    title: "From option count to control — and when to override it",
+    description:
+      "Two options is a radio, twelve is a dropdown, fifty needs type-to-filter and two hundred and fifty needs a typeahead that never renders the full list. That arithmetic gets you most of the way. It gets overridden twice: for free-text fields, where even a three-value catalog needs a creatable control; and for AssetLiabilityType, whose four values don't record a choice so much as decide which half of the form exists — realEstate reveals the address and mortgage groups, vehicle reveals the motorVehicle group, account reveals the BSB group.",
+    nodeIds: [CONCEPT_CONTROL_RULES, "enum:Gender", "enum:CountryCode", "enum:DocumentType", "enum:AssetLiabilityType"],
+  },
+  {
+    order: 13,
+    title: "Enums that collide, and the pairs you will wire up backwards",
+    description:
+      "Frequency and FrequencyLower are the same concept in two casings, and Annual maps to annually rather than annual, so a shared frequency control needs a word map, not toLowerCase(). Contact.employmentStatus is a 9-value enum while Employment.employmentStatus is free text holding Primary/Secondary/Previous — same name, different entity, different vocabulary. And Opportunity.transactionType carries OpportunityCategory while the adjacent tranxType carries OpportunityTranxType: near-identical names, unrelated value sets, adjacent in every payload.",
+    nodeIds: ["enum:Frequency", "enum:FrequencyLower", "enum:EmploymentStatusContact", "enum:OpportunityCategory", "enum:OpportunityTranxType"],
+    languageLesson:
+      "When two fields in the same payload have near-identical names, assume nothing from the naming and check which value set each one actually accepts — the cost of guessing wrong is data that validates and means the wrong thing.",
+  },
+  {
+    order: 14,
+    title: "The traps that aren't enums",
+    description:
+      "A form gets these wrong regardless of how well it handles the value sets. Dates come back as epoch milliseconds or strings depending on the endpoint. isNCCPEnabled is sometimes the string \"true\". The extension line items carry amount as a string while every other money field in the API is a number. Asset.motorVehicleMake is display-only — the make is written through details. And Contact.webPassword shows up in GET responses: strip it at the wire boundary so it never reaches client state at all.",
+    nodeIds: [
+      "concept:field-hazard:webpassword-never-render",
+      "concept:field-hazard:date-epoch-or-string",
+      "concept:field-hazard:amount-as-string",
+      "concept:field-hazard:readonly-hydrated-fields",
+      "concept:field-hazard:casing-duplicates",
+    ],
+  },
 ];
 
 // ───────────────────────── assemble & write ─────────────────────────
@@ -1371,11 +1586,11 @@ const tour = [
 const graph = {
   version: "1.0.0",
   project: {
-    name: "Mercury Public API (Sandbox) — Field Knowledge",
-    languages: ["yaml", "typescript"],
-    frameworks: ["Swagger 2.0"],
+    name: "Mercury Public API (Sandbox) — Field & UI-Enum Knowledge",
+    languages: ["yaml", "json", "typescript"],
+    frameworks: ["Swagger 2.0", "OpenAPI 3.1"],
     description:
-      "A hand-curated knowledge graph of Connective's Mercury Public API (Sandbox) — every documented endpoint and schema field, the 6 endpoints and ~20 Opportunity fields production has that the spec doesn't, spec bugs, and live-CRM-constrained enum values pulled from Finhub's connected Mercury CRM on 2026-07-17.",
+      `A knowledge graph of Connective's Mercury Public API (Sandbox) — every documented endpoint and schema field, the 6 endpoints and ~20 Opportunity fields production has that the spec doesn't, spec bugs, and live-CRM-constrained enum values pulled from Finhub's connected Mercury CRM on 2026-07-17. Layered on top: the field & UI-enum model derived from the 2026-07-18 live-audited OpenAPI contract — ${model.stats.fields} fields across ${model.stats.objectSchemas} object schemas, ${model.stats.enums} enums (${model.stats.enumValues} values) each mapped to the UI control it implies, ${model.stats.softEnumFields} free-text-but-constrained fields, and ${model.stats.hazardGroups} groups of format and writability traps.`,
     analyzedAt: "2026-07-18T00:00:00.000Z",
     gitCommitHash: "n/a",
   },

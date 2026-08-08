@@ -1,0 +1,6995 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Mercury Public API \u2014 Live-Audited Contract",
+    "version": "2026-07-18",
+    "description": "Derived from supplied Swagger 2.0 reference and read-only live schema census. `x-evidence` identifies source confidence. Create/update requiredness and field writability remain unverified unless stated. The supplied reference enumerates 33 distinct path templates (with 53 operations); its headline endpoint count is not used as a contract assertion. The supplied reference enumerates 33 distinct path templates (with 53 operations); its headline endpoint count is not used as a contract assertion."
+  },
+  "servers": [
+    {
+      "url": "https://apis.connective.com.au/mercury/v1",
+      "description": "Mercury API root; branch token is a required path parameter."
+    }
+  ],
+  "paths": {
+    "/{token}/opportunities": {
+      "get": {
+        "operationId": "get_token_opportunities",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Opportunity"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean",
+              "const": true
+            },
+            "description": "Confirmed required by live collection reads."
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_token_opportunities",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Opportunity"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Opportunity"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/opportunities/{id}": {
+      "get": {
+        "operationId": "get_token_opportunities_id",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Opportunity"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "put": {
+        "operationId": "put_token_opportunities_id",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Opportunity"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Opportunity"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/opportunities/hooks": {
+      "post": {
+        "operationId": "post_token_opportunities_hooks",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Opportunity"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Opportunity"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/opportunities/hooks/{hookId}": {
+      "delete": {
+        "operationId": "delete_token_opportunities_hooks_hookId",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Opportunity"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "hookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/opportunities/{id}/assets": {
+      "get": {
+        "operationId": "get_token_opportunities_id_assets",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Asset"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_token_opportunities_id_assets",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Asset"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Asset"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/opportunities/{id}/assets/{assetId}": {
+      "put": {
+        "operationId": "put_token_opportunities_id_assets_assetId",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Asset"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Asset"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "assetId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/opportunities/{id}/liabilities": {
+      "get": {
+        "operationId": "get_token_opportunities_id_liabilities",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Liability"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_token_opportunities_id_liabilities",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Liability"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Liability"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/opportunities/{id}/liabilities/{liabilityId}": {
+      "put": {
+        "operationId": "put_token_opportunities_id_liabilities_liabilityId",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Liability"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Liability"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "liabilityId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/opportunities/{id}/relatedParties": {
+      "get": {
+        "operationId": "get_token_opportunities_id_relatedParties",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RelatedParty"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_token_opportunities_id_relatedParties",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RelatedParty"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RelatedParty"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/opportunities/{id}/relatedParties/{relatedPartyId}": {
+      "put": {
+        "operationId": "put_token_opportunities_id_relatedParties_relatedPartyId",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RelatedParty"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RelatedParty"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "relatedPartyId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/opportunities/{id}/extension/livingExpense": {
+      "get": {
+        "operationId": "get_token_opportunities_id_extension_livingExpense",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityExtensionRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_token_opportunities_id_extension_livingExpense",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityExtensionRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityExtensionRecord"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "put": {
+        "operationId": "put_token_opportunities_id_extension_livingExpense",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityExtensionRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityExtensionRecord"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/opportunities/{id}/extension/otherIncome": {
+      "get": {
+        "operationId": "get_token_opportunities_id_extension_otherIncome",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityExtensionRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_token_opportunities_id_extension_otherIncome",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityExtensionRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityExtensionRecord"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "put": {
+        "operationId": "put_token_opportunities_id_extension_otherIncome",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OpportunityExtensionRecord"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OpportunityExtensionRecord"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts": {
+      "get": {
+        "operationId": "get_token_contacts",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Contact"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean",
+              "const": true
+            },
+            "description": "Confirmed required by live collection reads."
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_token_contacts",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Contact"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Contact"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/{id}": {
+      "get": {
+        "operationId": "get_token_contacts_id",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "put": {
+        "operationId": "put_token_contacts_id",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Contact"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/hooks": {
+      "post": {
+        "operationId": "post_token_contacts_hooks",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Contact"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/hooks/{hookId}": {
+      "delete": {
+        "operationId": "delete_token_contacts_hooks_hookId",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "hookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/{id}/contactMethods": {
+      "get": {
+        "operationId": "get_token_contacts_id_contactMethods",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContactMethod"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_token_contacts_id_contactMethods",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContactMethod"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactMethod"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/{id}/contactMethods/{contactMethodId}": {
+      "put": {
+        "operationId": "put_token_contacts_id_contactMethods_contactMethodId",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactMethod"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContactMethod"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "contactMethodId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/{id}/expenses": {
+      "get": {
+        "operationId": "get_token_contacts_id_expenses",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Expense"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_token_contacts_id_expenses",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Expense"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Expense"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/{id}/expenses/{expenseId}": {
+      "put": {
+        "operationId": "put_token_contacts_id_expenses_expenseId",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Expense"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Expense"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "expenseId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/{id}/incomes": {
+      "get": {
+        "operationId": "get_token_contacts_id_incomes",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Income"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_token_contacts_id_incomes",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Income"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Income"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/{id}/incomes/{incomeId}": {
+      "put": {
+        "operationId": "put_token_contacts_id_incomes_incomeId",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Income"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Income"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "incomeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/{id}/identification": {
+      "get": {
+        "operationId": "get_token_contacts_id_identification",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Identification"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_token_contacts_id_identification",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Identification"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Identification"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/{id}/identification/{identificationId}": {
+      "put": {
+        "operationId": "put_token_contacts_id_identification_identificationId",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Identification"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Identification"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "identificationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/{id}/addresses": {
+      "get": {
+        "operationId": "get_token_contacts_id_addresses",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Address"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_token_contacts_id_addresses",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Address"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Address"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/{id}/addresses/{addressId}": {
+      "put": {
+        "operationId": "put_token_contacts_id_addresses_addressId",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Address"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Address"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "addressId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/{id}/employments": {
+      "get": {
+        "operationId": "get_token_contacts_id_employments",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Employment"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_token_contacts_id_employments",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Employment"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Employment"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/{id}/employments/{employmentId}": {
+      "put": {
+        "operationId": "put_token_contacts_id_employments_employmentId",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Employment"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Employment"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "employmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/contacts/{id}/opportunities": {
+      "get": {
+        "operationId": "get_token_contacts_id_opportunities",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Opportunity"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/partner/config": {
+      "get": {
+        "operationId": "get_token_partner_config",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerConfig"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean",
+              "const": true
+            },
+            "description": "Confirmed required by live collection reads."
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_token_partner_config",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerConfig"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartnerConfig"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/partner/config/{id}": {
+      "put": {
+        "operationId": "put_token_partner_config_id",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PartnerConfig"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartnerConfig"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/categories": {
+      "get": {
+        "operationId": "get_token_categories",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean",
+              "const": true
+            },
+            "description": "Confirmed required by live collection reads."
+          },
+          {
+            "name": "count",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          }
+        ]
+      },
+      "post": {
+        "operationId": "post_token_categories",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Category"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    },
+    "/{token}/categories/{id}": {
+      "get": {
+        "operationId": "get_token_categories_id",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      },
+      "put": {
+        "operationId": "put_token_categories_id",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        },
+        "x-evidence": "swagger-reference",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Category"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Resource identifier."
+          },
+          {
+            "name": "token",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Branch token. Treat as secret; do not log."
+          },
+          {
+            "name": "x-api-key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "API key. Treat as secret; do not log."
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PartnerConfig": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "partnerId": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "primaryBg": {
+            "type": "string"
+          },
+          "secondaryBg": {
+            "type": "string"
+          },
+          "defaultBg": {
+            "type": "string"
+          },
+          "primaryFont": {
+            "type": "string"
+          },
+          "secondaryFont": {
+            "type": "string"
+          },
+          "defaultFont": {
+            "type": "string"
+          },
+          "vbInherit": {
+            "type": "number"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "Contact": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "deletedBy": {
+            "type": "string"
+          },
+          "deletedOn": {
+            "type": "string",
+            "x-typescript-type": "MercuryDateValue"
+          },
+          "createdOn": {
+            "type": "string",
+            "x-typescript-type": "MercuryDateValue"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string"
+          },
+          "salutation": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "enum": [
+              "Dr",
+              "Miss",
+              "Ms",
+              "Mr",
+              "Mrs",
+              "Prof",
+              "Rev"
+            ]
+          },
+          "occupation": {
+            "type": "string"
+          },
+          "employer": {
+            "type": "string"
+          },
+          "jobTitle": {
+            "type": "string"
+          },
+          "maritalStatus": {
+            "type": "string",
+            "enum": [
+              "Single",
+              "Married",
+              "DeFacto",
+              "Separated",
+              "Divorced",
+              "Widowed",
+              "Other"
+            ]
+          },
+          "driversLicenceNumber": {
+            "type": "string"
+          },
+          "driversLicenceExpiry": {
+            "type": "string"
+          },
+          "driversLicenceState": {
+            "type": "string",
+            "enum": [
+              "ACT",
+              "NSW",
+              "NT",
+              "QLD",
+              "SA",
+              "TAS",
+              "VIC",
+              "WA",
+              "OTHER"
+            ]
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "M",
+              "F"
+            ]
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "x-typescript-type": "MercuryDateValue"
+          },
+          "employmentStatus": {
+            "type": "string",
+            "enum": [
+              "Full Time",
+              "Part Time",
+              "Contract",
+              "Temporary",
+              "Commission",
+              "Seasonal",
+              "Casual",
+              "Self-Employed",
+              "Unemployed"
+            ]
+          },
+          "employmentCommenced": {
+            "type": "string"
+          },
+          "phoneDisplayType1": {
+            "type": "string",
+            "enum": [
+              "Business",
+              "Business 2",
+              "Business Fax",
+              "Home",
+              "Home 2",
+              "Home Fax",
+              "Mobile",
+              "Mobile 2"
+            ]
+          },
+          "phoneDisplayType2": {
+            "type": "string",
+            "enum": [
+              "Business",
+              "Business 2",
+              "Business Fax",
+              "Home",
+              "Home 2",
+              "Home Fax",
+              "Mobile",
+              "Mobile 2"
+            ]
+          },
+          "phoneDisplayType3": {
+            "type": "string",
+            "enum": [
+              "Business",
+              "Business 2",
+              "Business Fax",
+              "Home",
+              "Home 2",
+              "Home Fax",
+              "Mobile",
+              "Mobile 2"
+            ]
+          },
+          "phoneDisplayType4": {
+            "type": "string",
+            "enum": [
+              "Business",
+              "Business 2",
+              "Business Fax",
+              "Home",
+              "Home 2",
+              "Home Fax",
+              "Mobile",
+              "Mobile 2"
+            ]
+          },
+          "addressDisplay": {
+            "type": "string"
+          },
+          "homePhone": {
+            "type": "string"
+          },
+          "businessPhone": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "personDataType": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "relationshipManager": {
+            "type": "string"
+          },
+          "annualSalary": {
+            "type": "number"
+          },
+          "contactType": {
+            "type": "string"
+          },
+          "abn": {
+            "type": "string"
+          },
+          "acn": {
+            "type": "string"
+          },
+          "trustName": {
+            "type": "string"
+          },
+          "homeSuburb": {
+            "type": "string"
+          },
+          "numberOfDependents": {
+            "type": "number"
+          },
+          "doNotMail": {
+            "type": "boolean"
+          },
+          "funambolUsers": {
+            "type": "string"
+          },
+          "markAsPrivate": {
+            "type": "boolean"
+          },
+          "importDocumentId": {
+            "type": "string"
+          },
+          "partnerName": {
+            "type": "string"
+          },
+          "emailBounced": {
+            "type": "boolean"
+          },
+          "webPassword": {
+            "type": "string"
+          },
+          "webAccess": {
+            "type": "boolean"
+          },
+          "relationshipManagerName": {
+            "type": "string"
+          },
+          "lastUpdated": {
+            "type": "string",
+            "x-typescript-type": "MercuryDateValue"
+          },
+          "lastUpdatedBy": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "leadSourceId": {
+            "type": "string"
+          },
+          "leadSourceName": {
+            "type": "string"
+          },
+          "contactMethods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactMethod"
+            }
+          },
+          "Identification": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Identification"
+            }
+          },
+          "expenses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Expense"
+            }
+          },
+          "incomes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Income"
+            }
+          },
+          "addresses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Address"
+            }
+          },
+          "categories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            }
+          },
+          "myMarketingTactics": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyMarketingTactics"
+            }
+          },
+          "activeCampaignId": {
+            "type": "string"
+          },
+          "citizenshipCountry": {
+            "type": "string",
+            "x-typescript-type": "CountryCode | string"
+          },
+          "companyRegisteredIn": {
+            "type": "string",
+            "x-typescript-type": "CountryCode | string"
+          },
+          "companyType": {
+            "type": "string"
+          },
+          "countryOfResidency": {
+            "type": "string",
+            "x-typescript-type": "CountryCode | string"
+          },
+          "dateOfBirthDisplay": {
+            "type": "string"
+          },
+          "deletedByDisplay": {
+            "type": "string"
+          },
+          "employments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Employment"
+            }
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "identifications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Identification"
+            }
+          },
+          "isPermanentResident": {
+            "type": "boolean"
+          },
+          "motherMaidenName": {
+            "type": "string"
+          },
+          "residencyStatus": {
+            "type": "string"
+          },
+          "salutationOrFirstName": {
+            "type": "string"
+          },
+          "syncToDMH": {
+            "type": "boolean"
+          },
+          "webAddress": {
+            "type": "string"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "ContactMethod": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "personID": {
+            "type": "string"
+          },
+          "contactMethod": {
+            "type": "string",
+            "enum": [
+              "Business",
+              "Business 2",
+              "Business Fax",
+              "Email 1",
+              "Email 2",
+              "Email 3",
+              "Home",
+              "Home 2",
+              "Home Fax",
+              "Mobile",
+              "Mobile 2"
+            ]
+          },
+          "content": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "email",
+              "home",
+              "mobile",
+              "phone"
+            ]
+          },
+          "modified": {
+            "type": "string",
+            "x-typescript-type": "MercuryDateValue"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "Identification": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string"
+          },
+          "documentIssuedBy": {
+            "type": "string"
+          },
+          "documentNumber": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "parentId": {
+            "type": "string"
+          },
+          "nameOnDocument": {
+            "type": "string"
+          },
+          "personId": {
+            "type": "string"
+          },
+          "placeOfIssue": {
+            "type": "string",
+            "enum": [
+              "ACT",
+              "NSW",
+              "NT",
+              "QLD",
+              "SA",
+              "TAS",
+              "VIC",
+              "WA",
+              "OTHER"
+            ]
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "versionSighted": {
+            "type": "string",
+            "enum": [
+              "Original",
+              "Certified"
+            ]
+          },
+          "documentType": {
+            "type": "string",
+            "enum": [
+              "DriversLicenceAust",
+              "GovtIssuePilotLicence",
+              "BirthCertificate",
+              "PassportAust",
+              "PassportIntl",
+              "ProofOfAgeCard",
+              "BirthCertAust",
+              "BirthCertIntl",
+              "AustCitizenshipCertificate",
+              "GovtIssueHealthCard",
+              "GovtPensionCard",
+              "DriversLicenceIntl",
+              "CitizenCertIntl",
+              "PassportExpired",
+              "BankCreditCard",
+              "FinInstCreditCard",
+              "BankCashCard",
+              "FinInstCashCard",
+              "BankPassbook",
+              "FinInstPassbook",
+              "BankStatement",
+              "DeedPoll",
+              "DefForceIdentityCard",
+              "ExistingCustomer",
+              "GovtIssueBoatLicence",
+              "GovtIssueEmployeeCard",
+              "GovtIssueFinancialBenNot",
+              "GovtIssueGunLicence",
+              "IdentityCard",
+              "IDFromCurrEmployer",
+              "LeaseContract",
+              "LetterFromCurrEmployer",
+              "MarriageCertificate",
+              "MedicareCard",
+              "OfficialStudentCard",
+              "PublicServiceIDCard",
+              "RateNotice",
+              "Reference",
+              "RentReceipt",
+              "SecGuardIDCard",
+              "SchoolLetterOfIntro",
+              "StatementFromLandlord",
+              "TaxationNoticeAust",
+              "TertiaryStudentIDCard",
+              "UtilityStatementElectric",
+              "UtilityStatementGas",
+              "UtilityStatementPhone",
+              "UtilityStatementWater",
+              "WrittenRefCustomer",
+              "WrittenRefFinancialInst",
+              "WrittenRefReferee"
+            ]
+          },
+          "source": {
+            "type": "string"
+          },
+          "licenseCardNumber": {
+            "type": "string"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "Expense": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "personID": {
+            "type": "string"
+          },
+          "personName": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Credit Card",
+              "Home Loan",
+              "Investment Loan",
+              "Car Loan",
+              "Personal Loan",
+              "Maintenance",
+              "Rent Paid",
+              "Living Expenses",
+              "Education",
+              "Insurance",
+              "Other"
+            ]
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "Annual",
+              "Fortnightly",
+              "Monthly",
+              "Weekly"
+            ]
+          },
+          "balance": {
+            "type": "number"
+          },
+          "creditLimit": {
+            "type": "number"
+          },
+          "comment": {
+            "type": "string"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "Employment": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "employerName": {
+            "type": "string"
+          },
+          "employmentBasis": {
+            "type": "string"
+          },
+          "employmentStatus": {
+            "type": "string"
+          },
+          "employmentType": {
+            "type": "string"
+          },
+          "jobTitle": {
+            "type": "string"
+          },
+          "natureOfBusiness": {
+            "type": "string"
+          },
+          "operatingStructure": {
+            "type": "string"
+          },
+          "paygEmployerType": {
+            "type": "string"
+          },
+          "abn": {
+            "type": "string"
+          },
+          "personId": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "onBenefits": {
+            "type": "boolean"
+          },
+          "onProbation": {
+            "type": "boolean"
+          },
+          "student": {
+            "type": "boolean"
+          },
+          "incomes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Income"
+            }
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "homeDuties": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          },
+          "surname": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "Income": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "personID": {
+            "type": "string"
+          },
+          "personName": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "Bonus",
+              "Business Income",
+              "Dividends",
+              "Family Allowance",
+              "Maintenance",
+              "Overtime",
+              "Pension",
+              "Rental",
+              "Salary",
+              "Self Employed",
+              "Other"
+            ]
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "Annual",
+              "Fortnightly",
+              "Monthly",
+              "Weekly"
+            ]
+          },
+          "dateCommenced": {
+            "type": "string"
+          },
+          "sortKey": {
+            "type": "number"
+          },
+          "comment": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string"
+          },
+          "personId": {
+            "type": "string"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "Opportunity": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "deletedBy": {
+            "type": "string"
+          },
+          "deletedOn": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "createdOn": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "createdBy": {
+            "type": "string"
+          },
+          "opportunityName": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "lender": {
+            "type": "string"
+          },
+          "lenderNameShort": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "x-typescript-type": "LoanStatus | (string & {})"
+          },
+          "agent": {
+            "type": "string"
+          },
+          "personActing": {
+            "type": "string"
+          },
+          "personResponsible": {
+            "type": "string"
+          },
+          "lenderReference": {
+            "type": "string"
+          },
+          "financeDate": {
+            "type": "string"
+          },
+          "expectedSettlementDate": {
+            "type": "string"
+          },
+          "confirmedSettlementDate": {
+            "type": "string"
+          },
+          "leadSourceId": {
+            "type": "string"
+          },
+          "leadSourceDisplay": {
+            "type": "string"
+          },
+          "discount": {
+            "type": "number"
+          },
+          "existingAmount": {
+            "type": "number"
+          },
+          "lmi": {
+            "type": "number"
+          },
+          "settlementDateConfirmed": {
+            "type": "boolean"
+          },
+          "discountType": {
+            "type": "string"
+          },
+          "loanPersonRelationship": {
+            "type": "string"
+          },
+          "transactionType": {
+            "type": "string",
+            "enum": [
+              "Loan",
+              "CommercialLoans",
+              "PlantAndEquipment",
+              "PersonalLoans",
+              "Property",
+              "FinancialPlanning",
+              "Insurance",
+              "LifeInsurance",
+              "Accounting",
+              "TermDeposit",
+              "PremiumFunding",
+              "CreditCard",
+              "CashManagementAcc"
+            ]
+          },
+          "notePadText": {
+            "type": "string"
+          },
+          "partnerReference": {
+            "type": "string"
+          },
+          "nextGenId": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string"
+          },
+          "workspaceUsers": {
+            "type": "string"
+          },
+          "tranxType": {
+            "type": "string",
+            "enum": [
+              "Pre-Approval",
+              "Purchase",
+              "Refinance",
+              "Top Up",
+              "Variation"
+            ]
+          },
+          "connectiveLodgeId": {
+            "type": "string"
+          },
+          "peResidualAmount": {
+            "type": "number"
+          },
+          "peRepaymentAmount": {
+            "type": "number"
+          },
+          "peEffectiveRate": {
+            "type": "number"
+          },
+          "peInterestRate": {
+            "type": "number"
+          },
+          "peBrokerage": {
+            "type": "number"
+          },
+          "assetDescription": {
+            "type": "string"
+          },
+          "nextAction": {
+            "type": "string"
+          },
+          "loanTerm": {
+            "type": "number"
+          },
+          "fixedRateExpiry": {
+            "type": "string"
+          },
+          "depositDueDate": {
+            "type": "string"
+          },
+          "barCodeId": {
+            "type": "string"
+          },
+          "agentName": {
+            "type": "string"
+          },
+          "personActingName": {
+            "type": "string"
+          },
+          "personResponsibleName": {
+            "type": "string"
+          },
+          "defaultPath": {
+            "type": "string"
+          },
+          "partnerName": {
+            "type": "string"
+          },
+          "partnerSharedWithId": {
+            "type": "string"
+          },
+          "partnerSharedWithName": {
+            "type": "string"
+          },
+          "statusLastUpdated": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "lastUpdatedBy": {
+            "type": "string"
+          },
+          "lenderComments": {
+            "type": "string"
+          },
+          "sitRep": {
+            "type": "string"
+          },
+          "campaignId": {
+            "type": "string"
+          },
+          "campaignName": {
+            "type": "string"
+          },
+          "securityValue": {
+            "type": "number"
+          },
+          "aliApplicationId": {
+            "type": "string"
+          },
+          "metlifeApplicationId": {
+            "type": "string"
+          },
+          "interestOnlyExpiry": {
+            "type": "string"
+          },
+          "lastUpdated": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ]
+          },
+          "emailAccountAddress": {
+            "type": "string"
+          },
+          "originationFee": {
+            "type": "number"
+          },
+          "metaData": {
+            "type": "string"
+          },
+          "relatedParties": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RelatedParty"
+            }
+          },
+          "assets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Asset"
+            }
+          },
+          "liabilities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Liability"
+            }
+          },
+          "deletedByDisplay": {
+            "type": "string"
+          },
+          "lenderDisplayName": {
+            "type": "string"
+          },
+          "peResidualPercentage": {
+            "type": "number"
+          },
+          "peFinanceType": {
+            "type": "string"
+          },
+          "peAssetType": {
+            "type": "string"
+          },
+          "peBuildYear": {
+            "type": "string"
+          },
+          "agentEmail": {
+            "type": "string"
+          },
+          "salePrice": {
+            "type": "number"
+          },
+          "referrerFee": {
+            "type": "number"
+          },
+          "docFee": {
+            "type": "number"
+          },
+          "invoiceId": {
+            "type": "string"
+          },
+          "invoicePaymentReceived": {
+            "type": "boolean"
+          },
+          "invoicePersonName": {
+            "type": "string"
+          },
+          "invoicePersonAddress": {
+            "type": "string"
+          },
+          "invoiceBrokerReference": {
+            "type": "string"
+          },
+          "invoiceCafStatus": {
+            "type": "string"
+          },
+          "applicationPlatform": {
+            "type": "string"
+          },
+          "otherLoanPeople": {
+            "type": "array",
+            "items": {}
+          },
+          "assetLiabilityLinks": {
+            "type": "array",
+            "items": {}
+          },
+          "assetCategory": {
+            "type": "string"
+          },
+          "assetSource": {
+            "type": "string"
+          },
+          "confirmedSettlementDateDisplay": {
+            "type": "string"
+          },
+          "dischargeDate": {
+            "type": "string"
+          },
+          "dischargeReason": {
+            "type": "string"
+          },
+          "emailId": {
+            "type": "string"
+          },
+          "extSource": {
+            "type": "string"
+          },
+          "isNCCPEnabled": {
+            "type": "string",
+            "x-typescript-type": "MercuryBooleanValue"
+          },
+          "loanAccountNumber": {
+            "type": "string"
+          },
+          "nextActionDisplay": {
+            "type": "string"
+          },
+          "nextActionPerson": {
+            "type": "string"
+          },
+          "opportunitySubtype": {
+            "type": "string"
+          },
+          "preApprovalExpiry": {
+            "type": "string"
+          },
+          "primaryUse": {
+            "type": "string"
+          },
+          "purchasePrice": {
+            "type": "number"
+          },
+          "settlementOfficer": {
+            "type": "string"
+          },
+          "submittedToLenderDate": {
+            "type": "string",
+            "x-typescript-type": "MercuryDateValue"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "Address": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "deletedBy": {
+            "type": "string"
+          },
+          "deletedOn": {
+            "type": "string"
+          },
+          "parentType": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string"
+          },
+          "parentID": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "streetName": {
+            "type": "string"
+          },
+          "streetNumber": {
+            "type": "string"
+          },
+          "streetType": {
+            "type": "string"
+          },
+          "city": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "ACT",
+              "NSW",
+              "NT",
+              "QLD",
+              "SA",
+              "TAS",
+              "VIC",
+              "WA",
+              "OTHER"
+            ]
+          },
+          "postcode": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string",
+            "enum": [
+              "AD",
+              "AE",
+              "AF",
+              "AG",
+              "AI",
+              "AL",
+              "AM",
+              "AN",
+              "AO",
+              "AQ",
+              "AR",
+              "AS",
+              "AT",
+              "AU",
+              "AW",
+              "AX",
+              "AZ",
+              "BA",
+              "BB",
+              "BD",
+              "BE",
+              "BF",
+              "BG",
+              "BH",
+              "BI",
+              "BJ",
+              "BL",
+              "BM",
+              "BN",
+              "BO",
+              "BQ",
+              "BR",
+              "BS",
+              "BT",
+              "BV",
+              "BW",
+              "BY",
+              "BZ",
+              "CA",
+              "CC",
+              "CD",
+              "CF",
+              "CG",
+              "CH",
+              "CI",
+              "CK",
+              "CL",
+              "CM",
+              "CN",
+              "CO",
+              "CR",
+              "CU",
+              "CV",
+              "CW",
+              "CX",
+              "CY",
+              "CZ",
+              "DE",
+              "DJ",
+              "DK",
+              "DM",
+              "DO",
+              "DZ",
+              "EC",
+              "EE",
+              "EG",
+              "EH",
+              "ER",
+              "ES",
+              "ET",
+              "FI",
+              "FJ",
+              "FK",
+              "FM",
+              "FO",
+              "FR",
+              "GA",
+              "GB",
+              "GD",
+              "GE",
+              "GF",
+              "GG",
+              "GH",
+              "GI",
+              "GL",
+              "GM",
+              "GN",
+              "GP",
+              "GQ",
+              "GR",
+              "GS",
+              "GT",
+              "GU",
+              "GW",
+              "GY",
+              "HK",
+              "HM",
+              "HN",
+              "HR",
+              "HT",
+              "HU",
+              "ID",
+              "IE",
+              "IL",
+              "IM",
+              "IN",
+              "IO",
+              "IQ",
+              "IR",
+              "IS",
+              "IT",
+              "JE",
+              "JM",
+              "JO",
+              "JP",
+              "KE",
+              "KG",
+              "KH",
+              "KI",
+              "KM",
+              "KN",
+              "KP",
+              "KR",
+              "KW",
+              "KY",
+              "KZ",
+              "LA",
+              "LB",
+              "LC",
+              "LI",
+              "LK",
+              "LR",
+              "LS",
+              "LT",
+              "LU",
+              "LV",
+              "LY",
+              "MA",
+              "MC",
+              "MD",
+              "ME",
+              "MF",
+              "MG",
+              "MH",
+              "MK",
+              "ML",
+              "MM",
+              "MN",
+              "MO",
+              "MP",
+              "MQ",
+              "MR",
+              "MS",
+              "MT",
+              "MU",
+              "MV",
+              "MW",
+              "MX",
+              "MY",
+              "MZ",
+              "NA",
+              "NC",
+              "NE",
+              "NF",
+              "NG",
+              "NI",
+              "NL",
+              "NO",
+              "NP",
+              "NR",
+              "NU",
+              "NZ",
+              "OM",
+              "PA",
+              "PE",
+              "PF",
+              "PG",
+              "PH",
+              "PK",
+              "PL",
+              "PM",
+              "PN",
+              "PR",
+              "PS",
+              "PT",
+              "PW",
+              "PY",
+              "QA",
+              "RE",
+              "RO",
+              "RS",
+              "RU",
+              "RW",
+              "SA",
+              "SB",
+              "SC",
+              "SD",
+              "SE",
+              "SG",
+              "SH",
+              "SI",
+              "SJ",
+              "SK",
+              "SL",
+              "SM",
+              "SN",
+              "SO",
+              "SR",
+              "SS",
+              "ST",
+              "SV",
+              "SX",
+              "SY",
+              "SZ",
+              "TC",
+              "TD",
+              "TF",
+              "TG",
+              "TH",
+              "TJ",
+              "TK",
+              "TL",
+              "TM",
+              "TN",
+              "TO",
+              "TR",
+              "TT",
+              "TV",
+              "TW",
+              "TZ",
+              "UA",
+              "UG",
+              "UM",
+              "US",
+              "UY",
+              "UZ",
+              "VA",
+              "VC",
+              "VE",
+              "VG",
+              "VI",
+              "VN",
+              "VU",
+              "WF",
+              "WS",
+              "YE",
+              "YT",
+              "ZA",
+              "ZM",
+              "ZW"
+            ]
+          },
+          "unitNumber": {
+            "type": "string"
+          },
+          "buildingName": {
+            "type": "string"
+          },
+          "floorNumber": {
+            "type": "string"
+          },
+          "isCorrespondenceAddress": {
+            "type": "boolean"
+          },
+          "fromDate": {
+            "type": "string"
+          },
+          "toDate": {
+            "type": "string"
+          },
+          "addressBlock": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          },
+          "housingSituation": {
+            "type": "string",
+            "enum": [
+              "Boarding",
+              "Caravan",
+              "Own Home",
+              "Own Home - Mortgage",
+              "Renting",
+              "With Parents",
+              "Other"
+            ]
+          },
+          "requiresConfirmation": {
+            "type": "boolean"
+          },
+          "poBoxNumber": {
+            "type": "string"
+          },
+          "poBoxType": {
+            "type": "string"
+          },
+          "personName": {
+            "type": "string"
+          },
+          "addrGeoLatitude": {
+            "type": "string"
+          },
+          "addrGeoLongitude": {
+            "type": "string"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "RelatedParty": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "personID": {
+            "type": "string"
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "Adviser",
+              "Agent",
+              "Primary applicant",
+              "Secondary applicant",
+              "Assessor",
+              "Bank / Lender",
+              "Banker",
+              "Broker",
+              "Builder",
+              "Accountant",
+              "Conveyancer",
+              "Solicitor",
+              "Co-Applicant",
+              "Director",
+              "Employer",
+              "Financial Planner",
+              "Insurance referral",
+              "Insurer",
+              "Joint Borrower",
+              "JSG/ PRE",
+              "Land Agent",
+              "Lender",
+              "Loan Writer",
+              "NonApplicant",
+              "Other"
+            ]
+          },
+          "addressBlock": {
+            "type": "string"
+          },
+          "addressId": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "x-typescript-type": "MercuryDateValue"
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "M",
+              "F"
+            ]
+          },
+          "housingSituation": {
+            "type": "string",
+            "enum": [
+              "Boarding",
+              "Caravan",
+              "Own Home",
+              "Own Home - Mortgage",
+              "Renting",
+              "With Parents",
+              "Other"
+            ]
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "middleName": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "salutation": {
+            "type": "string"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "Asset": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "deletedBy": {
+            "type": "string"
+          },
+          "deletedOn": {
+            "type": "string"
+          },
+          "parentType": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "enum": [
+              "Real Estate",
+              "Boat",
+              "Business Equity",
+              "Cash Management",
+              "Charge Over Cash",
+              "Cheque Account",
+              "Debenture Charge",
+              "Gifts",
+              "Guarantee",
+              "Home Contents",
+              "Investment Savings",
+              "Life Insurance",
+              "Managed Funds",
+              "Motor Vehicle",
+              "Savings Account",
+              "Shares",
+              "Superannuation",
+              "Term Deposit",
+              "Other"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "account",
+              "realEstate",
+              "vehicle",
+              "standard"
+            ]
+          },
+          "value": {
+            "type": "number"
+          },
+          "valueBasis": {
+            "type": "string",
+            "enum": [
+              "Applicant Estimate",
+              "Certified Valuation",
+              "Actual Value"
+            ]
+          },
+          "details": {
+            "type": "string"
+          },
+          "institution": {
+            "type": "string"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "accountNumber": {
+            "type": "string"
+          },
+          "accountBSB": {
+            "type": "string"
+          },
+          "realEstateUseAsSecurity": {
+            "type": "boolean"
+          },
+          "realEstatePurpose": {
+            "type": "string",
+            "enum": [
+              "Owner Occupied",
+              "Investment"
+            ]
+          },
+          "realEstateZoning": {
+            "type": "string"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "realEstateToBePurchased": {
+            "type": "boolean"
+          },
+          "realEstateRentalIncome": {
+            "type": "number"
+          },
+          "realEstateRentalIncomeFrequency": {
+            "type": "string",
+            "enum": [
+              "annually",
+              "fortnightly",
+              "monthly",
+              "weekly"
+            ]
+          },
+          "realEstateRentalEvidenceOfTenancy": {
+            "type": "boolean"
+          },
+          "existingMortgageCreditor": {
+            "type": "string"
+          },
+          "existingMortgageInterestRate": {
+            "type": "number"
+          },
+          "existingMortgageBalance": {
+            "type": "number"
+          },
+          "existingMortgageRepayment": {
+            "type": "number"
+          },
+          "existingMortgageRepaymentFrequency": {
+            "type": "string",
+            "enum": [
+              "annually",
+              "fortnightly",
+              "monthly",
+              "weekly"
+            ]
+          },
+          "existingMortgageRepaymentClearing": {
+            "type": "boolean"
+          },
+          "motorVehicleType": {
+            "type": "string"
+          },
+          "motorVehiceYear": {
+            "type": "string"
+          },
+          "motorVehicleMake": {
+            "type": "string"
+          },
+          "existingMortgageRemainingLoanTerm": {
+            "type": "number"
+          },
+          "investmentCost": {
+            "type": "number"
+          },
+          "investmentCostFrequency": {
+            "type": "string",
+            "enum": [
+              "annually",
+              "fortnightly",
+              "monthly",
+              "weekly"
+            ]
+          },
+          "otherAssetsToBePurchased": {
+            "type": "boolean"
+          },
+          "otherAssetsUseAsSecurity": {
+            "type": "boolean"
+          },
+          "propertyStatus": {
+            "type": "string"
+          },
+          "propertyTitleType": {
+            "type": "string"
+          },
+          "propertyType": {
+            "type": "string"
+          },
+          "proposedLoanAmount": {
+            "type": "number"
+          },
+          "proposedLvr": {
+            "type": "number"
+          },
+          "realEstateFinanceType": {
+            "type": "string"
+          },
+          "servicingAddress": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "valueObjectOwnershipList": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "Liability": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "deletedBy": {
+            "type": "string"
+          },
+          "deletedOn": {
+            "type": "string"
+          },
+          "parentType": {
+            "type": "string"
+          },
+          "parentId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "enum": [
+              "Commercial Bill",
+              "Credit Card",
+              "HECS",
+              "Hire Purchase",
+              "Lease",
+              "Line Of Credit",
+              "Loan As Guarantor",
+              "Maintenance",
+              "Mortgage Loan",
+              "Other Loan",
+              "Outstanding Taxation",
+              "Overdraft",
+              "Personal Loan",
+              "Store Card",
+              "Term Loan",
+              "Other"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "account",
+              "realEstate",
+              "vehicle",
+              "standard"
+            ]
+          },
+          "value": {
+            "type": "number"
+          },
+          "details": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number"
+          },
+          "institution": {
+            "type": "string"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "accountNumber": {
+            "type": "string"
+          },
+          "accountBSB": {
+            "type": "string"
+          },
+          "accountRepayment": {
+            "type": "number"
+          },
+          "accountRepaymentFrequency": {
+            "type": "string",
+            "enum": [
+              "annually",
+              "fortnightly",
+              "monthly",
+              "weekly"
+            ]
+          },
+          "creditCardType": {
+            "type": "string",
+            "enum": [
+              "Amex",
+              "Diners",
+              "Mastercard",
+              "Visa"
+            ]
+          },
+          "accountClearingFromLoan": {
+            "type": "boolean"
+          },
+          "interestRate": {
+            "type": "number"
+          },
+          "nextGenData": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "number"
+          },
+          "remainingTerm": {
+            "type": "number"
+          },
+          "valueObjectOwnershipList": {
+            "type": "array",
+            "items": {}
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "Category": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "categoryName": {
+            "type": "string",
+            "x-typescript-type": "FinhubContactCategoryName | (string & {})"
+          },
+          "categoryNotes": {
+            "type": "string"
+          },
+          "activeCampaignId": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "readonly": {
+            "type": "boolean"
+          },
+          "vbInherit": {
+            "type": "number"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "MyMarketingTactics": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "itemName": {
+            "type": "string"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "MercuryError": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "type": "number"
+          },
+          "contactEmail": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "homeRef": {
+            "type": "string"
+          },
+          "reasonPhrase": {
+            "type": "number"
+          },
+          "uri": {
+            "type": "string"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "MercurySuccess": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "status": {
+            "type": "number"
+          },
+          "uniqueId": {
+            "type": "string"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "OpportunitySearchParams": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "statuses": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "lastUpdated": {
+            "type": "string"
+          },
+          "transactionType": {
+            "type": "string"
+          },
+          "user": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string"
+          },
+          "interestOnlyExpiry": {
+            "type": "string"
+          },
+          "fixedRateExpiry": {
+            "type": "string"
+          },
+          "confirmedSettlementDate": {
+            "type": "string"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "PartnerConfigSearchParams": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "partnerId": {
+            "type": "string"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "ContactSearchParams": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "isDeleted": {
+            "type": "boolean"
+          },
+          "excludeDoNotMail": {
+            "type": "boolean"
+          },
+          "excludeEmailBounced": {
+            "type": "boolean"
+          },
+          "lastUpdated": {
+            "type": "string"
+          },
+          "companyName": {
+            "type": "string"
+          },
+          "personType": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "campaignId": {
+            "type": "string"
+          },
+          "contactNumber": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "createdOn": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string"
+          },
+          "birthday": {
+            "type": "string"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "ContactHookRequestBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "subscription_type": {
+            "type": "string",
+            "enum": [
+              "All available contacts",
+              "Contacts in my branch/office",
+              "Contacts where I am the relationship manager"
+            ]
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "event": {
+            "type": "string",
+            "enum": [
+              "Created",
+              "Created or updated",
+              "Deleted"
+            ]
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "OppHookRequestBody": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "active": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "subscription_type": {
+            "type": "string",
+            "enum": [
+              "All available opportunities",
+              "Opportunities in my branch/office",
+              "Opportunities where I am the agent",
+              "Opportunities where I am the admin/supervisor"
+            ]
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "event": {
+            "type": "string",
+            "enum": [
+              "Created",
+              "Created or updated",
+              "Deleted",
+              "Opportunity Status Changed"
+            ]
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "WebhookCreationResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string"
+          },
+          "test_url": {
+            "type": "string"
+          },
+          "ping_url": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "ExtensionSplit": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "personId": {
+            "type": "string"
+          },
+          "percent": {
+            "type": "number"
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "LivingExpenseLineItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "x-typescript-type": "LivingExpenseType"
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "Annual",
+              "Fortnightly",
+              "Monthly",
+              "Weekly"
+            ]
+          },
+          "splits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExtensionSplit"
+            }
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "OtherIncomeLineItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "x-typescript-type": "IncomeType | (string & {})"
+          },
+          "frequency": {
+            "type": "string",
+            "enum": [
+              "Annual",
+              "Fortnightly",
+              "Monthly",
+              "Weekly"
+            ]
+          },
+          "splits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExtensionSplit"
+            }
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "OpportunityExtensionRecord": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "uniqueId": {
+            "type": "string"
+          },
+          "parentType": {
+            "type": "string",
+            "x-typescript-type": "\"loan\" | (string & {})"
+          },
+          "parentId": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string",
+            "x-typescript-type": "\"livingExpense\" | \"otherIncome\" | (string & {})"
+          },
+          "value": {
+            "type": "string",
+            "description": "JSON-encoded string. Parse into line items on read; PUT replaces the complete array."
+          }
+        },
+        "description": "Live-audited wire model. Fields are optional because required/create semantics have not been sandbox write-tested."
+      },
+      "AuState": {
+        "type": "string",
+        "enum": [
+          "ACT",
+          "NSW",
+          "NT",
+          "QLD",
+          "SA",
+          "TAS",
+          "VIC",
+          "WA",
+          "OTHER"
+        ]
+      },
+      "Frequency": {
+        "type": "string",
+        "enum": [
+          "Annual",
+          "Fortnightly",
+          "Monthly",
+          "Weekly"
+        ]
+      },
+      "FrequencyLower": {
+        "type": "string",
+        "enum": [
+          "annually",
+          "fortnightly",
+          "monthly",
+          "weekly"
+        ]
+      },
+      "AssetLiabilityType": {
+        "type": "string",
+        "enum": [
+          "account",
+          "realEstate",
+          "vehicle",
+          "standard"
+        ]
+      },
+      "CountryCode": {
+        "type": "string",
+        "enum": [
+          "AD",
+          "AE",
+          "AF",
+          "AG",
+          "AI",
+          "AL",
+          "AM",
+          "AN",
+          "AO",
+          "AQ",
+          "AR",
+          "AS",
+          "AT",
+          "AU",
+          "AW",
+          "AX",
+          "AZ",
+          "BA",
+          "BB",
+          "BD",
+          "BE",
+          "BF",
+          "BG",
+          "BH",
+          "BI",
+          "BJ",
+          "BL",
+          "BM",
+          "BN",
+          "BO",
+          "BQ",
+          "BR",
+          "BS",
+          "BT",
+          "BV",
+          "BW",
+          "BY",
+          "BZ",
+          "CA",
+          "CC",
+          "CD",
+          "CF",
+          "CG",
+          "CH",
+          "CI",
+          "CK",
+          "CL",
+          "CM",
+          "CN",
+          "CO",
+          "CR",
+          "CU",
+          "CV",
+          "CW",
+          "CX",
+          "CY",
+          "CZ",
+          "DE",
+          "DJ",
+          "DK",
+          "DM",
+          "DO",
+          "DZ",
+          "EC",
+          "EE",
+          "EG",
+          "EH",
+          "ER",
+          "ES",
+          "ET",
+          "FI",
+          "FJ",
+          "FK",
+          "FM",
+          "FO",
+          "FR",
+          "GA",
+          "GB",
+          "GD",
+          "GE",
+          "GF",
+          "GG",
+          "GH",
+          "GI",
+          "GL",
+          "GM",
+          "GN",
+          "GP",
+          "GQ",
+          "GR",
+          "GS",
+          "GT",
+          "GU",
+          "GW",
+          "GY",
+          "HK",
+          "HM",
+          "HN",
+          "HR",
+          "HT",
+          "HU",
+          "ID",
+          "IE",
+          "IL",
+          "IM",
+          "IN",
+          "IO",
+          "IQ",
+          "IR",
+          "IS",
+          "IT",
+          "JE",
+          "JM",
+          "JO",
+          "JP",
+          "KE",
+          "KG",
+          "KH",
+          "KI",
+          "KM",
+          "KN",
+          "KP",
+          "KR",
+          "KW",
+          "KY",
+          "KZ",
+          "LA",
+          "LB",
+          "LC",
+          "LI",
+          "LK",
+          "LR",
+          "LS",
+          "LT",
+          "LU",
+          "LV",
+          "LY",
+          "MA",
+          "MC",
+          "MD",
+          "ME",
+          "MF",
+          "MG",
+          "MH",
+          "MK",
+          "ML",
+          "MM",
+          "MN",
+          "MO",
+          "MP",
+          "MQ",
+          "MR",
+          "MS",
+          "MT",
+          "MU",
+          "MV",
+          "MW",
+          "MX",
+          "MY",
+          "MZ",
+          "NA",
+          "NC",
+          "NE",
+          "NF",
+          "NG",
+          "NI",
+          "NL",
+          "NO",
+          "NP",
+          "NR",
+          "NU",
+          "NZ",
+          "OM",
+          "PA",
+          "PE",
+          "PF",
+          "PG",
+          "PH",
+          "PK",
+          "PL",
+          "PM",
+          "PN",
+          "PR",
+          "PS",
+          "PT",
+          "PW",
+          "PY",
+          "QA",
+          "RE",
+          "RO",
+          "RS",
+          "RU",
+          "RW",
+          "SA",
+          "SB",
+          "SC",
+          "SD",
+          "SE",
+          "SG",
+          "SH",
+          "SI",
+          "SJ",
+          "SK",
+          "SL",
+          "SM",
+          "SN",
+          "SO",
+          "SR",
+          "SS",
+          "ST",
+          "SV",
+          "SX",
+          "SY",
+          "SZ",
+          "TC",
+          "TD",
+          "TF",
+          "TG",
+          "TH",
+          "TJ",
+          "TK",
+          "TL",
+          "TM",
+          "TN",
+          "TO",
+          "TR",
+          "TT",
+          "TV",
+          "TW",
+          "TZ",
+          "UA",
+          "UG",
+          "UM",
+          "US",
+          "UY",
+          "UZ",
+          "VA",
+          "VC",
+          "VE",
+          "VG",
+          "VI",
+          "VN",
+          "VU",
+          "WF",
+          "WS",
+          "YE",
+          "YT",
+          "ZA",
+          "ZM",
+          "ZW"
+        ]
+      },
+      "ContactTitle": {
+        "type": "string",
+        "enum": [
+          "Dr",
+          "Miss",
+          "Ms",
+          "Mr",
+          "Mrs",
+          "Prof",
+          "Rev"
+        ]
+      },
+      "MaritalStatus": {
+        "type": "string",
+        "enum": [
+          "Single",
+          "Married",
+          "DeFacto",
+          "Separated",
+          "Divorced",
+          "Widowed",
+          "Other"
+        ]
+      },
+      "Gender": {
+        "type": "string",
+        "enum": [
+          "M",
+          "F"
+        ]
+      },
+      "EmploymentStatusContact": {
+        "type": "string",
+        "enum": [
+          "Full Time",
+          "Part Time",
+          "Contract",
+          "Temporary",
+          "Commission",
+          "Seasonal",
+          "Casual",
+          "Self-Employed",
+          "Unemployed"
+        ]
+      },
+      "PhoneDisplayType": {
+        "type": "string",
+        "enum": [
+          "Business",
+          "Business 2",
+          "Business Fax",
+          "Home",
+          "Home 2",
+          "Home Fax",
+          "Mobile",
+          "Mobile 2"
+        ]
+      },
+      "ContactMethodEnum": {
+        "type": "string",
+        "enum": [
+          "Business",
+          "Business 2",
+          "Business Fax",
+          "Email 1",
+          "Email 2",
+          "Email 3",
+          "Home",
+          "Home 2",
+          "Home Fax",
+          "Mobile",
+          "Mobile 2"
+        ]
+      },
+      "ContactMethodType": {
+        "type": "string",
+        "enum": [
+          "email",
+          "home",
+          "mobile",
+          "phone"
+        ]
+      },
+      "DocumentStatus": {
+        "type": "string",
+        "enum": [
+          "Original",
+          "Certified"
+        ]
+      },
+      "DocumentType": {
+        "type": "string",
+        "enum": [
+          "DriversLicenceAust",
+          "GovtIssuePilotLicence",
+          "BirthCertificate",
+          "PassportAust",
+          "PassportIntl",
+          "ProofOfAgeCard",
+          "BirthCertAust",
+          "BirthCertIntl",
+          "AustCitizenshipCertificate",
+          "GovtIssueHealthCard",
+          "GovtPensionCard",
+          "DriversLicenceIntl",
+          "CitizenCertIntl",
+          "PassportExpired",
+          "BankCreditCard",
+          "FinInstCreditCard",
+          "BankCashCard",
+          "FinInstCashCard",
+          "BankPassbook",
+          "FinInstPassbook",
+          "BankStatement",
+          "DeedPoll",
+          "DefForceIdentityCard",
+          "ExistingCustomer",
+          "GovtIssueBoatLicence",
+          "GovtIssueEmployeeCard",
+          "GovtIssueFinancialBenNot",
+          "GovtIssueGunLicence",
+          "IdentityCard",
+          "IDFromCurrEmployer",
+          "LeaseContract",
+          "LetterFromCurrEmployer",
+          "MarriageCertificate",
+          "MedicareCard",
+          "OfficialStudentCard",
+          "PublicServiceIDCard",
+          "RateNotice",
+          "Reference",
+          "RentReceipt",
+          "SecGuardIDCard",
+          "SchoolLetterOfIntro",
+          "StatementFromLandlord",
+          "TaxationNoticeAust",
+          "TertiaryStudentIDCard",
+          "UtilityStatementElectric",
+          "UtilityStatementGas",
+          "UtilityStatementPhone",
+          "UtilityStatementWater",
+          "WrittenRefCustomer",
+          "WrittenRefFinancialInst",
+          "WrittenRefReferee"
+        ]
+      },
+      "ExpenseType": {
+        "type": "string",
+        "enum": [
+          "Credit Card",
+          "Home Loan",
+          "Investment Loan",
+          "Car Loan",
+          "Personal Loan",
+          "Maintenance",
+          "Rent Paid",
+          "Living Expenses",
+          "Education",
+          "Insurance",
+          "Other"
+        ]
+      },
+      "IncomeType": {
+        "type": "string",
+        "enum": [
+          "Bonus",
+          "Business Income",
+          "Dividends",
+          "Family Allowance",
+          "Maintenance",
+          "Overtime",
+          "Pension",
+          "Rental",
+          "Salary",
+          "Self Employed",
+          "Other"
+        ]
+      },
+      "OpportunityCategory": {
+        "type": "string",
+        "enum": [
+          "Loan",
+          "CommercialLoans",
+          "PlantAndEquipment",
+          "PersonalLoans",
+          "Property",
+          "FinancialPlanning",
+          "Insurance",
+          "LifeInsurance",
+          "Accounting",
+          "TermDeposit",
+          "PremiumFunding",
+          "CreditCard",
+          "CashManagementAcc"
+        ]
+      },
+      "OpportunityTranxType": {
+        "type": "string",
+        "enum": [
+          "Pre-Approval",
+          "Purchase",
+          "Refinance",
+          "Top Up",
+          "Variation"
+        ]
+      },
+      "LoanStatusActive": {
+        "type": "string",
+        "enum": [
+          "1. Lead \u2013 Discovery",
+          "2. Strategy Appointment Booked & Client Center Portal Send to Clients",
+          "2.1 Appointment Conduct & Completed",
+          "2.2 Follow-Up Required",
+          "2.3 Follow Up Opportunities",
+          "3.0 Awaiting Client Documents",
+          "3.1 Documents Received & Uploaded",
+          "4. Lender Selection & Policy Review",
+          "5. Loan Proposal Sent to Client Via Email",
+          "5.1 Prepare For Application Lodgement",
+          "6. Application Submitted to Lender",
+          "6.1 Lender Queries / Outstanding Items (MIR)",
+          "6.2 Pre-Approval Issued",
+          "6.3. Unconditional Approval Issued",
+          "7.0. Loan Documents Issued",
+          "7.1 Documents Returned & Certified",
+          "8.0 Ready for Settlement",
+          "8.1 Settled/Funded",
+          "8.2 Settled \u2013 Commission Paid",
+          "8.3 Construction Loan \u2013 Progress Payments",
+          "8.4 Loan Currently In Arrear",
+          "9.0 Financial Passport Invite Sent",
+          "9.1 Financial Passport Invite -Active",
+          "9.2 Financial Passport Invite -Expired",
+          "9.3 Mortgage Review \u2013 24 Month",
+          "9.4 Mortgage Review \u2013 30 Month",
+          "9.5 Mortgage Review \u2013 36 Month"
+        ]
+      },
+      "LoanStatusInactive": {
+        "type": "string",
+        "enum": [
+          "12. Loan Discharged",
+          "13. Declined by Lender",
+          "14. Client Not Proceeding"
+        ]
+      },
+      "FinhubContactCategoryName": {
+        "type": "string",
+        "enum": [
+          "REVIEW - Client Will Call",
+          "PREF - Loan Reminders",
+          "FREQ - Important Only",
+          "PREF - Property Market",
+          "FREQ - Half Yearly",
+          "REVIEW - 24 Monthly",
+          "PREF - Ad Hoc Only",
+          "PREF - RBA Updates",
+          "REVIEW - 12 Monthly",
+          "PREF - Lender News",
+          "FREQ - Monthly",
+          "FREQ - Quarterly",
+          "PREF - Investment Property",
+          "PREF - First Home Buyer",
+          "REVIEW - 6 Monthly"
+        ]
+      },
+      "HousingSituation": {
+        "type": "string",
+        "enum": [
+          "Boarding",
+          "Caravan",
+          "Own Home",
+          "Own Home - Mortgage",
+          "Renting",
+          "With Parents",
+          "Other"
+        ]
+      },
+      "RelatedPartyRelationship": {
+        "type": "string",
+        "enum": [
+          "Adviser",
+          "Agent",
+          "Primary applicant",
+          "Secondary applicant",
+          "Assessor",
+          "Bank / Lender",
+          "Banker",
+          "Broker",
+          "Builder",
+          "Accountant",
+          "Conveyancer",
+          "Solicitor",
+          "Co-Applicant",
+          "Director",
+          "Employer",
+          "Financial Planner",
+          "Insurance referral",
+          "Insurer",
+          "Joint Borrower",
+          "JSG/ PRE",
+          "Land Agent",
+          "Lender",
+          "Loan Writer",
+          "NonApplicant",
+          "Other"
+        ]
+      },
+      "AssetName": {
+        "type": "string",
+        "enum": [
+          "Real Estate",
+          "Boat",
+          "Business Equity",
+          "Cash Management",
+          "Charge Over Cash",
+          "Cheque Account",
+          "Debenture Charge",
+          "Gifts",
+          "Guarantee",
+          "Home Contents",
+          "Investment Savings",
+          "Life Insurance",
+          "Managed Funds",
+          "Motor Vehicle",
+          "Savings Account",
+          "Shares",
+          "Superannuation",
+          "Term Deposit",
+          "Other"
+        ]
+      },
+      "ValueBasis": {
+        "type": "string",
+        "enum": [
+          "Applicant Estimate",
+          "Certified Valuation",
+          "Actual Value"
+        ]
+      },
+      "RealEstatePurpose": {
+        "type": "string",
+        "enum": [
+          "Owner Occupied",
+          "Investment"
+        ]
+      },
+      "LiabilityName": {
+        "type": "string",
+        "enum": [
+          "Commercial Bill",
+          "Credit Card",
+          "HECS",
+          "Hire Purchase",
+          "Lease",
+          "Line Of Credit",
+          "Loan As Guarantor",
+          "Maintenance",
+          "Mortgage Loan",
+          "Other Loan",
+          "Outstanding Taxation",
+          "Overdraft",
+          "Personal Loan",
+          "Store Card",
+          "Term Loan",
+          "Other"
+        ]
+      },
+      "CreditCardType": {
+        "type": "string",
+        "enum": [
+          "Amex",
+          "Diners",
+          "Mastercard",
+          "Visa"
+        ]
+      },
+      "ContactWebhookSubscriptionType": {
+        "type": "string",
+        "enum": [
+          "All available contacts",
+          "Contacts in my branch/office",
+          "Contacts where I am the relationship manager"
+        ]
+      },
+      "ContactWebhookEvent": {
+        "type": "string",
+        "enum": [
+          "Created",
+          "Created or updated",
+          "Deleted"
+        ]
+      },
+      "OpportunityWebhookSubscriptionType": {
+        "type": "string",
+        "enum": [
+          "All available opportunities",
+          "Opportunities in my branch/office",
+          "Opportunities where I am the agent",
+          "Opportunities where I am the admin/supervisor"
+        ]
+      },
+      "OpportunityWebhookEvent": {
+        "type": "string",
+        "enum": [
+          "Created",
+          "Created or updated",
+          "Deleted",
+          "Opportunity Status Changed"
+        ]
+      },
+      "MercuryDateValue": {
+        "description": "Live responses return either Unix epoch milliseconds or strings, depending on resource/field.",
+        "anyOf": [
+          {
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "MercuryBooleanValue": {
+        "description": "Live API occasionally serialises boolean values as strings.",
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer"
+          },
+          "contactEmail": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "homeRef": {
+            "type": "string"
+          },
+          "reasonPhrase": {
+            "type": "integer"
+          },
+          "uri": {
+            "type": "string"
+          }
+        }
+      },
+      "Success": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer"
+          },
+          "uniqueId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    }
+  }
+}
