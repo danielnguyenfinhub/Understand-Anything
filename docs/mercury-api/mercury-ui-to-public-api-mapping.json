@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Mercury Nexus UI to public API mapping",
+  "version": "2026-07-21",
+  "baseUrl": "https://apis.connective.com.au/mercury/v1/{token}",
+  "idRules": {
+    "contact": "Contact.uniqueId",
+    "opportunity": "Opportunity.uniqueId",
+    "relatedParty": "RelatedParty.uniqueId; personID/personId links to Contact.uniqueId",
+    "child": "Each confirmed child resource has its own uniqueId"
+  },
+  "capabilities": [
+    {"ui":"People list / search","resource":"Contact","operations":["GET /contacts?search=true&searchParams={encodedJson}"],"tool":"search_contacts","status":"confirmed","notes":"search params are URL-encoded JSON"},
+    {"ui":"Person record","resource":"Contact","operations":["GET /contacts/{contactId}","POST /contacts","PUT /contacts/{contactId}"],"tool":"get_contact|create_contact|update_contact","status":"confirmed_write_unverified","notes":"redact webPassword"},
+    {"ui":"Person contact methods","resource":"ContactMethod","operations":["GET|POST /contacts/{contactId}/contactMethods","PUT /contacts/{contactId}/contactMethods/{childId}"],"tool":"list_contact_methods|upsert_contact_method","status":"confirmed"},
+    {"ui":"Person address history","resource":"Address","operations":["GET|POST /contacts/{contactId}/addresses","PUT /contacts/{contactId}/addresses/{childId}"],"tool":"list_addresses|upsert_address","status":"confirmed"},
+    {"ui":"Person employment history","resource":"Employment","operations":["GET|POST /contacts/{contactId}/employments","PUT /contacts/{contactId}/employments/{childId}"],"tool":"list_employments|upsert_employment","status":"confirmed"},
+    {"ui":"Person income / expenses","resource":"Income|Expense","operations":["GET|POST /contacts/{contactId}/incomes","PUT /contacts/{contactId}/incomes/{childId}","GET|POST /contacts/{contactId}/expenses","PUT /contacts/{contactId}/expenses/{childId}"],"tool":"list_contact_incomes|upsert_contact_income|list_contact_expenses|upsert_contact_expense","status":"confirmed"},
+    {"ui":"Person identification","resource":"Identification","operations":["GET|POST /contacts/{contactId}/identifications","PUT /contacts/{contactId}/identifications/{childId}"],"tool":"list_identifications|upsert_identification","status":"confirmed","notes":"live response uses identifications; legacy spec uses Identification"},
+    {"ui":"Opportunity list / search","resource":"Opportunity","operations":["GET /opportunities?search=true&searchParams={encodedJson}"],"tool":"search_opportunities","status":"confirmed"},
+    {"ui":"Opportunity detail","resource":"Opportunity","operations":["GET /opportunities/{opportunityId}","POST /opportunities","PUT /opportunities/{opportunityId}"],"tool":"get_opportunity|create_opportunity|update_opportunity","status":"confirmed_write_unverified"},
+    {"ui":"Opportunity Contacts / applicant cards","resource":"RelatedParty","operations":["GET|POST /opportunities/{opportunityId}/relatedParties","PUT /opportunities/{opportunityId}/relatedParties/{childId}"],"tool":"list_opportunity_parties|link_contact_to_opportunity|set_party_relationship","status":"confirmed","notes":"personID/personId joins to Contact.uniqueId"},
+    {"ui":"Financials: Assets","resource":"Asset","operations":["GET|POST /opportunities/{opportunityId}/assets","PUT /opportunities/{opportunityId}/assets/{childId}"],"tool":"list_assets|upsert_asset","status":"confirmed"},
+    {"ui":"Financials: Debts","resource":"Liability","operations":["GET|POST /opportunities/{opportunityId}/liabilities","PUT /opportunities/{opportunityId}/liabilities/{childId}"],"tool":"list_liabilities|upsert_liability","status":"confirmed"},
+    {"ui":"Financials: Living Expenses","resource":"Extension livingExpense","operations":["GET|POST|PUT /opportunities/{opportunityId}/extension/livingExpense"],"tool":"get_living_expenses|replace_living_expenses","status":"confirmed","notes":"value is JSON encoded as a string; PUT replaces the complete list"},
+    {"ui":"Financials: Other Income / support payments","resource":"Extension otherIncome","operations":["GET|POST|PUT /opportunities/{opportunityId}/extension/otherIncome"],"tool":"get_other_income|replace_other_income","status":"confirmed","notes":"value is JSON encoded as a string; PUT replaces the complete list"},
+    {"ui":"Lead Source","resource":"Opportunity.leadSource","operations":["POST|PUT /opportunities/{opportunityId}"],"tool":"set_opportunity_lead_source","status":"partial","notes":"leadSourceId/leadSourceDisplay write shape is documented; no public catalogue endpoint is evidenced"},
+    {"ui":"Person categories","resource":"Contact.categories","operations":["POST|PUT /contacts/{contactId}"],"tool":"update_contact_categories","status":"partial","notes":"category assignment is documented; no public category discovery endpoint is evidenced"},
+    {"ui":"Recycle bin / delete","resource":"Contact|Opportunity|child","operations":["PUT with isDeleted:true"],"tool":"soft_delete_*","status":"confirmed_write_unverified","notes":"soft deletion documented; public API restoration not confirmed"},
+    {"ui":"Change status","resource":"Opportunity.status","operations":["PUT /opportunities/{opportunityId}"],"tool":"update_opportunity_status","status":"confirmed_write_unverified","notes":"status strings are branch-configured; preserve exact values"},
+    {"ui":"Notes / tasks / attachments / documents","resource":null,"operations":[],"tool":null,"status":"no_public_api_evidence","notes":"notePadText creation use is the only narrow documented exception"},
+    {"ui":"Client Portal, DigiSign, questionnaires, ApplyOnline, Open Banking, product comparison, reports","resource":null,"operations":[],"tool":null,"status":"no_public_api_evidence","notes":"visible UI workflows do not establish a supported public API"}
+  ],
+  "mutationPolicy": {
+    "default":"read-only",
+    "writes":"require fresh GET, human-readable diff, and explicit confirm:true",
+    "extensions":"read-parse-merge-stringify-replace; never expose a raw general PUT extension tool",
+    "deletes":"separate tool name and explicit confirmation phrase"
+  }
+}

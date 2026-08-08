@@ -16,6 +16,8 @@ alongside this file. The machine-readable form of everything below is
 | Enums that are catalogs only | 3 — the fields they describe are free text |
 | Free-text fields constrained in practice | 19 |
 | Field-hazard groups (format, casing, writability) | 9 |
+| Mapped UI surfaces | 20, of which 2 have no public API behind them |
+| Guide-vs-contract conflicts still present | 10 of 10 |
 
 ## The one distinction that matters
 
@@ -1230,6 +1232,237 @@ A JSON-encoded string, not structured JSON, and its PUT is a destructive full re
 `search=true` is required on collection reads; `count` (default 100) and `offset` (default 0) drive pagination. A list view that omits `search` gets an error, not an empty page.
 
 **Affects:** `GET /{token}/opportunities`, `GET /{token}/contacts`
+
+## Dependent option sets
+
+Two enums are not independent choices: the published guides partition their
+values by the sibling `type` field. Choosing a type should narrow the names, and
+choosing a name should imply the type — offering the flat list lets a user build a
+combination no guide supports.
+
+### `Asset.name` depends on `Asset.type`
+
+19 enum values, 19 accounted for across 4 documented types.
+
+| `type` | Documented names |
+|---|---|
+| `realEstate` | `Real Estate` |
+| `account` | `Cheque Account`, `Term Deposit`, `Investment Savings`, `Cash Management`, `Savings Account` |
+| `standard` | `Charge Over Cash`, `Home Contents`, `Guarantee`, `Business Entity`, `Life Insurance`, `Managed Funds`, `Debenture Charge`, `Boat`, `Shares`, `Other`, `Gifts`, `Superannuation` |
+| `vehicle` | `Motor Vehicle` |
+
+> ⚠️ Mismatch: `Business Equity` is in the enum but absent from the documented partition, while `Business Entity` is documented but absent from the enum. See the conflicts section.
+
+### `Liability.name` depends on `Liability.type`
+
+16 enum values, 16 accounted for across 2 documented types.
+
+| `type` | Documented names |
+|---|---|
+| `account` | `Overdraft`, `Loan As Guarantor`, `Other`, `Line Of Credit`, `Term Loan`, `Mortgage Loan`, `Store Card`, `Credit Card`, `Personal Loan`, `Other Loan` |
+| `standard` | `Lease`, `Hire Purchase`, `Outstanding Taxation`, `Commercial Bill`, `HECS`, `Maintenance` |
+
+## Where the guides and the contract disagree
+
+10 of 10 recorded conflicts are still present against the committed contract —
+each one re-checked at generation time rather than asserted from prose, so a
+contract refresh that resolves one will show it as resolved here.
+
+These matter because following the documentation produces a request the wire
+rejects — or worse, one it accepts and silently misinterprets.
+
+| Status | Severity | Topic | Documented | Contract |
+|---|---|---|---|---|
+| **present** | high | `Asset.name` | The asset guide lists `Business Entity` among the `standard` asset names. | The enum catalog carries `Business Equity`. |
+| **present** | high | `RelatedParty.relationship` | The related-parties guide's worked example sends `relationship: "Primary Applicant"` — capital A. | The enum value is `Primary applicant` — lowercase a. |
+| **present** | medium | `ContactSearchParams` | The April 2026 contact-search guide lists a `lastModified` filter key. | `ContactSearchParams` declares `lastUpdated`. |
+| **present** | high | `Address.country` | The person-creation guide's payload example sends `country: "Australia"`. | `Address.country` is a 250-value code enum; the Australian value is `AU`. |
+| **present** | medium | `GET /contacts, GET /opportunities` | The search guide says an unfiltered search returns the 25 newest records, and that `count` defaults to 25 with a maximum of 100. | The contract declares `count` with a default of 100 and states no maximum. |
+| **present** | medium | `ContactHookRequestBody.active, OppHookRequestBody.active` | The webhook guide's registration example sends `active: "true"` — a string. | Both hook request bodies declare `active` as a boolean. |
+| **present** | high | `GET /contacts, GET /opportunities` | The guides document `searchParams` (a URL-encoded JSON filter object), `sortKey` (`creationDate` / `lastModifiedDate`) and `sortOrder` (`ASC` / `DESC`) as query parameters. | The contract's collection GETs declare only `search`, `count` and `offset`. |
+| **present** | medium | `Liability.type` | The liabilities guide documents only `account` and `standard` liability types. | `Liability.type` carries the full 4-value `AssetLiabilityType`, including `realEstate` and `vehicle`. |
+| **present** | medium | `Throttling` | The May 2025 Getting Started page says 20 requests/second and 144,000/day; the March 2026 FAQ says 60/second and 40,000/day. | The contract states no rate limit. |
+| **present** | high | `RelatedParty.personID` | The related-parties guide sends `personID` (capital ID) on writes; the financials extensions use `personId` in their splits. | Both casings appear across the contract's schemas, on different resources. |
+
+### Asset.name — asset name business entity vs equity
+
+**Still present** · high · verified: _enum has `Business Equity`; guide says `Business Entity`_
+
+- **Documented:** The asset guide lists `Business Entity` among the `standard` asset names.
+- **Contract:** The enum catalog carries `Business Equity`.
+
+Exactly one string differs across an otherwise identical 19-value list. A form seeded from the guide sends a value the enum does not contain. Send the enum's spelling; treat the guide as a typo until a write test proves otherwise.
+
+### RelatedParty.relationship — related party primary applicant casing
+
+**Still present** · high · verified: _enum: `Primary applicant`; guide example: `Primary Applicant`_
+
+- **Documented:** The related-parties guide's worked example sends `relationship: "Primary Applicant"` — capital A.
+- **Contract:** The enum value is `Primary applicant` — lowercase a.
+
+Copying the guide's example verbatim sends a value outside the enum. This is the documented example for the single most common related-party write, so it is the likeliest of these conflicts to be hit first.
+
+### ContactSearchParams — contact search lastmodified vs lastupdated
+
+**Still present** · medium · verified: _contract: `lastUpdated`; guide: `lastModified`_
+
+- **Documented:** The April 2026 contact-search guide lists a `lastModified` filter key.
+- **Contract:** `ContactSearchParams` declares `lastUpdated`.
+
+A delta-sync built from the guide's key silently filters on nothing and re-reads the whole collection every run. Same hazard on the sort key: the guide's `sortKey: "lastModifiedDate"` is not a contract parameter at all.
+
+### Address.country — address country full name vs code
+
+**Still present** · high · verified: _contract: `AU` (250 codes); guide example: `Australia`_
+
+- **Documented:** The person-creation guide's payload example sends `country: "Australia"`.
+- **Contract:** `Address.country` is a 250-value code enum; the Australian value is `AU`.
+
+A country control seeded from the guide sends a display name where a code is required. The 250-value list also is not current ISO 3166-1 — it retains the withdrawn `AN` — so validating against an ISO library rejects values Mercury accepts.
+
+### GET /contacts, GET /opportunities — search count default 25 vs 100
+
+**Still present** · medium · verified: _contract default: 100; guide: 25 (max 100)_
+
+- **Documented:** The search guide says an unfiltered search returns the 25 newest records, and that `count` defaults to 25 with a maximum of 100.
+- **Contract:** The contract declares `count` with a default of 100 and states no maximum.
+
+The two disagree about the default page size and the contract does not encode the cap at all. Always send `count` explicitly rather than relying on either default, and treat 100 as the ceiling until Connective confirms otherwise.
+
+### ContactHookRequestBody.active, OppHookRequestBody.active — webhook active string vs boolean
+
+**Still present** · medium · verified: _contract: boolean; guide example: string "true"_
+
+- **Documented:** The webhook guide's registration example sends `active: "true"` — a string.
+- **Contract:** Both hook request bodies declare `active` as a boolean.
+
+This is the request-side twin of the response-side string-boolean hazard on `Opportunity.isNCCPEnabled`. Neither form is write-tested. Send the contract's boolean; be ready for the string to be what the service actually wants.
+
+### GET /contacts, GET /opportunities — search params not in contract
+
+**Still present** · high · verified: _absent from the contract: searchParams, sortKey, sortOrder_
+
+- **Documented:** The guides document `searchParams` (a URL-encoded JSON filter object), `sortKey` (`creationDate` / `lastModifiedDate`) and `sortOrder` (`ASC` / `DESC`) as query parameters.
+- **Contract:** The contract's collection GETs declare only `search`, `count` and `offset`.
+
+Every documented filter — the entire `ContactSearchParams` / `OpportunitySearchParams` vocabulary — travels through a query parameter the contract never declares. The schemas exist; the parameter carrying them does not. Anything generated straight from the contract can paginate but cannot filter or sort.
+
+### Liability.type — liability type subset
+
+**Still present** · medium · verified: _undocumented for Liability: realEstate, vehicle_
+
+- **Documented:** The liabilities guide documents only `account` and `standard` liability types.
+- **Contract:** `Liability.type` carries the full 4-value `AssetLiabilityType`, including `realEstate` and `vehicle`.
+
+Asset and Liability share one type enum, but half its values are asset-only in the documentation. A shared type control offers two options on liabilities that no guide supports and no name list covers.
+
+### Throttling — rate limit conflict
+
+**Still present** · medium · verified: _unresolvable from the contract; both figures are documentation-only_
+
+- **Documented:** The May 2025 Getting Started page says 20 requests/second and 144,000/day; the March 2026 FAQ says 60/second and 40,000/day.
+- **Contract:** The contract states no rate limit.
+
+The daily figures differ by more than 3×, and the newer source is the *lower* daily allowance. Neither describes rolling windows or per-branch allocation. Budget against the intersection — ≤20/second and ≤40,000/day — until Connective confirms the branch quota in writing.
+
+### RelatedParty.personID — person id casing outbound
+
+**Still present** · high · verified: _personID on ContactMethod, Expense, Income, RelatedParty; personId on Identification, Employment, Income, ExtensionSplit_
+
+- **Documented:** The related-parties guide sends `personID` (capital ID) on writes; the financials extensions use `personId` in their splits.
+- **Contract:** Both casings appear across the contract's schemas, on different resources.
+
+This is not a normalisation opportunity. Send the casing the specific resource documents — `personID` on related parties, `personId` in extension splits — and accept either on the way in. A generic camelCase converter applied at the client boundary corrupts outbound writes.
+
+## UI surface → API capability
+
+The public API is a CRM-record API, not an API for every Mercury Nexus screen.
+Of 20 mapped UI surfaces, 12 are confirmed, 4 are confirmed with writes untested,
+2 are partial, and 2 have no public API behind them at all.
+
+The last group is the important one: a visible feature is not evidence of a route.
+
+| Evidence level | What it licenses |
+|---|---|
+| `no_public_api_evidence` — No public API evidence | Nothing. The UI surface exists; no public route is documented for it. Do not expose a tool, and do not infer an endpoint from the UI label. |
+| `partial` — Partial | A write shape or a read path is documented, but a companion capability is missing — typically discovery. Usable only when the caller supplies the identifiers. |
+| `confirmed_write_unverified` — Confirmed, writes unverified | The route is documented and reads are confirmed, but no write was tested. Gate mutations behind an explicit confirmation and a fresh read. |
+| `confirmed` — Confirmed | Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. |
+
+| UI surface | Resource | Evidence | Note |
+|---|---|---|---|
+| People list / search | `Contact` | Confirmed | search params are URL-encoded JSON |
+| Person contact methods | `ContactMethod` | Confirmed | — |
+| Person address history | `Address` | Confirmed | — |
+| Person employment history | `Employment` | Confirmed | — |
+| Person income / expenses | `Income|Expense` | Confirmed | — |
+| Person identification | `Identification` | Confirmed | live response uses identifications; legacy spec uses Identification |
+| Opportunity list / search | `Opportunity` | Confirmed | — |
+| Opportunity Contacts / applicant cards | `RelatedParty` | Confirmed | personID/personId joins to Contact.uniqueId |
+| Financials: Assets | `Asset` | Confirmed | — |
+| Financials: Debts | `Liability` | Confirmed | — |
+| Financials: Living Expenses | `Extension livingExpense` | Confirmed | value is JSON encoded as a string; PUT replaces the complete list |
+| Financials: Other Income / support payments | `Extension otherIncome` | Confirmed | value is JSON encoded as a string; PUT replaces the complete list |
+| Person record | `Contact` | Confirmed, writes unverified | redact webPassword |
+| Opportunity detail | `Opportunity` | Confirmed, writes unverified | — |
+| Recycle bin / delete | `Contact|Opportunity|child` | Confirmed, writes unverified | soft deletion documented; public API restoration not confirmed |
+| Change status | `Opportunity.status` | Confirmed, writes unverified | status strings are branch-configured; preserve exact values |
+| Lead Source | `Opportunity.leadSource` | Partial | leadSourceId/leadSourceDisplay write shape is documented; no public catalogue endpoint is evidenced |
+| Person categories | `Contact.categories` | Partial | category assignment is documented; no public category discovery endpoint is evidenced |
+| Notes / tasks / attachments / documents | _none_ | **none** | notePadText creation use is the only narrow documented exception |
+| Client Portal, DigiSign, questionnaires, ApplyOnline, Open Banking, product comparison, reports | _none_ | **none** | visible UI workflows do not establish a supported public API |
+
+### Identifier rules
+
+- **contact** — Contact.uniqueId
+- **opportunity** — Opportunity.uniqueId
+- **relatedParty** — RelatedParty.uniqueId; personID/personId links to Contact.uniqueId
+- **child** — Each confirmed child resource has its own uniqueId
+
+### Mutation policy
+
+- **default** — read-only
+- **writes** — require fresh GET, human-readable diff, and explicit confirm:true
+- **extensions** — read-parse-merge-stringify-replace; never expose a raw general PUT extension tool
+- **deletes** — separate tool name and explicit confirmation phrase
+
+## Operational constraints
+
+### There is no sandbox — every call is production
+
+Connective's current FAQ states no UAT or sandbox environment exists, and API-created records appear in the normal Mercury Nexus interface. The 2021 Swagger file labels itself "Sandbox", which is documentation residue, not an environment. Every successful POST, PUT, soft-delete, hook registration or extension replacement changes a live CRM holding real client data.
+
+**Impact.** Write tooling needs a fresh read, a human-readable diff and explicit confirmation — there is nowhere else to try it.
+
+### Soft delete only; DELETE exists for webhooks alone
+
+CRM records and their children are deleted with `PUT { isDeleted: true }`, which sends them to the Nexus recycle bin. The only DELETE routes in the API are the two webhook-unregistration endpoints. UI restore exists; an API restore path has not been confirmed.
+
+**Impact.** Never model a CRM delete as an HTTP DELETE, and do not promise restore.
+
+### Group key in the header, branch token in the path
+
+`x-api-key` identifies the broker group; the token path segment identifies one branch. A virtual-branch group shares the key but each branch has its own token, so the token — not the key — selects which data is visible. Both come from Admin → Integrations and need Partner Level access.
+
+**Impact.** Model credentials as `{ groupApiKey, branchToken }`. A token is a data-scope selector, not a permission bypass; redact the path segment in telemetry.
+
+### Webhooks miss bulk imports
+
+Hooks fire for UI and API changes to contacts and opportunities and their listed children, and for bulk category/relationship-manager assignment — but explicitly not for bulk contact import. Delivery carries the full aggregate; there is no documented signature, retry policy, ordering guarantee or delivery id. A receiver returning 410 unregisters the hook.
+
+**Impact.** A webhook-only sync silently misses imported contacts. Pair hooks with a scheduled ascending delta scan, and make 410 a deliberate decommission rather than an error path.
+
+### Writing a lead source can create one
+
+Lead source is written as a nested object taking `leadSourceId`, `leadSourceDisplay` or both. A display value that doesn't exist may be created and assigned. There is no documented endpoint for listing lead sources.
+
+**Impact.** Require an existing approved id by default. Passing an unvalidated display string from an upstream form lets that form mint branch taxonomy.
+
+### Categories can be assigned but not discovered
+
+`Contact.categories[]` accepts category ids on write, but no public route lists or creates categories. The 15 known names came from a live pull, not an endpoint.
+
+**Impact.** Category assignment only works with externally supplied ids. A picker cannot populate itself from the API.
 
 ## Field inventory
 

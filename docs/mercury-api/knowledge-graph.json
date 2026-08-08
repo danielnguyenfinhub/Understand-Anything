@@ -2981,6 +2981,534 @@
       "complexity": "moderate"
     },
     {
+      "id": "source:ui-to-public-api-mapping-20260721",
+      "type": "source",
+      "name": "UI → public API capability map + research report (2026-07-21)",
+      "summary": "A review of the full public Connective Mercury Nexus wiki collection (288 articles enumerated, 175 retained) plus the linked API article chain, reduced to a capability registry of 20 UI surfaces. Its central finding is a boundary, not a feature list: the public API is a CRM-record API — Contacts, Opportunities, their documented children and the two financial extensions — and nothing else. Client Portal requests, DigiSign, documents, tasks, notes beyond creation-time notePadText, ApplyOnline, Open Banking, product comparison and reporting have no public API proof. The review found no additional public REST resource family beyond what this graph already models, which is a bounded conclusion about public documentation rather than a claim about Connective's internal services.",
+      "tags": [
+        "ui-mapping",
+        "capability-boundary",
+        "wiki-research",
+        "secondary-source",
+        "2026-07-21"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "category": "secondary-source"
+      }
+    },
+    {
+      "id": "domain:ui-capability-boundary",
+      "type": "domain",
+      "name": "UI surface → API capability boundary",
+      "summary": "Which Mercury Nexus screens a client can actually reach. Of 20 mapped UI surfaces: 12 confirmed, 4 confirmed with writes untested, 2 partial (a write shape documented but no discovery route), and 2 with no public API behind them at all. The negative space is the point — a visible feature is not evidence of a route, and inferring an endpoint from a UI label is how a client ends up promising a screen it cannot reach.",
+      "tags": [
+        "ui",
+        "capability",
+        "boundary",
+        "evidence",
+        "coverage"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "UI surface",
+          "Capability",
+          "Evidence level"
+        ],
+        "businessRules": [
+          "A UI feature's existence is not evidence that a public API route serves it.",
+          "Write shapes documented without a discovery route are usable only when the caller supplies the identifiers.",
+          "Every mutation is a production CRM change — there is no sandbox to try it in."
+        ]
+      }
+    },
+    {
+      "id": "capability:01-people-list-search",
+      "type": "concept",
+      "name": "People list / search — Confirmed",
+      "summary": "Mercury Nexus UI surface: People list / search. Public API resource: Contact. Operations: GET /contacts?search=true&searchParams={encodedJson}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: search_contacts. Note: search params are URL-encoded JSON",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "contact"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:02-person-record",
+      "type": "concept",
+      "name": "Person record — Confirmed, writes unverified",
+      "summary": "Mercury Nexus UI surface: Person record. Public API resource: Contact. Operations: GET /contacts/{contactId}; POST /contacts; PUT /contacts/{contactId}. Evidence: Confirmed, writes unverified. The route is documented and reads are confirmed, but no write was tested. Gate mutations behind an explicit confirmation and a fresh read. Suggested client operations: get_contact, create_contact, update_contact. Note: redact webPassword",
+      "tags": [
+        "ui-capability",
+        "confirmed_write_unverified",
+        "contact"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "capability:03-person-contact-methods",
+      "type": "concept",
+      "name": "Person contact methods — Confirmed",
+      "summary": "Mercury Nexus UI surface: Person contact methods. Public API resource: ContactMethod. Operations: GET|POST /contacts/{contactId}/contactMethods; PUT /contacts/{contactId}/contactMethods/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_contact_methods, upsert_contact_method.",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "contactmethod"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:04-person-address-history",
+      "type": "concept",
+      "name": "Person address history — Confirmed",
+      "summary": "Mercury Nexus UI surface: Person address history. Public API resource: Address. Operations: GET|POST /contacts/{contactId}/addresses; PUT /contacts/{contactId}/addresses/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_addresses, upsert_address.",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "address"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:05-person-employment-history",
+      "type": "concept",
+      "name": "Person employment history — Confirmed",
+      "summary": "Mercury Nexus UI surface: Person employment history. Public API resource: Employment. Operations: GET|POST /contacts/{contactId}/employments; PUT /contacts/{contactId}/employments/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_employments, upsert_employment.",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "employment"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:06-person-income-expenses",
+      "type": "concept",
+      "name": "Person income / expenses — Confirmed",
+      "summary": "Mercury Nexus UI surface: Person income / expenses. Public API resource: Income|Expense. Operations: GET|POST /contacts/{contactId}/incomes; PUT /contacts/{contactId}/incomes/{childId}; GET|POST /contacts/{contactId}/expenses; PUT /contacts/{contactId}/expenses/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_contact_incomes, upsert_contact_income, list_contact_expenses, upsert_contact_expense.",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "income-expense"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:07-person-identification",
+      "type": "concept",
+      "name": "Person identification — Confirmed",
+      "summary": "Mercury Nexus UI surface: Person identification. Public API resource: Identification. Operations: GET|POST /contacts/{contactId}/identifications; PUT /contacts/{contactId}/identifications/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_identifications, upsert_identification. Note: live response uses identifications; legacy spec uses Identification",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "identification"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:08-opportunity-list-search",
+      "type": "concept",
+      "name": "Opportunity list / search — Confirmed",
+      "summary": "Mercury Nexus UI surface: Opportunity list / search. Public API resource: Opportunity. Operations: GET /opportunities?search=true&searchParams={encodedJson}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: search_opportunities.",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "opportunity"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:09-opportunity-detail",
+      "type": "concept",
+      "name": "Opportunity detail — Confirmed, writes unverified",
+      "summary": "Mercury Nexus UI surface: Opportunity detail. Public API resource: Opportunity. Operations: GET /opportunities/{opportunityId}; POST /opportunities; PUT /opportunities/{opportunityId}. Evidence: Confirmed, writes unverified. The route is documented and reads are confirmed, but no write was tested. Gate mutations behind an explicit confirmation and a fresh read. Suggested client operations: get_opportunity, create_opportunity, update_opportunity.",
+      "tags": [
+        "ui-capability",
+        "confirmed_write_unverified",
+        "opportunity"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "capability:10-opportunity-contacts-applicant-cards",
+      "type": "concept",
+      "name": "Opportunity Contacts / applicant cards — Confirmed",
+      "summary": "Mercury Nexus UI surface: Opportunity Contacts / applicant cards. Public API resource: RelatedParty. Operations: GET|POST /opportunities/{opportunityId}/relatedParties; PUT /opportunities/{opportunityId}/relatedParties/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_opportunity_parties, link_contact_to_opportunity, set_party_relationship. Note: personID/personId joins to Contact.uniqueId",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "relatedparty"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:11-financials-assets",
+      "type": "concept",
+      "name": "Financials: Assets — Confirmed",
+      "summary": "Mercury Nexus UI surface: Financials: Assets. Public API resource: Asset. Operations: GET|POST /opportunities/{opportunityId}/assets; PUT /opportunities/{opportunityId}/assets/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_assets, upsert_asset.",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "asset"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:12-financials-debts",
+      "type": "concept",
+      "name": "Financials: Debts — Confirmed",
+      "summary": "Mercury Nexus UI surface: Financials: Debts. Public API resource: Liability. Operations: GET|POST /opportunities/{opportunityId}/liabilities; PUT /opportunities/{opportunityId}/liabilities/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_liabilities, upsert_liability.",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "liability"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:13-financials-living-expenses",
+      "type": "concept",
+      "name": "Financials: Living Expenses — Confirmed",
+      "summary": "Mercury Nexus UI surface: Financials: Living Expenses. Public API resource: Extension livingExpense. Operations: GET|POST|PUT /opportunities/{opportunityId}/extension/livingExpense. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: get_living_expenses, replace_living_expenses. Note: value is JSON encoded as a string; PUT replaces the complete list",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "extension-livingexpense"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:14-financials-other-income-support-payments",
+      "type": "concept",
+      "name": "Financials: Other Income / support payments — Confirmed",
+      "summary": "Mercury Nexus UI surface: Financials: Other Income / support payments. Public API resource: Extension otherIncome. Operations: GET|POST|PUT /opportunities/{opportunityId}/extension/otherIncome. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: get_other_income, replace_other_income. Note: value is JSON encoded as a string; PUT replaces the complete list",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "extension-otherincome"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:15-lead-source",
+      "type": "concept",
+      "name": "Lead Source — Partial",
+      "summary": "Mercury Nexus UI surface: Lead Source. Public API resource: Opportunity.leadSource. Operations: POST|PUT /opportunities/{opportunityId}. Evidence: Partial. A write shape or a read path is documented, but a companion capability is missing — typically discovery. Usable only when the caller supplies the identifiers. Suggested client operations: set_opportunity_lead_source. Note: leadSourceId/leadSourceDisplay write shape is documented; no public catalogue endpoint is evidenced",
+      "tags": [
+        "ui-capability",
+        "partial",
+        "opportunity-leadsource"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "capability:16-person-categories",
+      "type": "concept",
+      "name": "Person categories — Partial",
+      "summary": "Mercury Nexus UI surface: Person categories. Public API resource: Contact.categories. Operations: POST|PUT /contacts/{contactId}. Evidence: Partial. A write shape or a read path is documented, but a companion capability is missing — typically discovery. Usable only when the caller supplies the identifiers. Suggested client operations: update_contact_categories. Note: category assignment is documented; no public category discovery endpoint is evidenced",
+      "tags": [
+        "ui-capability",
+        "partial",
+        "contact-categories"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "capability:17-recycle-bin-delete",
+      "type": "concept",
+      "name": "Recycle bin / delete — Confirmed, writes unverified",
+      "summary": "Mercury Nexus UI surface: Recycle bin / delete. Public API resource: Contact|Opportunity|child. Operations: PUT with isDeleted:true. Evidence: Confirmed, writes unverified. The route is documented and reads are confirmed, but no write was tested. Gate mutations behind an explicit confirmation and a fresh read. Suggested client operations: soft_delete_*. Note: soft deletion documented; public API restoration not confirmed",
+      "tags": [
+        "ui-capability",
+        "confirmed_write_unverified",
+        "contact-opportunity-child"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "capability:18-change-status",
+      "type": "concept",
+      "name": "Change status — Confirmed, writes unverified",
+      "summary": "Mercury Nexus UI surface: Change status. Public API resource: Opportunity.status. Operations: PUT /opportunities/{opportunityId}. Evidence: Confirmed, writes unverified. The route is documented and reads are confirmed, but no write was tested. Gate mutations behind an explicit confirmation and a fresh read. Suggested client operations: update_opportunity_status. Note: status strings are branch-configured; preserve exact values",
+      "tags": [
+        "ui-capability",
+        "confirmed_write_unverified",
+        "opportunity-status"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "capability:19-notes-tasks-attachments-documents",
+      "type": "concept",
+      "name": "Notes / tasks / attachments / documents — no public API",
+      "summary": "Mercury Nexus UI surface: Notes / tasks / attachments / documents. No public API resource corresponds to this surface. Evidence: No public API evidence. Nothing. The UI surface exists; no public route is documented for it. Do not expose a tool, and do not infer an endpoint from the UI label. Note: notePadText creation use is the only narrow documented exception",
+      "tags": [
+        "ui-capability",
+        "no_public_api_evidence",
+        "no-public-api",
+        "boundary"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "capability:20-client-portal-digisign-questionnaires-applyonlin",
+      "type": "concept",
+      "name": "Client Portal, DigiSign, questionnaires, ApplyOnline, Open Banking, product comparison, reports — no public API",
+      "summary": "Mercury Nexus UI surface: Client Portal, DigiSign, questionnaires, ApplyOnline, Open Banking, product comparison, reports. No public API resource corresponds to this surface. Evidence: No public API evidence. Nothing. The UI surface exists; no public route is documented for it. Do not expose a tool, and do not infer an endpoint from the UI label. Note: visible UI workflows do not establish a supported public API",
+      "tags": [
+        "ui-capability",
+        "no_public_api_evidence",
+        "no-public-api",
+        "boundary"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:doc-conflict:asset-name-business-entity-vs-equity",
+      "type": "concept",
+      "name": "Guide vs contract (high): Asset.name",
+      "summary": "Documented: The asset guide lists `Business Entity` among the `standard` asset names. Contract: The enum catalog carries `Business Equity`. Exactly one string differs across an otherwise identical 19-value list. A form seeded from the guide sends a value the enum does not contain. Send the enum's spelling; treat the guide as a typo until a write test proves otherwise. Re-checked against the committed contract at generation time — still present: enum has `Business Equity`; guide says `Business Entity`.",
+      "tags": [
+        "doc-conflict",
+        "high",
+        "unresolved",
+        "asset",
+        "name"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:doc-conflict:related-party-primary-applicant-casing",
+      "type": "concept",
+      "name": "Guide vs contract (high): RelatedParty.relationship",
+      "summary": "Documented: The related-parties guide's worked example sends `relationship: \"Primary Applicant\"` — capital A. Contract: The enum value is `Primary applicant` — lowercase a. Copying the guide's example verbatim sends a value outside the enum. This is the documented example for the single most common related-party write, so it is the likeliest of these conflicts to be hit first. Re-checked against the committed contract at generation time — still present: enum: `Primary applicant`; guide example: `Primary Applicant`.",
+      "tags": [
+        "doc-conflict",
+        "high",
+        "unresolved",
+        "relatedparty",
+        "relationship"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:doc-conflict:contact-search-lastmodified-vs-lastupdated",
+      "type": "concept",
+      "name": "Guide vs contract (medium): ContactSearchParams",
+      "summary": "Documented: The April 2026 contact-search guide lists a `lastModified` filter key. Contract: `ContactSearchParams` declares `lastUpdated`. A delta-sync built from the guide's key silently filters on nothing and re-reads the whole collection every run. Same hazard on the sort key: the guide's `sortKey: \"lastModifiedDate\"` is not a contract parameter at all. Re-checked against the committed contract at generation time — still present: contract: `lastUpdated`; guide: `lastModified`.",
+      "tags": [
+        "doc-conflict",
+        "medium",
+        "unresolved",
+        "contactsearchparams"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:doc-conflict:address-country-full-name-vs-code",
+      "type": "concept",
+      "name": "Guide vs contract (high): Address.country",
+      "summary": "Documented: The person-creation guide's payload example sends `country: \"Australia\"`. Contract: `Address.country` is a 250-value code enum; the Australian value is `AU`. A country control seeded from the guide sends a display name where a code is required. The 250-value list also is not current ISO 3166-1 — it retains the withdrawn `AN` — so validating against an ISO library rejects values Mercury accepts. Re-checked against the committed contract at generation time — still present: contract: `AU` (250 codes); guide example: `Australia`.",
+      "tags": [
+        "doc-conflict",
+        "high",
+        "unresolved",
+        "address",
+        "country"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:doc-conflict:search-count-default-25-vs-100",
+      "type": "concept",
+      "name": "Guide vs contract (medium): GET /contacts, GET /opportunities",
+      "summary": "Documented: The search guide says an unfiltered search returns the 25 newest records, and that `count` defaults to 25 with a maximum of 100. Contract: The contract declares `count` with a default of 100 and states no maximum. The two disagree about the default page size and the contract does not encode the cap at all. Always send `count` explicitly rather than relying on either default, and treat 100 as the ceiling until Connective confirms otherwise. Re-checked against the committed contract at generation time — still present: contract default: 100; guide: 25 (max 100).",
+      "tags": [
+        "doc-conflict",
+        "medium",
+        "unresolved",
+        "get",
+        "contacts",
+        "get",
+        "opportunities"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:doc-conflict:webhook-active-string-vs-boolean",
+      "type": "concept",
+      "name": "Guide vs contract (medium): ContactHookRequestBody.active, OppHookRequestBody.active",
+      "summary": "Documented: The webhook guide's registration example sends `active: \"true\"` — a string. Contract: Both hook request bodies declare `active` as a boolean. This is the request-side twin of the response-side string-boolean hazard on `Opportunity.isNCCPEnabled`. Neither form is write-tested. Send the contract's boolean; be ready for the string to be what the service actually wants. Re-checked against the committed contract at generation time — still present: contract: boolean; guide example: string \"true\".",
+      "tags": [
+        "doc-conflict",
+        "medium",
+        "unresolved",
+        "contacthookrequestbody",
+        "active",
+        "opphookrequestbody",
+        "active"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:doc-conflict:search-params-not-in-contract",
+      "type": "concept",
+      "name": "Guide vs contract (high): GET /contacts, GET /opportunities",
+      "summary": "Documented: The guides document `searchParams` (a URL-encoded JSON filter object), `sortKey` (`creationDate` / `lastModifiedDate`) and `sortOrder` (`ASC` / `DESC`) as query parameters. Contract: The contract's collection GETs declare only `search`, `count` and `offset`. Every documented filter — the entire `ContactSearchParams` / `OpportunitySearchParams` vocabulary — travels through a query parameter the contract never declares. The schemas exist; the parameter carrying them does not. Anything generated straight from the contract can paginate but cannot filter or sort. Re-checked against the committed contract at generation time — still present: absent from the contract: searchParams, sortKey, sortOrder.",
+      "tags": [
+        "doc-conflict",
+        "high",
+        "unresolved",
+        "get",
+        "contacts",
+        "get",
+        "opportunities"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:doc-conflict:liability-type-subset",
+      "type": "concept",
+      "name": "Guide vs contract (medium): Liability.type",
+      "summary": "Documented: The liabilities guide documents only `account` and `standard` liability types. Contract: `Liability.type` carries the full 4-value `AssetLiabilityType`, including `realEstate` and `vehicle`. Asset and Liability share one type enum, but half its values are asset-only in the documentation. A shared type control offers two options on liabilities that no guide supports and no name list covers. Re-checked against the committed contract at generation time — still present: undocumented for Liability: realEstate, vehicle.",
+      "tags": [
+        "doc-conflict",
+        "medium",
+        "unresolved",
+        "liability",
+        "type"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:doc-conflict:rate-limit-conflict",
+      "type": "concept",
+      "name": "Guide vs contract (medium): Throttling",
+      "summary": "Documented: The May 2025 Getting Started page says 20 requests/second and 144,000/day; the March 2026 FAQ says 60/second and 40,000/day. Contract: The contract states no rate limit. The daily figures differ by more than 3×, and the newer source is the *lower* daily allowance. Neither describes rolling windows or per-branch allocation. Budget against the intersection — ≤20/second and ≤40,000/day — until Connective confirms the branch quota in writing. Re-checked against the committed contract at generation time — still present: unresolvable from the contract; both figures are documentation-only.",
+      "tags": [
+        "doc-conflict",
+        "medium",
+        "unresolved",
+        "throttling"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:doc-conflict:person-id-casing-outbound",
+      "type": "concept",
+      "name": "Guide vs contract (high): RelatedParty.personID",
+      "summary": "Documented: The related-parties guide sends `personID` (capital ID) on writes; the financials extensions use `personId` in their splits. Contract: Both casings appear across the contract's schemas, on different resources. This is not a normalisation opportunity. Send the casing the specific resource documents — `personID` on related parties, `personId` in extension splits — and accept either on the way in. A generic camelCase converter applied at the client boundary corrupts outbound writes. Re-checked against the committed contract at generation time — still present: personID on ContactMethod, Expense, Income, RelatedParty; personId on Identification, Employment, Income, ExtensionSplit.",
+      "tags": [
+        "doc-conflict",
+        "high",
+        "unresolved",
+        "relatedparty",
+        "personid"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:dependent-options:asset-name",
+      "type": "concept",
+      "name": "Asset.name options depend on Asset.type",
+      "summary": "Asset.name is a flat 19-value enum in the contract, but the published guides partition it by Asset.type, which makes it a dependent option set: choosing a type should narrow the names, and choosing a name should imply the type. realEstate: Real Estate. account: Cheque Account, Term Deposit, Investment Savings, Cash Management, Savings Account. standard: Charge Over Cash, Home Contents, Guarantee, Business Entity, Life Insurance, Managed Funds, Debenture Charge, Boat, Shares, Other, Gifts, Superannuation. vehicle: Motor Vehicle. Mismatch: Business Equity present in the enum but not the documented partition; Business Entity documented but not in the enum.",
+      "tags": [
+        "dependent-options",
+        "conditional-ui",
+        "asset",
+        "assetname",
+        "mismatch"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:dependent-options:liability-name",
+      "type": "concept",
+      "name": "Liability.name options depend on Liability.type",
+      "summary": "Liability.name is a flat 16-value enum in the contract, but the published guides partition it by Liability.type, which makes it a dependent option set: choosing a type should narrow the names, and choosing a name should imply the type. account: Overdraft, Loan As Guarantor, Other, Line Of Credit, Term Loan, Mortgage Loan, Store Card, Credit Card, Personal Loan, Other Loan. standard: Lease, Hire Purchase, Outstanding Taxation, Commercial Bill, HECS, Maintenance. The partition accounts for all 16 enum values exactly.",
+      "tags": [
+        "dependent-options",
+        "conditional-ui",
+        "liability",
+        "liabilityname"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:operational:no-sandbox",
+      "type": "concept",
+      "name": "There is no sandbox — every call is production",
+      "summary": "Connective's current FAQ states no UAT or sandbox environment exists, and API-created records appear in the normal Mercury Nexus interface. The 2021 Swagger file labels itself \"Sandbox\", which is documentation residue, not an environment. Every successful POST, PUT, soft-delete, hook registration or extension replacement changes a live CRM holding real client data. Impact: Write tooling needs a fresh read, a human-readable diff and explicit confirmation — there is nowhere else to try it.",
+      "tags": [
+        "operational-constraint",
+        "no-sandbox",
+        "integration-design"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:operational:no-delete-verb",
+      "type": "concept",
+      "name": "Soft delete only; DELETE exists for webhooks alone",
+      "summary": "CRM records and their children are deleted with `PUT { isDeleted: true }`, which sends them to the Nexus recycle bin. The only DELETE routes in the API are the two webhook-unregistration endpoints. UI restore exists; an API restore path has not been confirmed. Impact: Never model a CRM delete as an HTTP DELETE, and do not promise restore.",
+      "tags": [
+        "operational-constraint",
+        "no-delete-verb",
+        "integration-design"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:operational:credential-shape",
+      "type": "concept",
+      "name": "Group key in the header, branch token in the path",
+      "summary": "`x-api-key` identifies the broker group; the token path segment identifies one branch. A virtual-branch group shares the key but each branch has its own token, so the token — not the key — selects which data is visible. Both come from Admin → Integrations and need Partner Level access. Impact: Model credentials as `{ groupApiKey, branchToken }`. A token is a data-scope selector, not a permission bypass; redact the path segment in telemetry.",
+      "tags": [
+        "operational-constraint",
+        "credential-shape",
+        "integration-design"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:operational:webhooks-miss-bulk-import",
+      "type": "concept",
+      "name": "Webhooks miss bulk imports",
+      "summary": "Hooks fire for UI and API changes to contacts and opportunities and their listed children, and for bulk category/relationship-manager assignment — but explicitly not for bulk contact import. Delivery carries the full aggregate; there is no documented signature, retry policy, ordering guarantee or delivery id. A receiver returning 410 unregisters the hook. Impact: A webhook-only sync silently misses imported contacts. Pair hooks with a scheduled ascending delta scan, and make 410 a deliberate decommission rather than an error path.",
+      "tags": [
+        "operational-constraint",
+        "webhooks-miss-bulk-import",
+        "integration-design"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:operational:lead-source-creates-taxonomy",
+      "type": "concept",
+      "name": "Writing a lead source can create one",
+      "summary": "Lead source is written as a nested object taking `leadSourceId`, `leadSourceDisplay` or both. A display value that doesn't exist may be created and assigned. There is no documented endpoint for listing lead sources. Impact: Require an existing approved id by default. Passing an unvalidated display string from an upstream form lets that form mint branch taxonomy.",
+      "tags": [
+        "operational-constraint",
+        "lead-source-creates-taxonomy",
+        "integration-design"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:operational:no-category-discovery",
+      "type": "concept",
+      "name": "Categories can be assigned but not discovered",
+      "summary": "`Contact.categories[]` accepts category ids on write, but no public route lists or creates categories. The 15 known names came from a live pull, not an endpoint. Impact: Category assignment only works with externally supplied ids. A picker cannot populate itself from the API.",
+      "tags": [
+        "operational-constraint",
+        "no-category-discovery",
+        "integration-design"
+      ],
+      "complexity": "moderate"
+    },
+    {
       "id": "flow:create-opportunity-with-nested-entities",
       "type": "flow",
       "name": "Create an Opportunity, capturing the returned uniqueId",
@@ -6292,6 +6820,694 @@
       "weight": 0.9
     },
     {
+      "source": "domain:mercury-api",
+      "target": "domain:ui-capability-boundary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "domain:ui-capability-boundary",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:01-people-list-search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:01-people-list-search",
+      "target": "schema:Contact",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Contact"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:02-person-record",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:02-person-record",
+      "target": "schema:Contact",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Contact"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:03-person-contact-methods",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:03-person-contact-methods",
+      "target": "schema:ContactMethod",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by ContactMethod"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:04-person-address-history",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:04-person-address-history",
+      "target": "schema:Address",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Address"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:05-person-employment-history",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:05-person-employment-history",
+      "target": "schema:Employment",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Employment"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:06-person-income-expenses",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:07-person-identification",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:07-person-identification",
+      "target": "schema:Identification",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Identification"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:08-opportunity-list-search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:08-opportunity-list-search",
+      "target": "schema:Opportunity",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Opportunity"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:09-opportunity-detail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:09-opportunity-detail",
+      "target": "schema:Opportunity",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Opportunity"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:10-opportunity-contacts-applicant-cards",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:10-opportunity-contacts-applicant-cards",
+      "target": "schema:RelatedParty",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by RelatedParty"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:11-financials-assets",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:11-financials-assets",
+      "target": "schema:Asset",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Asset"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:12-financials-debts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:12-financials-debts",
+      "target": "schema:Liability",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Liability"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:13-financials-living-expenses",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:13-financials-living-expenses",
+      "target": "schema:OpportunityExtensionRecord",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Extension livingExpense"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:14-financials-other-income-support-payments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:14-financials-other-income-support-payments",
+      "target": "schema:OpportunityExtensionRecord",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Extension otherIncome"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:15-lead-source",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:15-lead-source",
+      "target": "schema:Opportunity",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Opportunity.leadSource"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:16-person-categories",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:16-person-categories",
+      "target": "schema:Contact",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Contact.categories"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:17-recycle-bin-delete",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:18-change-status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:18-change-status",
+      "target": "schema:Opportunity",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Opportunity.status"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:19-notes-tasks-attachments-documents",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:20-client-portal-digisign-questionnaires-applyonlin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:asset-name-business-entity-vs-equity",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:asset-name-business-entity-vs-equity",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:asset-name-business-entity-vs-equity",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:related-party-primary-applicant-casing",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:related-party-primary-applicant-casing",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:related-party-primary-applicant-casing",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:contact-search-lastmodified-vs-lastupdated",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:contact-search-lastmodified-vs-lastupdated",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:contact-search-lastmodified-vs-lastupdated",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:address-country-full-name-vs-code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:address-country-full-name-vs-code",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:address-country-full-name-vs-code",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:search-count-default-25-vs-100",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:search-count-default-25-vs-100",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:search-count-default-25-vs-100",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:webhook-active-string-vs-boolean",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:webhook-active-string-vs-boolean",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:webhook-active-string-vs-boolean",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:search-params-not-in-contract",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:search-params-not-in-contract",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:search-params-not-in-contract",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:liability-type-subset",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:liability-type-subset",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:liability-type-subset",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:rate-limit-conflict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:rate-limit-conflict",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:rate-limit-conflict",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:person-id-casing-outbound",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:person-id-casing-outbound",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:person-id-casing-outbound",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "concept:doc-conflict:asset-name-business-entity-vs-equity",
+      "target": "enum:AssetName",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:related-party-primary-applicant-casing",
+      "target": "enum:RelatedPartyRelationship",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:address-country-full-name-vs-code",
+      "target": "enum:CountryCode",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:liability-type-subset",
+      "target": "enum:AssetLiabilityType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:liability-type-subset",
+      "target": "enum:LiabilityName",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "concept:doc-conflict:contact-search-lastmodified-vs-lastupdated",
+      "target": "schema:ContactSearchParams",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:search-params-not-in-contract",
+      "target": "schema:ContactSearchParams",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:search-params-not-in-contract",
+      "target": "schema:OpportunitySearchParams",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:search-count-default-25-vs-100",
+      "target": "concept:field-hazard:collection-reads-require-search",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "concept:doc-conflict:webhook-active-string-vs-boolean",
+      "target": "concept:field-hazard:boolean-as-string",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:person-id-casing-outbound",
+      "target": "concept:field-hazard:casing-duplicates",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:dependent-options:asset-name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:dependent-options:asset-name",
+      "target": "enum:AssetName",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9,
+      "description": "narrows AssetName by Asset.type"
+    },
+    {
+      "source": "concept:dependent-options:asset-name",
+      "target": "enum:AssetLiabilityType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "the dependency is Asset.type"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:dependent-options:liability-name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:dependent-options:liability-name",
+      "target": "enum:LiabilityName",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9,
+      "description": "narrows LiabilityName by Liability.type"
+    },
+    {
+      "source": "concept:dependent-options:liability-name",
+      "target": "enum:AssetLiabilityType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "the dependency is Liability.type"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:operational:no-sandbox",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:operational:no-delete-verb",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:operational:credential-shape",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:operational:webhooks-miss-bulk-import",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:operational:lead-source-creates-taxonomy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:operational:no-category-discovery",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:operational:no-delete-verb",
+      "target": "concept:nested-entity-crud-rule",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:operational:lead-source-creates-taxonomy",
+      "target": "concept:leadsource-silent-noop",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:operational:no-category-discovery",
+      "target": "enum:FinhubContactCategoryName",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
       "source": "domain:opportunities",
       "target": "flow:create-opportunity-with-nested-entities",
       "type": "contains_flow",
@@ -6788,6 +8004,60 @@
       ]
     },
     {
+      "id": "layer:ui-capability-boundary",
+      "name": "UI Capability Boundary",
+      "description": "20 Mercury Nexus UI surfaces mapped to what the public API can actually reach — 12 confirmed, 4 write-unverified, 2 partial, and 2 with no public route behind them. Plus the operational constraints that shape any client: no sandbox, no DELETE verb, group key + branch token, webhooks that miss bulk imports.",
+      "nodeIds": [
+        "domain:ui-capability-boundary",
+        "source:ui-to-public-api-mapping-20260721",
+        "capability:01-people-list-search",
+        "capability:02-person-record",
+        "capability:03-person-contact-methods",
+        "capability:04-person-address-history",
+        "capability:05-person-employment-history",
+        "capability:06-person-income-expenses",
+        "capability:07-person-identification",
+        "capability:08-opportunity-list-search",
+        "capability:09-opportunity-detail",
+        "capability:10-opportunity-contacts-applicant-cards",
+        "capability:11-financials-assets",
+        "capability:12-financials-debts",
+        "capability:13-financials-living-expenses",
+        "capability:14-financials-other-income-support-payments",
+        "capability:15-lead-source",
+        "capability:16-person-categories",
+        "capability:17-recycle-bin-delete",
+        "capability:18-change-status",
+        "capability:19-notes-tasks-attachments-documents",
+        "capability:20-client-portal-digisign-questionnaires-applyonlin",
+        "concept:operational:no-sandbox",
+        "concept:operational:no-delete-verb",
+        "concept:operational:credential-shape",
+        "concept:operational:webhooks-miss-bulk-import",
+        "concept:operational:lead-source-creates-taxonomy",
+        "concept:operational:no-category-discovery"
+      ]
+    },
+    {
+      "id": "layer:doc-vs-contract-conflicts",
+      "name": "Guide vs Contract Conflicts",
+      "description": "10 of 10 recorded conflicts between the published guides and the audited contract are still present — each re-verified against the committed contract at generation time. Includes the dependent option sets, where the guides partition an enum the contract declares flat.",
+      "nodeIds": [
+        "concept:doc-conflict:asset-name-business-entity-vs-equity",
+        "concept:doc-conflict:related-party-primary-applicant-casing",
+        "concept:doc-conflict:contact-search-lastmodified-vs-lastupdated",
+        "concept:doc-conflict:address-country-full-name-vs-code",
+        "concept:doc-conflict:search-count-default-25-vs-100",
+        "concept:doc-conflict:webhook-active-string-vs-boolean",
+        "concept:doc-conflict:search-params-not-in-contract",
+        "concept:doc-conflict:liability-type-subset",
+        "concept:doc-conflict:rate-limit-conflict",
+        "concept:doc-conflict:person-id-casing-outbound",
+        "concept:dependent-options:asset-name",
+        "concept:dependent-options:liability-name"
+      ]
+    },
+    {
       "id": "layer:field-quirks-and-live-data",
       "name": "Field-Level Quirks & Live Data",
       "description": "Spec bugs, format mismatches, undocumented fields, and live-CRM-constrained value sets — the knowledge that doesn't live in the formal schema at all.",
@@ -6961,6 +8231,55 @@
         "concept:field-hazard:amount-as-string",
         "concept:field-hazard:readonly-hydrated-fields",
         "concept:field-hazard:casing-duplicates"
+      ]
+    },
+    {
+      "order": 15,
+      "title": "The boundary: 2 UI surfaces with no API behind them",
+      "description": "A review of the full public Connective wiki collection — 288 articles enumerated, 175 retained — found no public REST resource family beyond Contacts, Opportunities, their documented children and the two financial extensions. Client Portal requests, DigiSign, documents and attachments, tasks, notes beyond creation-time notePadText, ApplyOnline, Open Banking, product comparison and reporting are all visible in Mercury Nexus and none of them has a documented route. That is the most useful thing this layer records: not what you can build, but what you must not promise. A visible feature is not evidence of an endpoint.",
+      "nodeIds": [
+        "domain:ui-capability-boundary",
+        "source:ui-to-public-api-mapping-20260721",
+        "capability:19-notes-tasks-attachments-documents",
+        "capability:20-client-portal-digisign-questionnaires-applyonlin"
+      ],
+      "languageLesson": "Mapping a UI to an API is as much about recording the absences as the matches. An integration that quietly infers an endpoint from a screen label fails at runtime; one that records the gap fails at design time, which is where you want it."
+    },
+    {
+      "order": 16,
+      "title": "Following the docs will send values the wire rejects (10 live conflicts)",
+      "description": "The published guides and the audited contract disagree in ways that produce invalid requests. The related-parties guide's worked example sends `Primary Applicant`; the enum is `Primary applicant`. The assets guide lists `Business Entity` where the enum has `Business Equity` — one string differing across an otherwise identical 19-value list. The person-creation example sends `country: \"Australia\"` against a 2-letter code enum. And the entire documented filter vocabulary travels through a `searchParams` query parameter the contract never declares, so a client generated purely from the contract can paginate but cannot filter. Each conflict here is re-checked against the committed contract on every regeneration, so a refresh that fixes one reports it as resolved rather than repeating a stale warning.",
+      "nodeIds": [
+        "concept:doc-conflict:related-party-primary-applicant-casing",
+        "concept:doc-conflict:asset-name-business-entity-vs-equity",
+        "concept:doc-conflict:address-country-full-name-vs-code",
+        "concept:doc-conflict:search-params-not-in-contract"
+      ],
+      "languageLesson": "When a worked example in the docs and a generated contract disagree on a literal string, neither is automatically right — but only one of them is what the running service checks against. Verify against the artifact the service was built from, and record the discrepancy rather than silently picking a side."
+    },
+    {
+      "order": 17,
+      "title": "Some option lists depend on another field",
+      "description": "`Asset.name` is a flat 19-value enum in the contract, but the guides partition it by `Asset.type`: `realEstate` admits only `Real Estate`, `vehicle` only `Motor Vehicle`, `account` five deposit-shaped names, `standard` the remaining twelve. `Liability.name` partitions the same way and accounts for all 16 of its values exactly. Offering the flat list lets a user build a combination no guide supports — and the Liability case is sharper still, because Liability shares the 4-value type enum but only two of those values are documented for it.",
+      "nodeIds": [
+        "concept:dependent-options:asset-name",
+        "concept:dependent-options:liability-name",
+        "enum:AssetName",
+        "enum:LiabilityName",
+        "concept:doc-conflict:liability-type-subset"
+      ]
+    },
+    {
+      "order": 18,
+      "title": "There is no sandbox",
+      "description": "Every call in this graph hits production data. Connective's current FAQ states no UAT environment exists, and API-created records appear in the normal Mercury Nexus interface — the 2021 Swagger file labelling itself \"Sandbox\" is documentation residue, not an environment. CRM deletion is `PUT { isDeleted: true }`; the only DELETE routes are webhook unregistration. Credentials are a group-wide `x-api-key` plus a per-branch path token, so the token selects which branch's data is visible. And webhooks do not fire for bulk contact imports, so a hook-only sync silently misses them.",
+      "nodeIds": [
+        "concept:operational:no-sandbox",
+        "concept:operational:no-delete-verb",
+        "concept:operational:credential-shape",
+        "concept:operational:webhooks-miss-bulk-import",
+        "concept:operational:lead-source-creates-taxonomy",
+        "concept:operational:no-category-discovery"
       ]
     }
   ]

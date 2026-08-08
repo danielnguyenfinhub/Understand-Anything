@@ -28,6 +28,7 @@ import { writeFileSync, mkdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildFieldEnumModel } from "./lib/mercury-field-enum-model.mjs";
+import { buildUiCapabilityModel } from "./lib/mercury-ui-capability-model.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, "..");
@@ -1262,6 +1263,173 @@ edge("enum:LoanStatusInactive", CLAIM_STATUS, "cites", { weight: 0.9 });
 edge("enum:FinhubContactCategoryName", CLAIM_CATEGORIES, "cites", { weight: 0.9 });
 edge("enum:FinhubContactCategoryName", "concept:category-name-convention", "related", { weight: 0.9 });
 
+// ───────────────────────── UI capability boundary & doc conflicts ─────────────────────────
+//
+// The field model above answers "what values does this field accept?". This
+// section answers the two questions either side of it: which Mercury Nexus UI
+// surfaces have a public route behind them at all, and where the published
+// guides and the contract disagree about a literal value or field name. The
+// conflicts are re-checked against the committed contract on every run — see
+// scripts/lib/mercury-ui-capability-model.mjs.
+
+const uiModel = buildUiCapabilityModel();
+
+const SOURCE_UI_MAPPING = node({
+  id: "source:ui-to-public-api-mapping-20260721",
+  type: "source",
+  name: "UI → public API capability map + research report (2026-07-21)",
+  summary: `A review of the full public Connective Mercury Nexus wiki collection (288 articles enumerated, 175 retained) plus the linked API article chain, reduced to a capability registry of ${uiModel.stats.capabilities} UI surfaces. Its central finding is a boundary, not a feature list: the public API is a CRM-record API — Contacts, Opportunities, their documented children and the two financial extensions — and nothing else. Client Portal requests, DigiSign, documents, tasks, notes beyond creation-time notePadText, ApplyOnline, Open Banking, product comparison and reporting have no public API proof. The review found no additional public REST resource family beyond what this graph already models, which is a bounded conclusion about public documentation rather than a claim about Connective's internal services.`,
+  tags: ["ui-mapping", "capability-boundary", "wiki-research", "secondary-source", "2026-07-21"],
+  complexity: "simple",
+  knowledgeMeta: { category: "secondary-source" },
+});
+
+const DOMAIN_UI_BOUNDARY = node({
+  id: "domain:ui-capability-boundary",
+  type: "domain",
+  name: "UI surface → API capability boundary",
+  summary: `Which Mercury Nexus screens a client can actually reach. Of ${uiModel.stats.capabilities} mapped UI surfaces: ${uiModel.stats.confirmed} confirmed, ${uiModel.stats.writeUnverified} confirmed with writes untested, ${uiModel.stats.partial} partial (a write shape documented but no discovery route), and ${uiModel.stats.gaps} with no public API behind them at all. The negative space is the point — a visible feature is not evidence of a route, and inferring an endpoint from a UI label is how a client ends up promising a screen it cannot reach.`,
+  tags: ["ui", "capability", "boundary", "evidence", "coverage"],
+  complexity: "complex",
+  domainMeta: {
+    entities: ["UI surface", "Capability", "Evidence level"],
+    businessRules: [
+      "A UI feature's existence is not evidence that a public API route serves it.",
+      "Write shapes documented without a discovery route are usable only when the caller supplies the identifiers.",
+      "Every mutation is a production CRM change — there is no sandbox to try it in.",
+    ],
+  },
+});
+edge(DOMAIN_ROOT, DOMAIN_UI_BOUNDARY, "contains", { weight: 0.9 });
+edge(SOURCE_UI_MAPPING, DOMAIN_UI_BOUNDARY, "documents", { weight: 1 });
+
+/** Map a capability's resource name onto the schema/domain nodes already in the graph. */
+const RESOURCE_TO_NODE = {
+  Contact: "schema:Contact",
+  ContactMethod: "schema:ContactMethod",
+  Address: "schema:Address",
+  Employment: "schema:Employment",
+  Identification: "schema:Identification",
+  Opportunity: "schema:Opportunity",
+  RelatedParty: "schema:RelatedParty",
+  Asset: "schema:Asset",
+  Liability: "schema:Liability",
+  "Extension livingExpense": "schema:OpportunityExtensionRecord",
+  "Extension otherIncome": "schema:OpportunityExtensionRecord",
+  "Opportunity.leadSource": "schema:Opportunity",
+  "Contact.categories": "schema:Contact",
+  "Opportunity.status": "schema:Opportunity",
+};
+
+const CAPABILITY_NODE_IDS = [];
+const CAPABILITY_GAP_IDS = [];
+uiModel.capabilities.forEach((c, i) => {
+  const id = node({
+    id: `capability:${String(i + 1).padStart(2, "0")}-${c.ui.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48)}`,
+    type: "concept",
+    name: `${c.ui} — ${c.isGap ? "no public API" : c.statusLabel}`,
+    summary: [
+      `Mercury Nexus UI surface: ${c.ui}.`,
+      c.resource ? `Public API resource: ${c.resource}.` : "No public API resource corresponds to this surface.",
+      c.operations.length > 0 ? `Operations: ${c.operations.join("; ")}.` : "",
+      `Evidence: ${c.statusLabel}. ${c.licenses}`,
+      c.tools.length > 0 ? `Suggested client operations: ${c.tools.join(", ")}.` : "",
+      c.notes ? `Note: ${c.notes}` : "",
+    ]
+      .filter(Boolean)
+      .join(" "),
+    tags: ["ui-capability", c.status, ...(c.isGap ? ["no-public-api", "boundary"] : []), ...(c.resource ? [c.resource.toLowerCase().replace(/[^a-z0-9]+/g, "-")] : [])],
+    complexity: c.isGap ? "simple" : c.statusRank === 3 ? "moderate" : "complex",
+  });
+  CAPABILITY_NODE_IDS.push(id);
+  if (c.isGap) CAPABILITY_GAP_IDS.push(id);
+  edge(DOMAIN_UI_BOUNDARY, id, "contains", { weight: c.isGap ? 0.4 : 0.7 });
+  const target = c.resource ? RESOURCE_TO_NODE[c.resource] : null;
+  if (target && existingSchemaIds.has(target)) {
+    edge(id, target, "related", { weight: 0.7, description: `UI surface backed by ${c.resource}` });
+  }
+});
+
+const CONFLICT_NODE_IDS = [];
+for (const c of uiModel.conflicts) {
+  const id = node({
+    id: `concept:doc-conflict:${c.id}`,
+    type: "concept",
+    name: `Guide vs contract (${c.severity}): ${c.topic}`,
+    summary: [
+      `Documented: ${c.documented}`,
+      `Contract: ${c.contract}`,
+      c.consequence,
+      `Re-checked against the committed contract at generation time — ${c.stillPresent ? "still present" : "RESOLVED"}: ${c.verifiedDetail}.`,
+    ].join(" "),
+    tags: [
+      "doc-conflict",
+      c.severity,
+      c.stillPresent ? "unresolved" : "resolved",
+      ...c.topic.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean),
+    ],
+    complexity: c.severity === "high" ? "complex" : "moderate",
+  });
+  CONFLICT_NODE_IDS.push(id);
+  edge(DOMAIN_UI_BOUNDARY, id, "contains", { weight: c.severity === "high" ? 0.9 : 0.6 });
+  edge(SOURCE_UI_MAPPING, id, "documents", { weight: 0.7 });
+  edge(id, SOURCE_LIVE_AUDITED, "contradicts", { weight: 0.8, description: "published guidance disagrees with the audited contract" });
+}
+
+// Anchor each conflict to the enum or schema it actually threatens.
+edge("concept:doc-conflict:asset-name-business-entity-vs-equity", "enum:AssetName", "related", { weight: 0.9 });
+edge("concept:doc-conflict:related-party-primary-applicant-casing", "enum:RelatedPartyRelationship", "related", { weight: 0.9 });
+edge("concept:doc-conflict:address-country-full-name-vs-code", "enum:CountryCode", "related", { weight: 0.9 });
+edge("concept:doc-conflict:liability-type-subset", "enum:AssetLiabilityType", "related", { weight: 0.9 });
+edge("concept:doc-conflict:liability-type-subset", "enum:LiabilityName", "related", { weight: 0.8 });
+edge("concept:doc-conflict:contact-search-lastmodified-vs-lastupdated", "schema:ContactSearchParams", "related", { weight: 0.9 });
+edge("concept:doc-conflict:search-params-not-in-contract", "schema:ContactSearchParams", "related", { weight: 0.9 });
+edge("concept:doc-conflict:search-params-not-in-contract", "schema:OpportunitySearchParams", "related", { weight: 0.9 });
+edge("concept:doc-conflict:search-count-default-25-vs-100", "concept:field-hazard:collection-reads-require-search", "related", { weight: 0.8 });
+edge("concept:doc-conflict:webhook-active-string-vs-boolean", "concept:field-hazard:boolean-as-string", "related", { weight: 0.9 });
+edge("concept:doc-conflict:person-id-casing-outbound", "concept:field-hazard:casing-duplicates", "related", { weight: 0.9 });
+
+// Dependent option sets: Asset.name / Liability.name are narrowed by their type.
+const DEPENDENT_NODE_IDS = [];
+for (const d of uiModel.dependentOptions) {
+  const mismatch = d.unaccountedEnumValues.length > 0 || d.documentedValuesNotInEnum.length > 0;
+  const id = node({
+    id: `concept:dependent-options:${d.field.replace(/\./g, "-").toLowerCase()}`,
+    type: "concept",
+    name: `${d.field} options depend on ${d.dependsOn}`,
+    summary: [
+      `${d.field} is a flat ${d.enumValueCount}-value enum in the contract, but the published guides partition it by ${d.dependsOn}, which makes it a dependent option set: choosing a type should narrow the names, and choosing a name should imply the type.`,
+      ...Object.entries(d.byType).map(([type, names]) => `${type}: ${names.join(", ")}.`),
+      mismatch
+        ? `Mismatch: ${d.unaccountedEnumValues.join(", ") || "none"} present in the enum but not the documented partition; ${d.documentedValuesNotInEnum.join(", ") || "none"} documented but not in the enum.`
+        : `The partition accounts for all ${d.enumValueCount} enum values exactly.`,
+    ].join(" "),
+    tags: ["dependent-options", "conditional-ui", d.field.split(".")[0].toLowerCase(), d.enumName.toLowerCase(), ...(mismatch ? ["mismatch"] : [])],
+    complexity: mismatch ? "complex" : "moderate",
+  });
+  DEPENDENT_NODE_IDS.push(id);
+  edge(DOMAIN_UI_BOUNDARY, id, "contains", { weight: 0.7 });
+  edge(id, `enum:${d.enumName}`, "related", { weight: 0.9, description: `narrows ${d.enumName} by ${d.dependsOn}` });
+  edge(id, "enum:AssetLiabilityType", "related", { weight: 0.8, description: `the dependency is ${d.dependsOn}` });
+}
+
+const CONSTRAINT_NODE_IDS = [];
+for (const oc of uiModel.operationalConstraints) {
+  const id = node({
+    id: `concept:operational:${oc.id}`,
+    type: "concept",
+    name: oc.title,
+    summary: `${oc.detail} Impact: ${oc.impact}`,
+    tags: ["operational-constraint", oc.id, "integration-design"],
+    complexity: "moderate",
+  });
+  CONSTRAINT_NODE_IDS.push(id);
+  edge(DOMAIN_UI_BOUNDARY, id, "contains", { weight: 0.7 });
+}
+edge("concept:operational:no-delete-verb", "concept:nested-entity-crud-rule", "related", { weight: 0.9 });
+edge("concept:operational:lead-source-creates-taxonomy", "concept:leadsource-silent-noop", "related", { weight: 0.9 });
+edge("concept:operational:no-category-discovery", "enum:FinhubContactCategoryName", "related", { weight: 0.8 });
+
 // ───────────────────────── flows & steps ─────────────────────────
 
 const FLOW_CREATE_OPP = node({
@@ -1459,6 +1627,18 @@ const layers = [
     nodeIds: [...SOFT_ENUM_NODE_IDS, ...HAZARD_NODE_IDS],
   },
   {
+    id: "layer:ui-capability-boundary",
+    name: "UI Capability Boundary",
+    description: `${uiModel.stats.capabilities} Mercury Nexus UI surfaces mapped to what the public API can actually reach — ${uiModel.stats.confirmed} confirmed, ${uiModel.stats.writeUnverified} write-unverified, ${uiModel.stats.partial} partial, and ${uiModel.stats.gaps} with no public route behind them. Plus the operational constraints that shape any client: no sandbox, no DELETE verb, group key + branch token, webhooks that miss bulk imports.`,
+    nodeIds: [DOMAIN_UI_BOUNDARY, SOURCE_UI_MAPPING, ...CAPABILITY_NODE_IDS, ...CONSTRAINT_NODE_IDS],
+  },
+  {
+    id: "layer:doc-vs-contract-conflicts",
+    name: "Guide vs Contract Conflicts",
+    description: `${uiModel.stats.conflictsStillPresent} of ${uiModel.stats.conflicts} recorded conflicts between the published guides and the audited contract are still present — each re-verified against the committed contract at generation time. Includes the dependent option sets, where the guides partition an enum the contract declares flat.`,
+    nodeIds: [...CONFLICT_NODE_IDS, ...DEPENDENT_NODE_IDS],
+  },
+  {
     id: "layer:field-quirks-and-live-data",
     name: "Field-Level Quirks & Live Data",
     description: "Spec bugs, format mismatches, undocumented fields, and live-CRM-constrained value sets — the knowledge that doesn't live in the formal schema at all.",
@@ -1578,6 +1758,48 @@ const tour = [
       "concept:field-hazard:readonly-hydrated-fields",
       "concept:field-hazard:casing-duplicates",
     ],
+  },
+  {
+    order: 15,
+    title: `The boundary: ${uiModel.stats.gaps} UI surfaces with no API behind them`,
+    description: `A review of the full public Connective wiki collection — 288 articles enumerated, 175 retained — found no public REST resource family beyond Contacts, Opportunities, their documented children and the two financial extensions. Client Portal requests, DigiSign, documents and attachments, tasks, notes beyond creation-time notePadText, ApplyOnline, Open Banking, product comparison and reporting are all visible in Mercury Nexus and none of them has a documented route. That is the most useful thing this layer records: not what you can build, but what you must not promise. A visible feature is not evidence of an endpoint.`,
+    nodeIds: [DOMAIN_UI_BOUNDARY, SOURCE_UI_MAPPING, ...CAPABILITY_GAP_IDS],
+    languageLesson:
+      "Mapping a UI to an API is as much about recording the absences as the matches. An integration that quietly infers an endpoint from a screen label fails at runtime; one that records the gap fails at design time, which is where you want it.",
+  },
+  {
+    order: 16,
+    title: `Following the docs will send values the wire rejects (${uiModel.stats.conflictsStillPresent} live conflicts)`,
+    description:
+      "The published guides and the audited contract disagree in ways that produce invalid requests. The related-parties guide's worked example sends `Primary Applicant`; the enum is `Primary applicant`. The assets guide lists `Business Entity` where the enum has `Business Equity` — one string differing across an otherwise identical 19-value list. The person-creation example sends `country: \"Australia\"` against a 2-letter code enum. And the entire documented filter vocabulary travels through a `searchParams` query parameter the contract never declares, so a client generated purely from the contract can paginate but cannot filter. Each conflict here is re-checked against the committed contract on every regeneration, so a refresh that fixes one reports it as resolved rather than repeating a stale warning.",
+    nodeIds: [
+      "concept:doc-conflict:related-party-primary-applicant-casing",
+      "concept:doc-conflict:asset-name-business-entity-vs-equity",
+      "concept:doc-conflict:address-country-full-name-vs-code",
+      "concept:doc-conflict:search-params-not-in-contract",
+    ],
+    languageLesson:
+      "When a worked example in the docs and a generated contract disagree on a literal string, neither is automatically right — but only one of them is what the running service checks against. Verify against the artifact the service was built from, and record the discrepancy rather than silently picking a side.",
+  },
+  {
+    order: 17,
+    title: "Some option lists depend on another field",
+    description:
+      "`Asset.name` is a flat 19-value enum in the contract, but the guides partition it by `Asset.type`: `realEstate` admits only `Real Estate`, `vehicle` only `Motor Vehicle`, `account` five deposit-shaped names, `standard` the remaining twelve. `Liability.name` partitions the same way and accounts for all 16 of its values exactly. Offering the flat list lets a user build a combination no guide supports — and the Liability case is sharper still, because Liability shares the 4-value type enum but only two of those values are documented for it.",
+    nodeIds: [
+      "concept:dependent-options:asset-name",
+      "concept:dependent-options:liability-name",
+      "enum:AssetName",
+      "enum:LiabilityName",
+      "concept:doc-conflict:liability-type-subset",
+    ],
+  },
+  {
+    order: 18,
+    title: "There is no sandbox",
+    description:
+      "Every call in this graph hits production data. Connective's current FAQ states no UAT environment exists, and API-created records appear in the normal Mercury Nexus interface — the 2021 Swagger file labelling itself \"Sandbox\" is documentation residue, not an environment. CRM deletion is `PUT { isDeleted: true }`; the only DELETE routes are webhook unregistration. Credentials are a group-wide `x-api-key` plus a per-branch path token, so the token selects which branch's data is visible. And webhooks do not fire for bulk contact imports, so a hook-only sync silently misses them.",
+    nodeIds: CONSTRAINT_NODE_IDS,
   },
 ];
 
