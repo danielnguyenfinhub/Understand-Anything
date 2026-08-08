@@ -143,7 +143,26 @@ function Dashboard({ accessToken }: { accessToken: string }) {
 
   useEffect(() => {
     fetch(dataUrl("knowledge-graph.json", accessToken))
-      .then((res) => res.json())
+      .then(async (res) => {
+        // Guard res.ok before parsing (matching the meta.json/config.json/
+        // diff-overlay.json/domain-graph.json fetches in this file). Without
+        // this, a serving/config failure returns a 404 JSON error body that
+        // gets parsed and handed to validateGraph, which fails project-metadata
+        // validation and surfaces the misleading "Invalid knowledge graph:
+        // Missing or invalid project metadata" instead of the real cause
+        // (graph file not found / GRAPH_DIR unset). See issues #288, #406.
+        if (!res.ok) {
+          let detail = `HTTP ${res.status}`;
+          try {
+            const body = await res.json();
+            if (body?.error) detail = body.error;
+          } catch {
+            /* non-JSON error body; keep the status code */
+          }
+          throw new Error(detail);
+        }
+        return res.json();
+      })
       .then((data: unknown) => {
         const result = validateGraph(data);
         if (result.success && result.data) {
