@@ -1,15 +1,17 @@
 {
   "version": "1.0.0",
   "project": {
-    "name": "Mercury Public API (Sandbox) — Field Knowledge",
+    "name": "Mercury Public API (Sandbox) — Field & UI-Enum Knowledge",
     "languages": [
       "yaml",
+      "json",
       "typescript"
     ],
     "frameworks": [
-      "Swagger 2.0"
+      "Swagger 2.0",
+      "OpenAPI 3.1"
     ],
-    "description": "A hand-curated knowledge graph of Connective's Mercury Public API (Sandbox) — every documented endpoint and schema field, the 6 endpoints and ~20 Opportunity fields production has that the spec doesn't, spec bugs, and live-CRM-constrained enum values pulled from Finhub's connected Mercury CRM on 2026-07-17.",
+    "description": "A knowledge graph of Connective's Mercury Public API (Sandbox) — every documented endpoint and schema field, the 6 endpoints and ~20 Opportunity fields production has that the spec doesn't, spec bugs, and live-CRM-constrained enum values pulled from Finhub's connected Mercury CRM on 2026-07-17. Layered on top: the field & UI-enum model derived from the 2026-07-18 live-audited OpenAPI contract — 482 fields across 28 object schemas, 32 enums (547 values) each mapped to the UI control it implies, 19 free-text-but-constrained fields, and 9 groups of format and writability traps.",
     "analyzedAt": "2026-07-18T00:00:00.000Z",
     "gitCommitHash": "n/a"
   },
@@ -2013,6 +2015,1500 @@
       "complexity": "simple"
     },
     {
+      "id": "source:live-audited-contract-20260718",
+      "type": "source",
+      "name": "Live-audited contract + enum catalog (2026-07-18)",
+      "summary": "OpenAPI 3.1 re-issue of the Mercury contract, reconciled against a read-only census of 2,402 opportunities, 4,604 contacts and 15 categories. Supersedes the Swagger 2.0 source for field-level questions: 33 path templates, 53 operations, 28 object schemas, 482 fields, and a separate catalog of 32 enums totalling 547 values. Every path carries an x-evidence marker. What it still does NOT establish: requiredness, read-only/write-only flags, validation boundaries, create/update semantics, pagination limits, and the item shapes of valueObjectOwnershipList, otherLoanPeople and assetLiabilityLinks — all of which need sandbox write probes. Also fixes the Address.country YAML bug: Norway is the string \"NO\" here, not boolean false.",
+      "tags": [
+        "openapi-3.1",
+        "live-audit",
+        "enum-catalog",
+        "primary-source",
+        "2026-07-18"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "category": "primary-source"
+      }
+    },
+    {
+      "id": "domain:field-enum-model",
+      "type": "domain",
+      "name": "Field & UI-enum model",
+      "summary": "The form-building view of the API: 482 fields across 28 object schemas, 32 enums covering 547 values, and the mapping from each enum to the UI control it implies. 29 enums are validated by the contract and bind to 43 fields; 3 are branch catalogs against free-text fields and must not be rendered as closed dropdowns. A further 19 fields are plain strings on the wire but constrained in practice, and 9 groups of fields carry format or writability traps that no enum describes.",
+      "tags": [
+        "fields",
+        "enums",
+        "ui",
+        "forms",
+        "controls",
+        "validation"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "Enum",
+          "Field",
+          "UI control",
+          "Soft enum",
+          "Field hazard"
+        ],
+        "businessRules": [
+          "A closed dropdown is only safe where the contract validates the value set; catalog-derived lists must stay creatable.",
+          "Control choice follows option count unless the data shape overrides it.",
+          "Fields the API returns for display only must render read-only, not as editable inputs whose edits are discarded."
+        ]
+      }
+    },
+    {
+      "id": "concept:ui-control-selection-rules",
+      "type": "concept",
+      "name": "Choosing a control: option-count thresholds",
+      "summary": "Default control follows the option count — radio (≤3), select (≤12), combobox (≤60), typeahead (>60). The thresholds are deliberately conservative in both directions: a 51-option native <select> makes a user scroll blind, and a typeahead on a 4-option enum adds a click that used to be zero. Two things override the arithmetic — a free-text field (which needs a creatable control however short its catalog) and an enum whose values gate other form sections rather than merely record a choice.",
+      "tags": [
+        "ui",
+        "controls",
+        "radio",
+        "select",
+        "combobox",
+        "typeahead",
+        "thresholds"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "enum:AuState",
+      "type": "schema",
+      "name": "AuState (9 values → select)",
+      "summary": "State / territory. 9 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 3 fields: Contact.driversLicenceState, Identification.placeOfIssue, Address.state. Values: ACT, NSW, NT, QLD, SA, TAS, VIC, WA, OTHER The list is 9 long, not 8: it carries an explicit `OTHER` alongside the eight AU states and territories. On `Identification.placeOfIssue`, `OTHER` is how an interstate or overseas issuing authority is recorded — a picker limited to the real states silently cannot express those documents.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "austate",
+        "driverslicencestate",
+        "placeofissue",
+        "state"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:Frequency",
+      "type": "schema",
+      "name": "Frequency (4 values → select)",
+      "summary": "Frequency (Title Case). 4 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 4 fields: Expense.frequency, Income.frequency, LivingExpenseLineItem.frequency, OtherIncomeLineItem.frequency. Values: Annual, Fortnightly, Monthly, Weekly Mercury carries two frequency enums that are not interchangeable. This one is Title Case and uses `Annual`; `FrequencyLower` is lowercase and uses `annually`. Sharing one frequency control across Expense/Income and Asset/Liability requires mapping both the casing *and* the word — `Annual` → `annually` is not a `toLowerCase()`.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "frequency",
+        "frequency",
+        "frequency",
+        "frequency",
+        "frequency"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:FrequencyLower",
+      "type": "schema",
+      "name": "FrequencyLower (4 values → select)",
+      "summary": "Frequency (lowercase). 4 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 4 fields: Asset.realEstateRentalIncomeFrequency, Asset.existingMortgageRepaymentFrequency, Asset.investmentCostFrequency, Liability.accountRepaymentFrequency. Values: annually, fortnightly, monthly, weekly Lowercase variant used by every Asset and Liability frequency field. `annually`, not `annual` — the odd one out if you derive it from `Frequency` by lowercasing.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "frequencylower",
+        "realestaterentalincomefrequency",
+        "existingmortgagerepaymentfrequency",
+        "investmentcostfrequency",
+        "accountrepaymentfrequency"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:AssetLiabilityType",
+      "type": "schema",
+      "name": "AssetLiabilityType (4 values → select)",
+      "summary": "Asset / liability type. 4 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 2 fields: Asset.type, Liability.type. Values: account, realEstate, vehicle, standard This is the enum that drives conditional form sections, not just a value: `realEstate` reveals the `address` + `realEstate*` + `existingMortgage*` groups, `vehicle` reveals `motorVehicle*`, `account` reveals `accountName`/`accountNumber`/`accountBSB`, and `standard` reveals nothing beyond `details`. It has to stay consistent with `Asset.name` / `Liability.name`, which is a separate enum — picking the name `Real Estate` and the type `vehicle` is representable on the wire and meaningless downstream.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "assetliabilitytype",
+        "type",
+        "type"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "enum:CountryCode",
+      "type": "schema",
+      "name": "CountryCode (250 values → typeahead)",
+      "summary": "Country. 250 values. Suggested control: typeahead — >60 options — filter-as-you-type only; never render the full list Carried by 1 field: Address.country. Values: AD, AE, AF, AG, AI, AL, AM, AN, AO, AQ, AR, AS, AT, AU, AW, AX, AZ, BA, BB, BD, BE, BF, BG, BH, … (+226 more) 250 codes — typeahead only. It is not the current ISO 3166-1 list: `AN` (Netherlands Antilles, withdrawn 2010) is present. Validating user input against a live ISO library will reject values Mercury itself accepts and returns. The original Swagger had Norway's `NO` parsed as the boolean `false` (unquoted YAML). This live-audited contract has it fixed — but any client generated from the older spec still carries the bug.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "typeahead",
+        "api-validated",
+        "countrycode",
+        "country"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "enum:ContactTitle",
+      "type": "schema",
+      "name": "ContactTitle (7 values → select)",
+      "summary": "Title. 7 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 1 field: Contact.title. Values: Dr, Miss, Ms, Mr, Mrs, Prof, Rev",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "contacttitle",
+        "title"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "enum:MaritalStatus",
+      "type": "schema",
+      "name": "MaritalStatus (7 values → select)",
+      "summary": "Marital status. 7 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 1 field: Contact.maritalStatus. Values: Single, Married, DeFacto, Separated, Divorced, Widowed, Other `DeFacto` is one unspaced word on the wire. Display it as “De Facto” by all means, but the value you send back is `DeFacto`.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "maritalstatus",
+        "maritalstatus"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:Gender",
+      "type": "schema",
+      "name": "Gender (2 values → radio)",
+      "summary": "Gender. 2 values. Suggested control: radio — ≤3 options — show them all, no click to discover them Carried by 2 fields: Contact.gender, RelatedParty.gender. Values: M, F The wire contract admits exactly `M` and `F`. There is no non-binary, other, or undisclosed value, so a form cannot offer one — anything else is rejected. The field is optional, so leaving it unset is the honest representation of “not one of these two”; don't force a choice to satisfy the control.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "radio",
+        "api-validated",
+        "gender",
+        "gender",
+        "gender"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:EmploymentStatusContact",
+      "type": "schema",
+      "name": "EmploymentStatusContact (9 values → select)",
+      "summary": "Employment status (Contact). 9 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 1 field: Contact.employmentStatus. Values: Full Time, Part Time, Contract, Temporary, Commission, Seasonal, Casual, Self-Employed, Unemployed Name collision: `Contact.employmentStatus` is this 9-value enum (Full Time, Casual, Self-Employed …), while `Employment.employmentStatus` on the nested Employment record is free text carrying a completely different vocabulary (Primary, Secondary, Previous). Same field name, different entity, different meaning — do not bind both to one control.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "employmentstatuscontact",
+        "employmentstatus"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:PhoneDisplayType",
+      "type": "schema",
+      "name": "PhoneDisplayType (8 values → select)",
+      "summary": "Phone slot type. 8 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 4 fields: Contact.phoneDisplayType1, Contact.phoneDisplayType2, Contact.phoneDisplayType3, Contact.phoneDisplayType4. Values: Business, Business 2, Business Fax, Home, Home 2, Home Fax, Mobile, Mobile 2 Four parallel fields (`phoneDisplayType1`…`4`) share this one enum. They are slots, so the same value in two slots is a data-entry error the API will happily store — de-duplicate the selected value across the four controls.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "phonedisplaytype",
+        "phonedisplaytype1",
+        "phonedisplaytype2",
+        "phonedisplaytype3",
+        "phonedisplaytype4"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:ContactMethodEnum",
+      "type": "schema",
+      "name": "ContactMethodEnum (11 values → select)",
+      "summary": "Contact method slot. 11 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 1 field: ContactMethod.contactMethod. Values: Business, Business 2, Business Fax, Email 1, Email 2, Email 3, Home, Home 2, Home Fax, Mobile, Mobile 2 Sits on the same record as `ContactMethod.type` and must stay coherent with it: `Email 1/2/3` go with type `email`, `Mobile`/`Mobile 2` with `mobile`, `Home`/`Home 2`/`Home Fax` with `home`, and the `Business*` values with `phone`. That pairing is inferred from the value names and matching live payloads — it is not asserted by the contract, so derive `type` from the slot but let it be overridden.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "contactmethodenum",
+        "contactmethod"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:ContactMethodType",
+      "type": "schema",
+      "name": "ContactMethodType (4 values → select)",
+      "summary": "Contact method channel. 4 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 1 field: ContactMethod.type. Values: email, home, mobile, phone Lowercase, and narrower than the slot enum it accompanies (4 channels for 11 slots). See the pairing note on `ContactMethodEnum`.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "contactmethodtype",
+        "type"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:DocumentStatus",
+      "type": "schema",
+      "name": "DocumentStatus (2 values → radio)",
+      "summary": "Document version sighted. 2 values. Suggested control: radio — ≤3 options — show them all, no click to discover them Carried by 1 field: Identification.versionSighted. Values: Original, Certified",
+      "tags": [
+        "enum",
+        "ui-control",
+        "radio",
+        "api-validated",
+        "documentstatus",
+        "versionsighted"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "enum:DocumentType",
+      "type": "schema",
+      "name": "DocumentType (51 values → combobox)",
+      "summary": "Identification document type. 51 values. Suggested control: combobox — 13–60 options — needs type-to-filter, but the full list is still renderable Carried by 1 field: Identification.documentType. Values: DriversLicenceAust, GovtIssuePilotLicence, BirthCertificate, PassportAust, PassportIntl, ProofOfAgeCard, BirthCertAust, BirthCertIntl, AustCitizenshipCertificate, GovtIssueHealthCard, GovtPensionCard, DriversLicenceIntl, CitizenCertIntl, PassportExpired, BankCreditCard, FinInstCreditCard, BankCashCard, FinInstCashCard, BankPassbook, FinInstPassbook, BankStatement, DeedPoll, DefForceIdentityCard, ExistingCustomer, … (+27 more) 51 values — the longest enum outside `CountryCode`, and the one most worth grouping in the UI (licences, passports, birth/citizenship, government cards, bank instruments, statements, references) rather than presenting as a flat alphabetical list. Values are PascalCase identifiers, not display strings: `DriversLicenceAust`, `GovtIssueFinancialBenNot`. They need a label map before a human sees them.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "combobox",
+        "api-validated",
+        "documenttype",
+        "documenttype"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "enum:ExpenseType",
+      "type": "schema",
+      "name": "ExpenseType (11 values → select)",
+      "summary": "Expense type. 11 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 1 field: Expense.type. Values: Credit Card, Home Loan, Investment Loan, Car Loan, Personal Loan, Maintenance, Rent Paid, Living Expenses, Education, Insurance, Other Overlaps `LiabilityName` by name (Credit Card, Home Loan, Personal Loan, Car Loan). The same real-world commitment can be captured as a Contact expense *and* an Opportunity liability; the enums do not stop you double-counting it.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "expensetype",
+        "type"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:IncomeType",
+      "type": "schema",
+      "name": "IncomeType (11 values → select)",
+      "summary": "Income type. 11 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 1 field: Income.type. Values: Bonus, Business Income, Dividends, Family Allowance, Maintenance, Overtime, Pension, Rental, Salary, Self Employed, Other Also the de-facto vocabulary for `OtherIncomeLineItem.type` on the extension route, where the field is an open string rather than this enum — same options, no validation.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "incometype",
+        "type"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:OpportunityCategory",
+      "type": "schema",
+      "name": "OpportunityCategory (13 values → combobox)",
+      "summary": "Opportunity category. 13 values. Suggested control: combobox — 13–60 options — needs type-to-filter, but the full list is still renderable Carried by 1 field: Opportunity.transactionType. Values: Loan, CommercialLoans, PlantAndEquipment, PersonalLoans, Property, FinancialPlanning, Insurance, LifeInsurance, Accounting, TermDeposit, PremiumFunding, CreditCard, CashManagementAcc Carried by the field named `transactionType`, not `category`. The similarly-named `tranxType` field is a *different* enum (`OpportunityTranxType`). Two adjacent fields, near-identical names, unrelated value sets — the single easiest field pair in this API to wire up backwards.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "combobox",
+        "api-validated",
+        "opportunitycategory",
+        "transactiontype"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:OpportunityTranxType",
+      "type": "schema",
+      "name": "OpportunityTranxType (5 values → select)",
+      "summary": "Transaction type. 5 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 1 field: Opportunity.tranxType. Values: Pre-Approval, Purchase, Refinance, Top Up, Variation Carried by `tranxType`. See the naming collision noted on `OpportunityCategory`.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "opportunitytranxtype",
+        "tranxtype"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:LoanStatusActive",
+      "type": "schema",
+      "name": "LoanStatusActive (27 values → creatable-select)",
+      "summary": "Pipeline stage (active). 27 values. Suggested control: creatable-select — Overrides the 27-option default (`combobox`): the field this describes is free text on the wire, so the control has to accept values outside the list. No field binds this as an enum — Opportunity.status is free text on the wire, so these values are a catalog, not a constraint. Values: 1. Lead – Discovery, 2. Strategy Appointment Booked & Client Center Portal Send to Clients, 2.1 Appointment Conduct & Completed, 2.2 Follow-Up Required, 2.3 Follow Up Opportunities, 3.0 Awaiting Client Documents, 3.1 Documents Received & Uploaded, 4. Lender Selection & Policy Review, 5. Loan Proposal Sent to Client Via Email, 5.1 Prepare For Application Lodgement, 6. Application Submitted to Lender, 6.1 Lender Queries / Outstanding Items (MIR), 6.2 Pre-Approval Issued, 6.3. Unconditional Approval Issued, 7.0. Loan Documents Issued, 7.1 Documents Returned & Certified, 8.0 Ready for Settlement, 8.1 Settled/Funded, 8.2 Settled – Commission Paid, 8.3 Construction Loan – Progress Payments, 8.4 Loan Currently In Arrear, 9.0 Financial Passport Invite Sent, 9.1 Financial Passport Invite -Active, 9.2 Financial Passport Invite -Expired, … (+3 more) Not an API constraint. `Opportunity.status` is a free-text string in the contract; these 27 values are the branch's live pipeline catalog. A closed dropdown here will block a legitimate value the moment the branch adds a stage — offer the known list, allow free text. Five values contain an en-dash (`–`), not a hyphen: `1. Lead – Discovery`, `8.2 Settled – Commission Paid`, `8.3 Construction Loan – Progress Payments`, `9.3/9.4/9.5 Mortgage Review – NN Month`. Retyping them with a hyphen produces a string that will not match. The leading numbers order the pipeline but do not sort lexically (`10` would fall between `1.` and `2.`); sort on an explicit index, not the label.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "creatable-select",
+        "catalog-only",
+        "loanstatusactive"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "enum:LoanStatusInactive",
+      "type": "schema",
+      "name": "LoanStatusInactive (3 values → creatable-select)",
+      "summary": "Pipeline stage (closed). 3 values. Suggested control: creatable-select — Overrides the 3-option default (`radio`): the field this describes is free text on the wire, so the control has to accept values outside the list. No field binds this as an enum — Opportunity.status is free text on the wire, so these values are a catalog, not a constraint. Values: 12. Loan Discharged, 13. Declined by Lender, 14. Client Not Proceeding Same free-text caveat as the active list. Numbering jumps from `9.5` straight to `12` — stages 10 and 11 are absent from the catalog, so don't infer the set from the numbering.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "creatable-select",
+        "catalog-only",
+        "loanstatusinactive"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:FinhubContactCategoryName",
+      "type": "schema",
+      "name": "FinhubContactCategoryName (15 values → creatable-select)",
+      "summary": "Contact category. 15 values. Suggested control: creatable-select — Overrides the 15-option default (`combobox`): the field this describes is free text on the wire, so the control has to accept values outside the list. No field binds this as an enum — Category.categoryName is free text on the wire, so these values are a catalog, not a constraint. Values: REVIEW - Client Will Call, PREF - Loan Reminders, FREQ - Important Only, PREF - Property Market, FREQ - Half Yearly, REVIEW - 24 Monthly, PREF - Ad Hoc Only, PREF - RBA Updates, REVIEW - 12 Monthly, PREF - Lender News, FREQ - Monthly, FREQ - Quarterly, PREF - Investment Property, PREF - First Home Buyer, REVIEW - 6 Monthly Branch data, not a contract constraint — `Category.categoryName` is free text. Three families share the list: `PREF - *` (comms preference), `FREQ - *` (contact frequency), `REVIEW - *` (review cadence). Group by prefix; a contact holds several at once, so this is a multi-select over `Contact.categories[]`, not a single choice.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "creatable-select",
+        "catalog-only",
+        "finhubcontactcategoryname"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "enum:HousingSituation",
+      "type": "schema",
+      "name": "HousingSituation (7 values → select)",
+      "summary": "Housing situation. 7 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 2 fields: Address.housingSituation, RelatedParty.housingSituation. Values: Boarding, Caravan, Own Home, Own Home - Mortgage, Renting, With Parents, Other Appears on `Address.housingSituation` (writable) and again on `RelatedParty.housingSituation`, where it is a hydrated read-only copy — rendering an editable control on the RelatedParty copy invites an edit that goes nowhere.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "housingsituation",
+        "housingsituation",
+        "housingsituation"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:RelatedPartyRelationship",
+      "type": "schema",
+      "name": "RelatedPartyRelationship (25 values → combobox)",
+      "summary": "Relationship to the deal. 25 values. Suggested control: combobox — 13–60 options — needs type-to-filter, but the full list is still renderable Carried by 1 field: RelatedParty.relationship. Values: Adviser, Agent, Primary applicant, Secondary applicant, Assessor, Bank / Lender, Banker, Broker, Builder, Accountant, Conveyancer, Solicitor, Co-Applicant, Director, Employer, Financial Planner, Insurance referral, Insurer, Joint Borrower, JSG/ PRE, Land Agent, Lender, Loan Writer, NonApplicant, … (+1 more) `JSG/ PRE` carries a space after the slash. It is the literal wire value; normalising the whitespace breaks the match. Mixes applicant roles (Primary applicant, Co-Applicant, Joint Borrower) with professional roles (Conveyancer, Solicitor, Accountant) in one flat list — worth grouping in the UI.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "combobox",
+        "api-validated",
+        "relatedpartyrelationship",
+        "relationship"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "enum:AssetName",
+      "type": "schema",
+      "name": "AssetName (19 values → combobox)",
+      "summary": "Asset name. 19 values. Suggested control: combobox — 13–60 options — needs type-to-filter, but the full list is still renderable Carried by 1 field: Asset.name. Values: Real Estate, Boat, Business Equity, Cash Management, Charge Over Cash, Cheque Account, Debenture Charge, Gifts, Guarantee, Home Contents, Investment Savings, Life Insurance, Managed Funds, Motor Vehicle, Savings Account, Shares, Superannuation, Term Deposit, Other Pairs with `AssetLiabilityType`: `Real Estate` implies type `realEstate`, `Motor Vehicle` implies `vehicle`, the account-shaped names (Cheque Account, Savings Account, Term Deposit, Cash Management) imply `account`. Derive the type from the name and let it be overridden rather than asking twice.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "combobox",
+        "api-validated",
+        "assetname",
+        "name"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:ValueBasis",
+      "type": "schema",
+      "name": "ValueBasis (3 values → radio)",
+      "summary": "Basis of valuation. 3 values. Suggested control: radio — ≤3 options — show them all, no click to discover them Carried by 1 field: Asset.valueBasis. Values: Applicant Estimate, Certified Valuation, Actual Value",
+      "tags": [
+        "enum",
+        "ui-control",
+        "radio",
+        "api-validated",
+        "valuebasis",
+        "valuebasis"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "enum:RealEstatePurpose",
+      "type": "schema",
+      "name": "RealEstatePurpose (2 values → radio)",
+      "summary": "Property purpose. 2 values. Suggested control: radio — ≤3 options — show them all, no click to discover them Carried by 1 field: Asset.realEstatePurpose. Values: Owner Occupied, Investment",
+      "tags": [
+        "enum",
+        "ui-control",
+        "radio",
+        "api-validated",
+        "realestatepurpose",
+        "realestatepurpose"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "enum:LiabilityName",
+      "type": "schema",
+      "name": "LiabilityName (16 values → combobox)",
+      "summary": "Liability name. 16 values. Suggested control: combobox — 13–60 options — needs type-to-filter, but the full list is still renderable Carried by 1 field: Liability.name. Values: Commercial Bill, Credit Card, HECS, Hire Purchase, Lease, Line Of Credit, Loan As Guarantor, Maintenance, Mortgage Loan, Other Loan, Outstanding Taxation, Overdraft, Personal Loan, Store Card, Term Loan, Other `Credit Card` and `Store Card` are the only values for which `creditCardType` and `limit` are meaningful — gate those fields on the name.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "combobox",
+        "api-validated",
+        "liabilityname",
+        "name"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:CreditCardType",
+      "type": "schema",
+      "name": "CreditCardType (4 values → select)",
+      "summary": "Card scheme. 4 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 1 field: Liability.creditCardType. Values: Amex, Diners, Mastercard, Visa Only meaningful when `Liability.name` is `Credit Card`; otherwise it should not be shown or sent.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "creditcardtype",
+        "creditcardtype"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:ContactWebhookSubscriptionType",
+      "type": "schema",
+      "name": "ContactWebhookSubscriptionType (3 values → radio)",
+      "summary": "Contact webhook scope. 3 values. Suggested control: radio — ≤3 options — show them all, no click to discover them Carried by 1 field: ContactHookRequestBody.subscription_type. Values: All available contacts, Contacts in my branch/office, Contacts where I am the relationship manager Values are full sentence-case phrases (`Contacts in my branch/office`), not slugs. They are the wire values — send them verbatim.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "radio",
+        "api-validated",
+        "contactwebhooksubscriptiontype",
+        "subscription_type"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:ContactWebhookEvent",
+      "type": "schema",
+      "name": "ContactWebhookEvent (3 values → radio)",
+      "summary": "Contact webhook event. 3 values. Suggested control: radio — ≤3 options — show them all, no click to discover them Carried by 1 field: ContactHookRequestBody.event. Values: Created, Created or updated, Deleted `Created or updated` is a single value, not two — it is not a multi-select over `Created` and an update event.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "radio",
+        "api-validated",
+        "contactwebhookevent",
+        "event"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "enum:OpportunityWebhookSubscriptionType",
+      "type": "schema",
+      "name": "OpportunityWebhookSubscriptionType (4 values → select)",
+      "summary": "Opportunity webhook scope. 4 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 1 field: OppHookRequestBody.subscription_type. Values: All available opportunities, Opportunities in my branch/office, Opportunities where I am the agent, Opportunities where I am the admin/supervisor",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "opportunitywebhooksubscriptiontype",
+        "subscription_type"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "enum:OpportunityWebhookEvent",
+      "type": "schema",
+      "name": "OpportunityWebhookEvent (4 values → select)",
+      "summary": "Opportunity webhook event. 4 values. Suggested control: select — 4–12 options — a plain dropdown is scannable at a glance Carried by 1 field: OppHookRequestBody.event. Values: Created, Created or updated, Deleted, Opportunity Status Changed Superset of the contact event list: adds `Opportunity Status Changed`, which has no contact-side equivalent.",
+      "tags": [
+        "enum",
+        "ui-control",
+        "select",
+        "api-validated",
+        "opportunitywebhookevent",
+        "event"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:opportunity-status",
+      "type": "concept",
+      "name": "Opportunity.status — string on the wire, constrained in practice",
+      "summary": "Opportunity.status is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-select. Draws its vocabulary from LoanStatusActive + LoanStatusInactive. Free text in the contract; 30 branch pipeline values in live data. See the en-dash and sort-order hazards on LoanStatusActive.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-select",
+        "status",
+        "opportunity"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:category-categoryname",
+      "type": "concept",
+      "name": "Category.categoryName — string on the wire, constrained in practice",
+      "summary": "Category.categoryName is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-multiselect. Draws its vocabulary from FinhubContactCategoryName. Free text in the contract; 15 branch values in three PREF-/FREQ-/REVIEW- families. Multi-valued via Contact.categories[].",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-multiselect",
+        "categoryname",
+        "category"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:contact-citizenshipcountry",
+      "type": "concept",
+      "name": "Contact.citizenshipCountry — string on the wire, constrained in practice",
+      "summary": "Contact.citizenshipCountry is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-typeahead. Draws its vocabulary from CountryCode. Typed `CountryCode | string` in the generated types and plain string in the contract — offer the country list, accept anything.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-typeahead",
+        "citizenshipcountry",
+        "contact"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:contact-countryofresidency",
+      "type": "concept",
+      "name": "Contact.countryOfResidency — string on the wire, constrained in practice",
+      "summary": "Contact.countryOfResidency is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-typeahead. Draws its vocabulary from CountryCode. As above.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-typeahead",
+        "countryofresidency",
+        "contact"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:contact-companyregisteredin",
+      "type": "concept",
+      "name": "Contact.companyRegisteredIn — string on the wire, constrained in practice",
+      "summary": "Contact.companyRegisteredIn is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-typeahead. Draws its vocabulary from CountryCode. As above.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-typeahead",
+        "companyregisteredin",
+        "contact"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:opportunityextensionrecord-key",
+      "type": "concept",
+      "name": "OpportunityExtensionRecord.key — string on the wire, constrained in practice",
+      "summary": "OpportunityExtensionRecord.key is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: select. Known values: livingExpense, otherIncome. Determined by the route you called, not chosen by a user — it should not be an editable control at all.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "select",
+        "key",
+        "opportunityextensionrecord"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:opportunityextensionrecord-parenttype",
+      "type": "concept",
+      "name": "OpportunityExtensionRecord.parentType — string on the wire, constrained in practice",
+      "summary": "OpportunityExtensionRecord.parentType is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: hidden. Known values: loan. Only `loan` observed. Constant, not a choice.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "hidden",
+        "parenttype",
+        "opportunityextensionrecord"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:livingexpenselineitem-type",
+      "type": "concept",
+      "name": "LivingExpenseLineItem.type — string on the wire, constrained in practice",
+      "summary": "LivingExpenseLineItem.type is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-select. Known values: Clothing & Personal Care, Child & Spouse Maintenance. Open union — only two values documented, and the extension routes validate nothing. Offer what's known; expect more.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-select",
+        "type",
+        "livingexpenselineitem"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:otherincomelineitem-type",
+      "type": "concept",
+      "name": "OtherIncomeLineItem.type — string on the wire, constrained in practice",
+      "summary": "OtherIncomeLineItem.type is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-select. Draws its vocabulary from IncomeType. Open union that borrows IncomeType's vocabulary without its validation.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-select",
+        "type",
+        "otherincomelineitem"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:employment-employmentbasis",
+      "type": "concept",
+      "name": "Employment.employmentBasis — string on the wire, constrained in practice",
+      "summary": "Employment.employmentBasis is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-select. Known values: Full time, Part time. Free text. Note the casing differs from EmploymentStatusContact's `Full Time` / `Part Time` — same words, different capitalisation, different field.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-select",
+        "employmentbasis",
+        "employment"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:employment-employmentstatus",
+      "type": "concept",
+      "name": "Employment.employmentStatus — string on the wire, constrained in practice",
+      "summary": "Employment.employmentStatus is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-select. Known values: Primary, Secondary, Previous. Free text, and NOT the same vocabulary as Contact.employmentStatus. See the collision note on EmploymentStatusContact.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-select",
+        "employmentstatus",
+        "employment"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:employment-employmenttype",
+      "type": "concept",
+      "name": "Employment.employmentType — string on the wire, constrained in practice",
+      "summary": "Employment.employmentType is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-select. Known values: Payg, Self employment. Free text.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-select",
+        "employmenttype",
+        "employment"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:employment-paygemployertype",
+      "type": "concept",
+      "name": "Employment.paygEmployerType — string on the wire, constrained in practice",
+      "summary": "Employment.paygEmployerType is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-select. Known values: Public, Private. Free text.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-select",
+        "paygemployertype",
+        "employment"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:address-type",
+      "type": "concept",
+      "name": "Address.type — string on the wire, constrained in practice",
+      "summary": "Address.type is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-select. Residence type, free text with no documented value set — a plain text input is the honest control until live values are censused.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-select",
+        "type",
+        "address"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:asset-propertytype",
+      "type": "concept",
+      "name": "Asset.propertyType — string on the wire, constrained in practice",
+      "summary": "Asset.propertyType is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-select. Free text; no documented value set.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-select",
+        "propertytype",
+        "asset"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:asset-propertystatus",
+      "type": "concept",
+      "name": "Asset.propertyStatus — string on the wire, constrained in practice",
+      "summary": "Asset.propertyStatus is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-select. Free text; no documented value set.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-select",
+        "propertystatus",
+        "asset"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:asset-propertytitletype",
+      "type": "concept",
+      "name": "Asset.propertyTitleType — string on the wire, constrained in practice",
+      "summary": "Asset.propertyTitleType is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-select. Free text; no documented value set.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-select",
+        "propertytitletype",
+        "asset"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:asset-realestatefinancetype",
+      "type": "concept",
+      "name": "Asset.realEstateFinanceType — string on the wire, constrained in practice",
+      "summary": "Asset.realEstateFinanceType is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-select. Free text; no documented value set.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-select",
+        "realestatefinancetype",
+        "asset"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "soft-enum:asset-motorvehicletype",
+      "type": "concept",
+      "name": "Asset.motorVehicleType — string on the wire, constrained in practice",
+      "summary": "Asset.motorVehicleType is typed as a plain string by the contract, so nothing rejects an unexpected value. Suggested control: creatable-select. Free text; no documented value set.",
+      "tags": [
+        "soft-enum",
+        "free-text",
+        "creatable-select",
+        "motorvehicletype",
+        "asset"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:field-hazard:webpassword-never-render",
+      "type": "concept",
+      "name": "Field hazard (critical): webpassword never render",
+      "summary": "Observed in GET responses. Strip it at the wire boundary: never bind it to a control, never log it, never put it in client state. It should not exist in any model a UI can reach. Affects: Contact.webPassword.",
+      "tags": [
+        "field-hazard",
+        "critical",
+        "webpassword-never-render",
+        "webpassword"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:field-hazard:date-epoch-or-string",
+      "type": "concept",
+      "name": "Field hazard (high): date epoch or string",
+      "summary": "Typed `number | string` — live payloads return Unix epoch milliseconds where the original spec promised a date-time string. A date control must normalise on read (`typeof v === 'number' ? new Date(v) : new Date(String(v))`); passing an epoch number to a string date parser yields Invalid Date silently. Affects: Contact.createdOn, Contact.lastUpdated, Contact.deletedOn, Contact.dateOfBirth, Opportunity.createdOn, Opportunity.lastUpdated, Opportunity.statusLastUpdated, Opportunity.deletedOn, Opportunity.submittedToLenderDate, ContactMethod.modified, RelatedParty.dateOfBirth.",
+      "tags": [
+        "field-hazard",
+        "high",
+        "date-epoch-or-string",
+        "createdon",
+        "lastupdated",
+        "deletedon",
+        "dateofbirth",
+        "createdon",
+        "lastupdated",
+        "statuslastupdated",
+        "deletedon",
+        "submittedtolenderdate",
+        "modified",
+        "dateofbirth"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:field-hazard:boolean-as-string",
+      "type": "concept",
+      "name": "Field hazard (medium): boolean as string",
+      "summary": "Typed `boolean | string` — Mercury sometimes serialises it as the string `\"true\"`. A checkbox bound straight to it treats `\"false\"` as truthy. Affects: Opportunity.isNCCPEnabled.",
+      "tags": [
+        "field-hazard",
+        "medium",
+        "boolean-as-string",
+        "isnccpenabled"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:field-hazard:amount-as-string",
+      "type": "concept",
+      "name": "Field hazard (high): amount as string",
+      "summary": "String, not number — unlike every other money field in the API (`Expense.amount`, `Income.amount`, `Asset.value` are all numbers). A shared money input must serialise back to a string on these two. Affects: LivingExpenseLineItem.amount, OtherIncomeLineItem.amount.",
+      "tags": [
+        "field-hazard",
+        "high",
+        "amount-as-string",
+        "amount",
+        "amount"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:field-hazard:casing-duplicates",
+      "type": "concept",
+      "name": "Field hazard (high): casing duplicates",
+      "summary": "The same concept ships under two casings depending on the endpoint. `Contact.Identification` (capital I) is the Swagger name; live Contact payloads use `identifications`. Read both, write the one the endpoint you are calling expects, and never let a form bind to only one. Affects: ContactMethod.personID, Income.personID, Income.personId, Expense.personID, Identification.personId, RelatedParty.personID, Address.parentId, Address.parentID, Contact.Identification, Contact.identifications.",
+      "tags": [
+        "field-hazard",
+        "high",
+        "casing-duplicates",
+        "personid",
+        "personid",
+        "personid",
+        "personid",
+        "personid",
+        "personid",
+        "parentid",
+        "parentid",
+        "identification",
+        "identifications"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:field-hazard:readonly-hydrated-fields",
+      "type": "concept",
+      "name": "Field hazard (medium): readonly hydrated fields",
+      "summary": "Returned by GET as display/hydrated values. `Asset.motorVehicleMake` in particular is display-only — the make is written through `Asset.details`. Render these read-only; an editable control produces an edit that is silently discarded. Affects: Asset.motorVehicleMake, RelatedParty.fullName, RelatedParty.addressBlock, RelatedParty.email, RelatedParty.mobile, RelatedParty.dateOfBirth, Contact.fullName, Contact.dateOfBirthDisplay, Opportunity.lenderDisplayName, Opportunity.agentName, Opportunity.confirmedSettlementDateDisplay, Opportunity.nextActionDisplay.",
+      "tags": [
+        "field-hazard",
+        "medium",
+        "readonly-hydrated-fields",
+        "motorvehiclemake",
+        "fullname",
+        "addressblock",
+        "email",
+        "mobile",
+        "dateofbirth",
+        "fullname",
+        "dateofbirthdisplay",
+        "lenderdisplayname",
+        "agentname",
+        "confirmedsettlementdatedisplay",
+        "nextactiondisplay"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:field-hazard:field-name-typo-is-the-contract",
+      "type": "concept",
+      "name": "Field hazard (medium): field name typo is the contract",
+      "summary": "Missing the `l` in `Vehicle`. It is the real wire name — correcting the spelling in a client sends a field Mercury ignores. Affects: Asset.motorVehiceYear.",
+      "tags": [
+        "field-hazard",
+        "medium",
+        "field-name-typo-is-the-contract",
+        "motorvehiceyear"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:field-hazard:extension-put-full-replace",
+      "type": "concept",
+      "name": "Field hazard (critical): extension put full replace",
+      "summary": "A JSON-encoded string, not structured JSON, and its PUT is a destructive full replace. A form editing one line item must parse the string, merge, re-stringify and submit the complete array — anything omitted is deleted without warning. Affects: OpportunityExtensionRecord.value.",
+      "tags": [
+        "field-hazard",
+        "critical",
+        "extension-put-full-replace",
+        "value"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:field-hazard:collection-reads-require-search",
+      "type": "concept",
+      "name": "Field hazard (high): collection reads require search",
+      "summary": "`search=true` is required on collection reads; `count` (default 100) and `offset` (default 0) drive pagination. A list view that omits `search` gets an error, not an empty page. Affects: GET /{token}/opportunities, GET /{token}/contacts.",
+      "tags": [
+        "field-hazard",
+        "high",
+        "collection-reads-require-search"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "source:ui-to-public-api-mapping-20260721",
+      "type": "source",
+      "name": "UI → public API capability map + research report (2026-07-21)",
+      "summary": "A review of the full public Connective Mercury Nexus wiki collection (288 articles enumerated, 175 retained) plus the linked API article chain, reduced to a capability registry of 20 UI surfaces. Its central finding is a boundary, not a feature list: the public API is a CRM-record API — Contacts, Opportunities, their documented children and the two financial extensions — and nothing else. Client Portal requests, DigiSign, documents, tasks, notes beyond creation-time notePadText, ApplyOnline, Open Banking, product comparison and reporting have no public API proof. The review found no additional public REST resource family beyond what this graph already models, which is a bounded conclusion about public documentation rather than a claim about Connective's internal services.",
+      "tags": [
+        "ui-mapping",
+        "capability-boundary",
+        "wiki-research",
+        "secondary-source",
+        "2026-07-21"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "category": "secondary-source"
+      }
+    },
+    {
+      "id": "domain:ui-capability-boundary",
+      "type": "domain",
+      "name": "UI surface → API capability boundary",
+      "summary": "Which Mercury Nexus screens a client can actually reach. Of 20 mapped UI surfaces: 12 confirmed, 4 confirmed with writes untested, 2 partial (a write shape documented but no discovery route), and 2 with no public API behind them at all. The negative space is the point — a visible feature is not evidence of a route, and inferring an endpoint from a UI label is how a client ends up promising a screen it cannot reach.",
+      "tags": [
+        "ui",
+        "capability",
+        "boundary",
+        "evidence",
+        "coverage"
+      ],
+      "complexity": "complex",
+      "domainMeta": {
+        "entities": [
+          "UI surface",
+          "Capability",
+          "Evidence level"
+        ],
+        "businessRules": [
+          "A UI feature's existence is not evidence that a public API route serves it.",
+          "Write shapes documented without a discovery route are usable only when the caller supplies the identifiers.",
+          "Every mutation is a production CRM change — there is no sandbox to try it in."
+        ]
+      }
+    },
+    {
+      "id": "capability:01-people-list-search",
+      "type": "concept",
+      "name": "People list / search — Confirmed",
+      "summary": "Mercury Nexus UI surface: People list / search. Public API resource: Contact. Operations: GET /contacts?search=true&searchParams={encodedJson}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: search_contacts. Note: search params are URL-encoded JSON",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "contact"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:02-person-record",
+      "type": "concept",
+      "name": "Person record — Confirmed, writes unverified",
+      "summary": "Mercury Nexus UI surface: Person record. Public API resource: Contact. Operations: GET /contacts/{contactId}; POST /contacts; PUT /contacts/{contactId}. Evidence: Confirmed, writes unverified. The route is documented and reads are confirmed, but no write was tested. Gate mutations behind an explicit confirmation and a fresh read. Suggested client operations: get_contact, create_contact, update_contact. Note: redact webPassword",
+      "tags": [
+        "ui-capability",
+        "confirmed_write_unverified",
+        "contact"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "capability:03-person-contact-methods",
+      "type": "concept",
+      "name": "Person contact methods — Confirmed",
+      "summary": "Mercury Nexus UI surface: Person contact methods. Public API resource: ContactMethod. Operations: GET|POST /contacts/{contactId}/contactMethods; PUT /contacts/{contactId}/contactMethods/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_contact_methods, upsert_contact_method.",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "contactmethod"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:04-person-address-history",
+      "type": "concept",
+      "name": "Person address history — Confirmed",
+      "summary": "Mercury Nexus UI surface: Person address history. Public API resource: Address. Operations: GET|POST /contacts/{contactId}/addresses; PUT /contacts/{contactId}/addresses/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_addresses, upsert_address.",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "address"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:05-person-employment-history",
+      "type": "concept",
+      "name": "Person employment history — Confirmed",
+      "summary": "Mercury Nexus UI surface: Person employment history. Public API resource: Employment. Operations: GET|POST /contacts/{contactId}/employments; PUT /contacts/{contactId}/employments/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_employments, upsert_employment.",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "employment"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:06-person-income-expenses",
+      "type": "concept",
+      "name": "Person income / expenses — Confirmed",
+      "summary": "Mercury Nexus UI surface: Person income / expenses. Public API resource: Income|Expense. Operations: GET|POST /contacts/{contactId}/incomes; PUT /contacts/{contactId}/incomes/{childId}; GET|POST /contacts/{contactId}/expenses; PUT /contacts/{contactId}/expenses/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_contact_incomes, upsert_contact_income, list_contact_expenses, upsert_contact_expense.",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "income-expense"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:07-person-identification",
+      "type": "concept",
+      "name": "Person identification — Confirmed",
+      "summary": "Mercury Nexus UI surface: Person identification. Public API resource: Identification. Operations: GET|POST /contacts/{contactId}/identifications; PUT /contacts/{contactId}/identifications/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_identifications, upsert_identification. Note: live response uses identifications; legacy spec uses Identification",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "identification"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:08-opportunity-list-search",
+      "type": "concept",
+      "name": "Opportunity list / search — Confirmed",
+      "summary": "Mercury Nexus UI surface: Opportunity list / search. Public API resource: Opportunity. Operations: GET /opportunities?search=true&searchParams={encodedJson}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: search_opportunities.",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "opportunity"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:09-opportunity-detail",
+      "type": "concept",
+      "name": "Opportunity detail — Confirmed, writes unverified",
+      "summary": "Mercury Nexus UI surface: Opportunity detail. Public API resource: Opportunity. Operations: GET /opportunities/{opportunityId}; POST /opportunities; PUT /opportunities/{opportunityId}. Evidence: Confirmed, writes unverified. The route is documented and reads are confirmed, but no write was tested. Gate mutations behind an explicit confirmation and a fresh read. Suggested client operations: get_opportunity, create_opportunity, update_opportunity.",
+      "tags": [
+        "ui-capability",
+        "confirmed_write_unverified",
+        "opportunity"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "capability:10-opportunity-contacts-applicant-cards",
+      "type": "concept",
+      "name": "Opportunity Contacts / applicant cards — Confirmed",
+      "summary": "Mercury Nexus UI surface: Opportunity Contacts / applicant cards. Public API resource: RelatedParty. Operations: GET|POST /opportunities/{opportunityId}/relatedParties; PUT /opportunities/{opportunityId}/relatedParties/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_opportunity_parties, link_contact_to_opportunity, set_party_relationship. Note: personID/personId joins to Contact.uniqueId",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "relatedparty"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:11-financials-assets",
+      "type": "concept",
+      "name": "Financials: Assets — Confirmed",
+      "summary": "Mercury Nexus UI surface: Financials: Assets. Public API resource: Asset. Operations: GET|POST /opportunities/{opportunityId}/assets; PUT /opportunities/{opportunityId}/assets/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_assets, upsert_asset.",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "asset"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:12-financials-debts",
+      "type": "concept",
+      "name": "Financials: Debts — Confirmed",
+      "summary": "Mercury Nexus UI surface: Financials: Debts. Public API resource: Liability. Operations: GET|POST /opportunities/{opportunityId}/liabilities; PUT /opportunities/{opportunityId}/liabilities/{childId}. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: list_liabilities, upsert_liability.",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "liability"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:13-financials-living-expenses",
+      "type": "concept",
+      "name": "Financials: Living Expenses — Confirmed",
+      "summary": "Mercury Nexus UI surface: Financials: Living Expenses. Public API resource: Extension livingExpense. Operations: GET|POST|PUT /opportunities/{opportunityId}/extension/livingExpense. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: get_living_expenses, replace_living_expenses. Note: value is JSON encoded as a string; PUT replaces the complete list",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "extension-livingexpense"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:14-financials-other-income-support-payments",
+      "type": "concept",
+      "name": "Financials: Other Income / support payments — Confirmed",
+      "summary": "Mercury Nexus UI surface: Financials: Other Income / support payments. Public API resource: Extension otherIncome. Operations: GET|POST|PUT /opportunities/{opportunityId}/extension/otherIncome. Evidence: Confirmed. Route and shape are documented and corroborated by the production read census. Safe to build against; write semantics still deserve a fresh-GET-then-diff. Suggested client operations: get_other_income, replace_other_income. Note: value is JSON encoded as a string; PUT replaces the complete list",
+      "tags": [
+        "ui-capability",
+        "confirmed",
+        "extension-otherincome"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "capability:15-lead-source",
+      "type": "concept",
+      "name": "Lead Source — Partial",
+      "summary": "Mercury Nexus UI surface: Lead Source. Public API resource: Opportunity.leadSource. Operations: POST|PUT /opportunities/{opportunityId}. Evidence: Partial. A write shape or a read path is documented, but a companion capability is missing — typically discovery. Usable only when the caller supplies the identifiers. Suggested client operations: set_opportunity_lead_source. Note: leadSourceId/leadSourceDisplay write shape is documented; no public catalogue endpoint is evidenced",
+      "tags": [
+        "ui-capability",
+        "partial",
+        "opportunity-leadsource"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "capability:16-person-categories",
+      "type": "concept",
+      "name": "Person categories — Partial",
+      "summary": "Mercury Nexus UI surface: Person categories. Public API resource: Contact.categories. Operations: POST|PUT /contacts/{contactId}. Evidence: Partial. A write shape or a read path is documented, but a companion capability is missing — typically discovery. Usable only when the caller supplies the identifiers. Suggested client operations: update_contact_categories. Note: category assignment is documented; no public category discovery endpoint is evidenced",
+      "tags": [
+        "ui-capability",
+        "partial",
+        "contact-categories"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "capability:17-recycle-bin-delete",
+      "type": "concept",
+      "name": "Recycle bin / delete — Confirmed, writes unverified",
+      "summary": "Mercury Nexus UI surface: Recycle bin / delete. Public API resource: Contact|Opportunity|child. Operations: PUT with isDeleted:true. Evidence: Confirmed, writes unverified. The route is documented and reads are confirmed, but no write was tested. Gate mutations behind an explicit confirmation and a fresh read. Suggested client operations: soft_delete_*. Note: soft deletion documented; public API restoration not confirmed",
+      "tags": [
+        "ui-capability",
+        "confirmed_write_unverified",
+        "contact-opportunity-child"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "capability:18-change-status",
+      "type": "concept",
+      "name": "Change status — Confirmed, writes unverified",
+      "summary": "Mercury Nexus UI surface: Change status. Public API resource: Opportunity.status. Operations: PUT /opportunities/{opportunityId}. Evidence: Confirmed, writes unverified. The route is documented and reads are confirmed, but no write was tested. Gate mutations behind an explicit confirmation and a fresh read. Suggested client operations: update_opportunity_status. Note: status strings are branch-configured; preserve exact values",
+      "tags": [
+        "ui-capability",
+        "confirmed_write_unverified",
+        "opportunity-status"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "capability:19-notes-tasks-attachments-documents",
+      "type": "concept",
+      "name": "Notes / tasks / attachments / documents — no public API",
+      "summary": "Mercury Nexus UI surface: Notes / tasks / attachments / documents. No public API resource corresponds to this surface. Evidence: No public API evidence. Nothing. The UI surface exists; no public route is documented for it. Do not expose a tool, and do not infer an endpoint from the UI label. Note: notePadText creation use is the only narrow documented exception",
+      "tags": [
+        "ui-capability",
+        "no_public_api_evidence",
+        "no-public-api",
+        "boundary"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "capability:20-client-portal-digisign-questionnaires-applyonlin",
+      "type": "concept",
+      "name": "Client Portal, DigiSign, questionnaires, ApplyOnline, Open Banking, product comparison, reports — no public API",
+      "summary": "Mercury Nexus UI surface: Client Portal, DigiSign, questionnaires, ApplyOnline, Open Banking, product comparison, reports. No public API resource corresponds to this surface. Evidence: No public API evidence. Nothing. The UI surface exists; no public route is documented for it. Do not expose a tool, and do not infer an endpoint from the UI label. Note: visible UI workflows do not establish a supported public API",
+      "tags": [
+        "ui-capability",
+        "no_public_api_evidence",
+        "no-public-api",
+        "boundary"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "concept:doc-conflict:asset-name-business-entity-vs-equity",
+      "type": "concept",
+      "name": "Guide vs contract (high): Asset.name",
+      "summary": "Documented: The asset guide lists `Business Entity` among the `standard` asset names. Contract: The enum catalog carries `Business Equity`. Exactly one string differs across an otherwise identical 19-value list. A form seeded from the guide sends a value the enum does not contain. Send the enum's spelling; treat the guide as a typo until a write test proves otherwise. Re-checked against the committed contract at generation time — still present: enum has `Business Equity`; guide says `Business Entity`.",
+      "tags": [
+        "doc-conflict",
+        "high",
+        "unresolved",
+        "asset",
+        "name"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:doc-conflict:related-party-primary-applicant-casing",
+      "type": "concept",
+      "name": "Guide vs contract (high): RelatedParty.relationship",
+      "summary": "Documented: The related-parties guide's worked example sends `relationship: \"Primary Applicant\"` — capital A. Contract: The enum value is `Primary applicant` — lowercase a. Copying the guide's example verbatim sends a value outside the enum. This is the documented example for the single most common related-party write, so it is the likeliest of these conflicts to be hit first. Re-checked against the committed contract at generation time — still present: enum: `Primary applicant`; guide example: `Primary Applicant`.",
+      "tags": [
+        "doc-conflict",
+        "high",
+        "unresolved",
+        "relatedparty",
+        "relationship"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:doc-conflict:contact-search-lastmodified-vs-lastupdated",
+      "type": "concept",
+      "name": "Guide vs contract (medium): ContactSearchParams",
+      "summary": "Documented: The April 2026 contact-search guide lists a `lastModified` filter key. Contract: `ContactSearchParams` declares `lastUpdated`. A delta-sync built from the guide's key silently filters on nothing and re-reads the whole collection every run. Same hazard on the sort key: the guide's `sortKey: \"lastModifiedDate\"` is not a contract parameter at all. Re-checked against the committed contract at generation time — still present: contract: `lastUpdated`; guide: `lastModified`.",
+      "tags": [
+        "doc-conflict",
+        "medium",
+        "unresolved",
+        "contactsearchparams"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:doc-conflict:address-country-full-name-vs-code",
+      "type": "concept",
+      "name": "Guide vs contract (high): Address.country",
+      "summary": "Documented: The person-creation guide's payload example sends `country: \"Australia\"`. Contract: `Address.country` is a 250-value code enum; the Australian value is `AU`. A country control seeded from the guide sends a display name where a code is required. The 250-value list also is not current ISO 3166-1 — it retains the withdrawn `AN` — so validating against an ISO library rejects values Mercury accepts. Re-checked against the committed contract at generation time — still present: contract: `AU` (250 codes); guide example: `Australia`.",
+      "tags": [
+        "doc-conflict",
+        "high",
+        "unresolved",
+        "address",
+        "country"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:doc-conflict:search-count-default-25-vs-100",
+      "type": "concept",
+      "name": "Guide vs contract (medium): GET /contacts, GET /opportunities",
+      "summary": "Documented: The search guide says an unfiltered search returns the 25 newest records, and that `count` defaults to 25 with a maximum of 100. Contract: The contract declares `count` with a default of 100 and states no maximum. The two disagree about the default page size and the contract does not encode the cap at all. Always send `count` explicitly rather than relying on either default, and treat 100 as the ceiling until Connective confirms otherwise. Re-checked against the committed contract at generation time — still present: contract default: 100; guide: 25 (max 100).",
+      "tags": [
+        "doc-conflict",
+        "medium",
+        "unresolved",
+        "get",
+        "contacts",
+        "get",
+        "opportunities"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:doc-conflict:webhook-active-string-vs-boolean",
+      "type": "concept",
+      "name": "Guide vs contract (medium): ContactHookRequestBody.active, OppHookRequestBody.active",
+      "summary": "Documented: The webhook guide's registration example sends `active: \"true\"` — a string. Contract: Both hook request bodies declare `active` as a boolean. This is the request-side twin of the response-side string-boolean hazard on `Opportunity.isNCCPEnabled`. Neither form is write-tested. Send the contract's boolean; be ready for the string to be what the service actually wants. Re-checked against the committed contract at generation time — still present: contract: boolean; guide example: string \"true\".",
+      "tags": [
+        "doc-conflict",
+        "medium",
+        "unresolved",
+        "contacthookrequestbody",
+        "active",
+        "opphookrequestbody",
+        "active"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:doc-conflict:search-params-not-in-contract",
+      "type": "concept",
+      "name": "Guide vs contract (high): GET /contacts, GET /opportunities",
+      "summary": "Documented: The guides document `searchParams` (a URL-encoded JSON filter object), `sortKey` (`creationDate` / `lastModifiedDate`) and `sortOrder` (`ASC` / `DESC`) as query parameters. Contract: The contract's collection GETs declare only `search`, `count` and `offset`. Every documented filter — the entire `ContactSearchParams` / `OpportunitySearchParams` vocabulary — travels through a query parameter the contract never declares. The schemas exist; the parameter carrying them does not. Anything generated straight from the contract can paginate but cannot filter or sort. Re-checked against the committed contract at generation time — still present: absent from the contract: searchParams, sortKey, sortOrder.",
+      "tags": [
+        "doc-conflict",
+        "high",
+        "unresolved",
+        "get",
+        "contacts",
+        "get",
+        "opportunities"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:doc-conflict:liability-type-subset",
+      "type": "concept",
+      "name": "Guide vs contract (medium): Liability.type",
+      "summary": "Documented: The liabilities guide documents only `account` and `standard` liability types. Contract: `Liability.type` carries the full 4-value `AssetLiabilityType`, including `realEstate` and `vehicle`. Asset and Liability share one type enum, but half its values are asset-only in the documentation. A shared type control offers two options on liabilities that no guide supports and no name list covers. Re-checked against the committed contract at generation time — still present: undocumented for Liability: realEstate, vehicle.",
+      "tags": [
+        "doc-conflict",
+        "medium",
+        "unresolved",
+        "liability",
+        "type"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:doc-conflict:rate-limit-conflict",
+      "type": "concept",
+      "name": "Guide vs contract (medium): Throttling",
+      "summary": "Documented: The May 2025 Getting Started page says 20 requests/second and 144,000/day; the March 2026 FAQ says 60/second and 40,000/day. Contract: The contract states no rate limit. The daily figures differ by more than 3×, and the newer source is the *lower* daily allowance. Neither describes rolling windows or per-branch allocation. Budget against the intersection — ≤20/second and ≤40,000/day — until Connective confirms the branch quota in writing. Re-checked against the committed contract at generation time — still present: unresolvable from the contract; both figures are documentation-only.",
+      "tags": [
+        "doc-conflict",
+        "medium",
+        "unresolved",
+        "throttling"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:doc-conflict:person-id-casing-outbound",
+      "type": "concept",
+      "name": "Guide vs contract (high): RelatedParty.personID",
+      "summary": "Documented: The related-parties guide sends `personID` (capital ID) on writes; the financials extensions use `personId` in their splits. Contract: Both casings appear across the contract's schemas, on different resources. This is not a normalisation opportunity. Send the casing the specific resource documents — `personID` on related parties, `personId` in extension splits — and accept either on the way in. A generic camelCase converter applied at the client boundary corrupts outbound writes. Re-checked against the committed contract at generation time — still present: personID on ContactMethod, Expense, Income, RelatedParty; personId on Identification, Employment, Income, ExtensionSplit.",
+      "tags": [
+        "doc-conflict",
+        "high",
+        "unresolved",
+        "relatedparty",
+        "personid"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:dependent-options:asset-name",
+      "type": "concept",
+      "name": "Asset.name options depend on Asset.type",
+      "summary": "Asset.name is a flat 19-value enum in the contract, but the published guides partition it by Asset.type, which makes it a dependent option set: choosing a type should narrow the names, and choosing a name should imply the type. realEstate: Real Estate. account: Cheque Account, Term Deposit, Investment Savings, Cash Management, Savings Account. standard: Charge Over Cash, Home Contents, Guarantee, Business Entity, Life Insurance, Managed Funds, Debenture Charge, Boat, Shares, Other, Gifts, Superannuation. vehicle: Motor Vehicle. Mismatch: Business Equity present in the enum but not the documented partition; Business Entity documented but not in the enum.",
+      "tags": [
+        "dependent-options",
+        "conditional-ui",
+        "asset",
+        "assetname",
+        "mismatch"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "concept:dependent-options:liability-name",
+      "type": "concept",
+      "name": "Liability.name options depend on Liability.type",
+      "summary": "Liability.name is a flat 16-value enum in the contract, but the published guides partition it by Liability.type, which makes it a dependent option set: choosing a type should narrow the names, and choosing a name should imply the type. account: Overdraft, Loan As Guarantor, Other, Line Of Credit, Term Loan, Mortgage Loan, Store Card, Credit Card, Personal Loan, Other Loan. standard: Lease, Hire Purchase, Outstanding Taxation, Commercial Bill, HECS, Maintenance. The partition accounts for all 16 enum values exactly.",
+      "tags": [
+        "dependent-options",
+        "conditional-ui",
+        "liability",
+        "liabilityname"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:operational:no-sandbox",
+      "type": "concept",
+      "name": "There is no sandbox — every call is production",
+      "summary": "Connective's current FAQ states no UAT or sandbox environment exists, and API-created records appear in the normal Mercury Nexus interface. The 2021 Swagger file labels itself \"Sandbox\", which is documentation residue, not an environment. Every successful POST, PUT, soft-delete, hook registration or extension replacement changes a live CRM holding real client data. Impact: Write tooling needs a fresh read, a human-readable diff and explicit confirmation — there is nowhere else to try it.",
+      "tags": [
+        "operational-constraint",
+        "no-sandbox",
+        "integration-design"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:operational:no-delete-verb",
+      "type": "concept",
+      "name": "Soft delete only; DELETE exists for webhooks alone",
+      "summary": "CRM records and their children are deleted with `PUT { isDeleted: true }`, which sends them to the Nexus recycle bin. The only DELETE routes in the API are the two webhook-unregistration endpoints. UI restore exists; an API restore path has not been confirmed. Impact: Never model a CRM delete as an HTTP DELETE, and do not promise restore.",
+      "tags": [
+        "operational-constraint",
+        "no-delete-verb",
+        "integration-design"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:operational:credential-shape",
+      "type": "concept",
+      "name": "Group key in the header, branch token in the path",
+      "summary": "`x-api-key` identifies the broker group; the token path segment identifies one branch. A virtual-branch group shares the key but each branch has its own token, so the token — not the key — selects which data is visible. Both come from Admin → Integrations and need Partner Level access. Impact: Model credentials as `{ groupApiKey, branchToken }`. A token is a data-scope selector, not a permission bypass; redact the path segment in telemetry.",
+      "tags": [
+        "operational-constraint",
+        "credential-shape",
+        "integration-design"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:operational:webhooks-miss-bulk-import",
+      "type": "concept",
+      "name": "Webhooks miss bulk imports",
+      "summary": "Hooks fire for UI and API changes to contacts and opportunities and their listed children, and for bulk category/relationship-manager assignment — but explicitly not for bulk contact import. Delivery carries the full aggregate; there is no documented signature, retry policy, ordering guarantee or delivery id. A receiver returning 410 unregisters the hook. Impact: A webhook-only sync silently misses imported contacts. Pair hooks with a scheduled ascending delta scan, and make 410 a deliberate decommission rather than an error path.",
+      "tags": [
+        "operational-constraint",
+        "webhooks-miss-bulk-import",
+        "integration-design"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:operational:lead-source-creates-taxonomy",
+      "type": "concept",
+      "name": "Writing a lead source can create one",
+      "summary": "Lead source is written as a nested object taking `leadSourceId`, `leadSourceDisplay` or both. A display value that doesn't exist may be created and assigned. There is no documented endpoint for listing lead sources. Impact: Require an existing approved id by default. Passing an unvalidated display string from an upstream form lets that form mint branch taxonomy.",
+      "tags": [
+        "operational-constraint",
+        "lead-source-creates-taxonomy",
+        "integration-design"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "concept:operational:no-category-discovery",
+      "type": "concept",
+      "name": "Categories can be assigned but not discovered",
+      "summary": "`Contact.categories[]` accepts category ids on write, but no public route lists or creates categories. The 15 known names came from a live pull, not an endpoint. Impact: Category assignment only works with externally supplied ids. A picker cannot populate itself from the API.",
+      "tags": [
+        "operational-constraint",
+        "no-category-discovery",
+        "integration-design"
+      ],
+      "complexity": "moderate"
+    },
+    {
       "id": "flow:create-opportunity-with-nested-entities",
       "type": "flow",
       "name": "Create an Opportunity, capturing the returned uniqueId",
@@ -3825,6 +5321,2193 @@
       "weight": 0.6
     },
     {
+      "source": "domain:mercury-api",
+      "target": "domain:field-enum-model",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "source:live-audited-contract-20260718",
+      "target": "domain:field-enum-model",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "source:live-audited-contract-20260718",
+      "target": "domain:mercury-api",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "concept:ui-control-selection-rules",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:AuState",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:AuState",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "9 options → select"
+    },
+    {
+      "source": "enum:AuState",
+      "target": "schema:Contact",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Contact.driversLicenceState"
+    },
+    {
+      "source": "enum:AuState",
+      "target": "schema:Identification",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Identification.placeOfIssue"
+    },
+    {
+      "source": "enum:AuState",
+      "target": "schema:Address",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Address.state"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:Frequency",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:Frequency",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "4 options → select"
+    },
+    {
+      "source": "enum:Frequency",
+      "target": "schema:Expense",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Expense.frequency"
+    },
+    {
+      "source": "enum:Frequency",
+      "target": "schema:Income",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Income.frequency"
+    },
+    {
+      "source": "enum:Frequency",
+      "target": "schema:LivingExpenseLineItem",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains LivingExpenseLineItem.frequency"
+    },
+    {
+      "source": "enum:Frequency",
+      "target": "schema:OtherIncomeLineItem",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains OtherIncomeLineItem.frequency"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:FrequencyLower",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:FrequencyLower",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "4 options → select"
+    },
+    {
+      "source": "enum:FrequencyLower",
+      "target": "schema:Asset",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Asset.realEstateRentalIncomeFrequency, Asset.existingMortgageRepaymentFrequency, Asset.investmentCostFrequency"
+    },
+    {
+      "source": "enum:FrequencyLower",
+      "target": "schema:Liability",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Liability.accountRepaymentFrequency"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:AssetLiabilityType",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:AssetLiabilityType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "4 options → select"
+    },
+    {
+      "source": "enum:AssetLiabilityType",
+      "target": "schema:Asset",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Asset.type"
+    },
+    {
+      "source": "enum:AssetLiabilityType",
+      "target": "schema:Liability",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Liability.type"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:CountryCode",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:CountryCode",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "250 options → typeahead"
+    },
+    {
+      "source": "enum:CountryCode",
+      "target": "schema:Address",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Address.country"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:ContactTitle",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:ContactTitle",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "7 options → select"
+    },
+    {
+      "source": "enum:ContactTitle",
+      "target": "schema:Contact",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Contact.title"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:MaritalStatus",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:MaritalStatus",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "7 options → select"
+    },
+    {
+      "source": "enum:MaritalStatus",
+      "target": "schema:Contact",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Contact.maritalStatus"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:Gender",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:Gender",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "2 options → radio"
+    },
+    {
+      "source": "enum:Gender",
+      "target": "schema:Contact",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Contact.gender"
+    },
+    {
+      "source": "enum:Gender",
+      "target": "schema:RelatedParty",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains RelatedParty.gender"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:EmploymentStatusContact",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:EmploymentStatusContact",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "9 options → select"
+    },
+    {
+      "source": "enum:EmploymentStatusContact",
+      "target": "schema:Contact",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Contact.employmentStatus"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:PhoneDisplayType",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:PhoneDisplayType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "8 options → select"
+    },
+    {
+      "source": "enum:PhoneDisplayType",
+      "target": "schema:Contact",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Contact.phoneDisplayType1, Contact.phoneDisplayType2, Contact.phoneDisplayType3, Contact.phoneDisplayType4"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:ContactMethodEnum",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:ContactMethodEnum",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "11 options → select"
+    },
+    {
+      "source": "enum:ContactMethodEnum",
+      "target": "schema:ContactMethod",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains ContactMethod.contactMethod"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:ContactMethodType",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:ContactMethodType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "4 options → select"
+    },
+    {
+      "source": "enum:ContactMethodType",
+      "target": "schema:ContactMethod",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains ContactMethod.type"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:DocumentStatus",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:DocumentStatus",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "2 options → radio"
+    },
+    {
+      "source": "enum:DocumentStatus",
+      "target": "schema:Identification",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Identification.versionSighted"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:DocumentType",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:DocumentType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "51 options → combobox"
+    },
+    {
+      "source": "enum:DocumentType",
+      "target": "schema:Identification",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Identification.documentType"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:ExpenseType",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:ExpenseType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "11 options → select"
+    },
+    {
+      "source": "enum:ExpenseType",
+      "target": "schema:Expense",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Expense.type"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:IncomeType",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:IncomeType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "11 options → select"
+    },
+    {
+      "source": "enum:IncomeType",
+      "target": "schema:Income",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Income.type"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:OpportunityCategory",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:OpportunityCategory",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "13 options → combobox"
+    },
+    {
+      "source": "enum:OpportunityCategory",
+      "target": "schema:Opportunity",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Opportunity.transactionType"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:OpportunityTranxType",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:OpportunityTranxType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "5 options → select"
+    },
+    {
+      "source": "enum:OpportunityTranxType",
+      "target": "schema:Opportunity",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Opportunity.tranxType"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:LoanStatusActive",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:LoanStatusActive",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "27 options → creatable-select"
+    },
+    {
+      "source": "enum:LoanStatusActive",
+      "target": "schema:Opportunity",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "catalog of observed values for Opportunity.status (free text on the wire)"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:LoanStatusInactive",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:LoanStatusInactive",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "3 options → creatable-select"
+    },
+    {
+      "source": "enum:LoanStatusInactive",
+      "target": "schema:Opportunity",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "catalog of observed values for Opportunity.status (free text on the wire)"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:FinhubContactCategoryName",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:FinhubContactCategoryName",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "15 options → creatable-select"
+    },
+    {
+      "source": "enum:FinhubContactCategoryName",
+      "target": "schema:Category",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "catalog of observed values for Category.categoryName (free text on the wire)"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:HousingSituation",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:HousingSituation",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "7 options → select"
+    },
+    {
+      "source": "enum:HousingSituation",
+      "target": "schema:Address",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Address.housingSituation"
+    },
+    {
+      "source": "enum:HousingSituation",
+      "target": "schema:RelatedParty",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains RelatedParty.housingSituation"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:RelatedPartyRelationship",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:RelatedPartyRelationship",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "25 options → combobox"
+    },
+    {
+      "source": "enum:RelatedPartyRelationship",
+      "target": "schema:RelatedParty",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains RelatedParty.relationship"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:AssetName",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:AssetName",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "19 options → combobox"
+    },
+    {
+      "source": "enum:AssetName",
+      "target": "schema:Asset",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Asset.name"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:ValueBasis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:ValueBasis",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "3 options → radio"
+    },
+    {
+      "source": "enum:ValueBasis",
+      "target": "schema:Asset",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Asset.valueBasis"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:RealEstatePurpose",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:RealEstatePurpose",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "2 options → radio"
+    },
+    {
+      "source": "enum:RealEstatePurpose",
+      "target": "schema:Asset",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Asset.realEstatePurpose"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:LiabilityName",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:LiabilityName",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "16 options → combobox"
+    },
+    {
+      "source": "enum:LiabilityName",
+      "target": "schema:Liability",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Liability.name"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:CreditCardType",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:CreditCardType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "4 options → select"
+    },
+    {
+      "source": "enum:CreditCardType",
+      "target": "schema:Liability",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains Liability.creditCardType"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:ContactWebhookSubscriptionType",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:ContactWebhookSubscriptionType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "3 options → radio"
+    },
+    {
+      "source": "enum:ContactWebhookSubscriptionType",
+      "target": "schema:ContactHookRequestBody",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains ContactHookRequestBody.subscription_type"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:ContactWebhookEvent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:ContactWebhookEvent",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "3 options → radio"
+    },
+    {
+      "source": "enum:ContactWebhookEvent",
+      "target": "schema:ContactHookRequestBody",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains ContactHookRequestBody.event"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:OpportunityWebhookSubscriptionType",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:OpportunityWebhookSubscriptionType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "4 options → select"
+    },
+    {
+      "source": "enum:OpportunityWebhookSubscriptionType",
+      "target": "schema:OppHookRequestBody",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains OppHookRequestBody.subscription_type"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "enum:OpportunityWebhookEvent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:ui-control-selection-rules",
+      "target": "enum:OpportunityWebhookEvent",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.4,
+      "description": "4 options → select"
+    },
+    {
+      "source": "enum:OpportunityWebhookEvent",
+      "target": "schema:OppHookRequestBody",
+      "type": "validates",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "constrains OppHookRequestBody.event"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:opportunity-status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:opportunity-status",
+      "target": "schema:Opportunity",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field Opportunity.status"
+    },
+    {
+      "source": "soft-enum:opportunity-status",
+      "target": "enum:LoanStatusActive",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "suggested values come from this catalog"
+    },
+    {
+      "source": "soft-enum:opportunity-status",
+      "target": "enum:LoanStatusInactive",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "suggested values come from this catalog"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:category-categoryname",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:category-categoryname",
+      "target": "schema:Category",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field Category.categoryName"
+    },
+    {
+      "source": "soft-enum:category-categoryname",
+      "target": "enum:FinhubContactCategoryName",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "suggested values come from this catalog"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:contact-citizenshipcountry",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:contact-citizenshipcountry",
+      "target": "schema:Contact",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field Contact.citizenshipCountry"
+    },
+    {
+      "source": "soft-enum:contact-citizenshipcountry",
+      "target": "enum:CountryCode",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "suggested values come from this catalog"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:contact-countryofresidency",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:contact-countryofresidency",
+      "target": "schema:Contact",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field Contact.countryOfResidency"
+    },
+    {
+      "source": "soft-enum:contact-countryofresidency",
+      "target": "enum:CountryCode",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "suggested values come from this catalog"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:contact-companyregisteredin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:contact-companyregisteredin",
+      "target": "schema:Contact",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field Contact.companyRegisteredIn"
+    },
+    {
+      "source": "soft-enum:contact-companyregisteredin",
+      "target": "enum:CountryCode",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "suggested values come from this catalog"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:opportunityextensionrecord-key",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:opportunityextensionrecord-key",
+      "target": "schema:OpportunityExtensionRecord",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field OpportunityExtensionRecord.key"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:opportunityextensionrecord-parenttype",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:opportunityextensionrecord-parenttype",
+      "target": "schema:OpportunityExtensionRecord",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field OpportunityExtensionRecord.parentType"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:livingexpenselineitem-type",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:livingexpenselineitem-type",
+      "target": "schema:LivingExpenseLineItem",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field LivingExpenseLineItem.type"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:otherincomelineitem-type",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:otherincomelineitem-type",
+      "target": "schema:OtherIncomeLineItem",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field OtherIncomeLineItem.type"
+    },
+    {
+      "source": "soft-enum:otherincomelineitem-type",
+      "target": "enum:IncomeType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "suggested values come from this catalog"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:employment-employmentbasis",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:employment-employmentbasis",
+      "target": "schema:Employment",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field Employment.employmentBasis"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:employment-employmentstatus",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:employment-employmentstatus",
+      "target": "schema:Employment",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field Employment.employmentStatus"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:employment-employmenttype",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:employment-employmenttype",
+      "target": "schema:Employment",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field Employment.employmentType"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:employment-paygemployertype",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:employment-paygemployertype",
+      "target": "schema:Employment",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field Employment.paygEmployerType"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:address-type",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:address-type",
+      "target": "schema:Address",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field Address.type"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:asset-propertytype",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:asset-propertytype",
+      "target": "schema:Asset",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field Asset.propertyType"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:asset-propertystatus",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:asset-propertystatus",
+      "target": "schema:Asset",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field Asset.propertyStatus"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:asset-propertytitletype",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:asset-propertytitletype",
+      "target": "schema:Asset",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field Asset.propertyTitleType"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:asset-realestatefinancetype",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:asset-realestatefinancetype",
+      "target": "schema:Asset",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field Asset.realEstateFinanceType"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "soft-enum:asset-motorvehicletype",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "soft-enum:asset-motorvehicletype",
+      "target": "schema:Asset",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.6,
+      "description": "unvalidated field Asset.motorVehicleType"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "concept:field-hazard:webpassword-never-render",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:field-hazard:webpassword-never-render",
+      "target": "schema:Contact",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects Contact.webPassword"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "concept:field-hazard:date-epoch-or-string",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:field-hazard:date-epoch-or-string",
+      "target": "schema:Contact",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects Contact.createdOn, Contact.lastUpdated, Contact.deletedOn, Contact.dateOfBirth"
+    },
+    {
+      "source": "concept:field-hazard:date-epoch-or-string",
+      "target": "schema:Opportunity",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects Opportunity.createdOn, Opportunity.lastUpdated, Opportunity.statusLastUpdated, Opportunity.deletedOn, Opportunity.submittedToLenderDate"
+    },
+    {
+      "source": "concept:field-hazard:date-epoch-or-string",
+      "target": "schema:ContactMethod",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects ContactMethod.modified"
+    },
+    {
+      "source": "concept:field-hazard:date-epoch-or-string",
+      "target": "schema:RelatedParty",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects RelatedParty.dateOfBirth"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "concept:field-hazard:boolean-as-string",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:field-hazard:boolean-as-string",
+      "target": "schema:Opportunity",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects Opportunity.isNCCPEnabled"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "concept:field-hazard:amount-as-string",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:field-hazard:amount-as-string",
+      "target": "schema:LivingExpenseLineItem",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects LivingExpenseLineItem.amount"
+    },
+    {
+      "source": "concept:field-hazard:amount-as-string",
+      "target": "schema:OtherIncomeLineItem",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects OtherIncomeLineItem.amount"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "concept:field-hazard:casing-duplicates",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:field-hazard:casing-duplicates",
+      "target": "schema:ContactMethod",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects ContactMethod.personID"
+    },
+    {
+      "source": "concept:field-hazard:casing-duplicates",
+      "target": "schema:Income",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects Income.personID, Income.personId"
+    },
+    {
+      "source": "concept:field-hazard:casing-duplicates",
+      "target": "schema:Expense",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects Expense.personID"
+    },
+    {
+      "source": "concept:field-hazard:casing-duplicates",
+      "target": "schema:Identification",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects Identification.personId"
+    },
+    {
+      "source": "concept:field-hazard:casing-duplicates",
+      "target": "schema:RelatedParty",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects RelatedParty.personID"
+    },
+    {
+      "source": "concept:field-hazard:casing-duplicates",
+      "target": "schema:Address",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects Address.parentId, Address.parentID"
+    },
+    {
+      "source": "concept:field-hazard:casing-duplicates",
+      "target": "schema:Contact",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects Contact.Identification, Contact.identifications"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "concept:field-hazard:readonly-hydrated-fields",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:field-hazard:readonly-hydrated-fields",
+      "target": "schema:Asset",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects Asset.motorVehicleMake"
+    },
+    {
+      "source": "concept:field-hazard:readonly-hydrated-fields",
+      "target": "schema:RelatedParty",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects RelatedParty.fullName, RelatedParty.addressBlock, RelatedParty.email, RelatedParty.mobile, RelatedParty.dateOfBirth"
+    },
+    {
+      "source": "concept:field-hazard:readonly-hydrated-fields",
+      "target": "schema:Contact",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects Contact.fullName, Contact.dateOfBirthDisplay"
+    },
+    {
+      "source": "concept:field-hazard:readonly-hydrated-fields",
+      "target": "schema:Opportunity",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects Opportunity.lenderDisplayName, Opportunity.agentName, Opportunity.confirmedSettlementDateDisplay, Opportunity.nextActionDisplay"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "concept:field-hazard:field-name-typo-is-the-contract",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:field-hazard:field-name-typo-is-the-contract",
+      "target": "schema:Asset",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects Asset.motorVehiceYear"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "concept:field-hazard:extension-put-full-replace",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:field-hazard:extension-put-full-replace",
+      "target": "schema:OpportunityExtensionRecord",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "affects OpportunityExtensionRecord.value"
+    },
+    {
+      "source": "domain:field-enum-model",
+      "target": "concept:field-hazard:collection-reads-require-search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "concept:field-hazard:webpassword-never-render",
+      "target": "concept:webpassword-never-log",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:field-hazard:date-epoch-or-string",
+      "target": "concept:date-fields-epoch-ms",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:field-hazard:extension-put-full-replace",
+      "target": "concept:extension-put-destructive-replace",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:field-hazard:extension-put-full-replace",
+      "target": "concept:extension-value-json-string",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "concept:field-hazard:readonly-hydrated-fields",
+      "target": "concept:motorvehiclemake-display-only",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:field-hazard:field-name-typo-is-the-contract",
+      "target": "concept:motor-vehicle-year-typo",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:field-hazard:casing-duplicates",
+      "target": "concept:contact-identification-casing",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "enum:CountryCode",
+      "target": "concept:address-country-enum-bug",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "enum:LoanStatusActive",
+      "target": "concept:opportunity-status-free-text",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "enum:LoanStatusActive",
+      "target": "claim:loan-status-30-values",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "enum:LoanStatusInactive",
+      "target": "claim:loan-status-30-values",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "enum:FinhubContactCategoryName",
+      "target": "claim:contact-categories-15-values",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "enum:FinhubContactCategoryName",
+      "target": "concept:category-name-convention",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:mercury-api",
+      "target": "domain:ui-capability-boundary",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "domain:ui-capability-boundary",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:01-people-list-search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:01-people-list-search",
+      "target": "schema:Contact",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Contact"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:02-person-record",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:02-person-record",
+      "target": "schema:Contact",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Contact"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:03-person-contact-methods",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:03-person-contact-methods",
+      "target": "schema:ContactMethod",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by ContactMethod"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:04-person-address-history",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:04-person-address-history",
+      "target": "schema:Address",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Address"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:05-person-employment-history",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:05-person-employment-history",
+      "target": "schema:Employment",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Employment"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:06-person-income-expenses",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:07-person-identification",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:07-person-identification",
+      "target": "schema:Identification",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Identification"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:08-opportunity-list-search",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:08-opportunity-list-search",
+      "target": "schema:Opportunity",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Opportunity"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:09-opportunity-detail",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:09-opportunity-detail",
+      "target": "schema:Opportunity",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Opportunity"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:10-opportunity-contacts-applicant-cards",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:10-opportunity-contacts-applicant-cards",
+      "target": "schema:RelatedParty",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by RelatedParty"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:11-financials-assets",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:11-financials-assets",
+      "target": "schema:Asset",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Asset"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:12-financials-debts",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:12-financials-debts",
+      "target": "schema:Liability",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Liability"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:13-financials-living-expenses",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:13-financials-living-expenses",
+      "target": "schema:OpportunityExtensionRecord",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Extension livingExpense"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:14-financials-other-income-support-payments",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:14-financials-other-income-support-payments",
+      "target": "schema:OpportunityExtensionRecord",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Extension otherIncome"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:15-lead-source",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:15-lead-source",
+      "target": "schema:Opportunity",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Opportunity.leadSource"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:16-person-categories",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:16-person-categories",
+      "target": "schema:Contact",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Contact.categories"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:17-recycle-bin-delete",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:18-change-status",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "capability:18-change-status",
+      "target": "schema:Opportunity",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "UI surface backed by Opportunity.status"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:19-notes-tasks-attachments-documents",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "capability:20-client-portal-digisign-questionnaires-applyonlin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.4
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:asset-name-business-entity-vs-equity",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:asset-name-business-entity-vs-equity",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:asset-name-business-entity-vs-equity",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:related-party-primary-applicant-casing",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:related-party-primary-applicant-casing",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:related-party-primary-applicant-casing",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:contact-search-lastmodified-vs-lastupdated",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:contact-search-lastmodified-vs-lastupdated",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:contact-search-lastmodified-vs-lastupdated",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:address-country-full-name-vs-code",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:address-country-full-name-vs-code",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:address-country-full-name-vs-code",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:search-count-default-25-vs-100",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:search-count-default-25-vs-100",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:search-count-default-25-vs-100",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:webhook-active-string-vs-boolean",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:webhook-active-string-vs-boolean",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:webhook-active-string-vs-boolean",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:search-params-not-in-contract",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:search-params-not-in-contract",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:search-params-not-in-contract",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:liability-type-subset",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:liability-type-subset",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:liability-type-subset",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:rate-limit-conflict",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:rate-limit-conflict",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:rate-limit-conflict",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:doc-conflict:person-id-casing-outbound",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "source:ui-to-public-api-mapping-20260721",
+      "target": "concept:doc-conflict:person-id-casing-outbound",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:doc-conflict:person-id-casing-outbound",
+      "target": "source:live-audited-contract-20260718",
+      "type": "contradicts",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "published guidance disagrees with the audited contract"
+    },
+    {
+      "source": "concept:doc-conflict:asset-name-business-entity-vs-equity",
+      "target": "enum:AssetName",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:related-party-primary-applicant-casing",
+      "target": "enum:RelatedPartyRelationship",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:address-country-full-name-vs-code",
+      "target": "enum:CountryCode",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:liability-type-subset",
+      "target": "enum:AssetLiabilityType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:liability-type-subset",
+      "target": "enum:LiabilityName",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "concept:doc-conflict:contact-search-lastmodified-vs-lastupdated",
+      "target": "schema:ContactSearchParams",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:search-params-not-in-contract",
+      "target": "schema:ContactSearchParams",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:search-params-not-in-contract",
+      "target": "schema:OpportunitySearchParams",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:search-count-default-25-vs-100",
+      "target": "concept:field-hazard:collection-reads-require-search",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "concept:doc-conflict:webhook-active-string-vs-boolean",
+      "target": "concept:field-hazard:boolean-as-string",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:doc-conflict:person-id-casing-outbound",
+      "target": "concept:field-hazard:casing-duplicates",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:dependent-options:asset-name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:dependent-options:asset-name",
+      "target": "enum:AssetName",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9,
+      "description": "narrows AssetName by Asset.type"
+    },
+    {
+      "source": "concept:dependent-options:asset-name",
+      "target": "enum:AssetLiabilityType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "the dependency is Asset.type"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:dependent-options:liability-name",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:dependent-options:liability-name",
+      "target": "enum:LiabilityName",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9,
+      "description": "narrows LiabilityName by Liability.type"
+    },
+    {
+      "source": "concept:dependent-options:liability-name",
+      "target": "enum:AssetLiabilityType",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "the dependency is Liability.type"
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:operational:no-sandbox",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:operational:no-delete-verb",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:operational:credential-shape",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:operational:webhooks-miss-bulk-import",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:operational:lead-source-creates-taxonomy",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "domain:ui-capability-boundary",
+      "target": "concept:operational:no-category-discovery",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "concept:operational:no-delete-verb",
+      "target": "concept:nested-entity-crud-rule",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:operational:lead-source-creates-taxonomy",
+      "target": "concept:leadsource-silent-noop",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.9
+    },
+    {
+      "source": "concept:operational:no-category-discovery",
+      "target": "enum:FinhubContactCategoryName",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
       "source": "domain:opportunities",
       "target": "flow:create-opportunity-with-nested-entities",
       "type": "contains_flow",
@@ -4245,6 +7928,136 @@
       ]
     },
     {
+      "id": "layer:enums-and-ui-controls",
+      "name": "Enums & UI Controls",
+      "description": "All 32 enums (547 values), each mapped to the UI control its option count and data shape imply, and to the fields that carry it. 3 of them are branch catalogs against free-text fields — tagged catalog-only, and unsafe as closed dropdowns.",
+      "nodeIds": [
+        "domain:field-enum-model",
+        "concept:ui-control-selection-rules",
+        "enum:AuState",
+        "enum:Frequency",
+        "enum:FrequencyLower",
+        "enum:AssetLiabilityType",
+        "enum:CountryCode",
+        "enum:ContactTitle",
+        "enum:MaritalStatus",
+        "enum:Gender",
+        "enum:EmploymentStatusContact",
+        "enum:PhoneDisplayType",
+        "enum:ContactMethodEnum",
+        "enum:ContactMethodType",
+        "enum:DocumentStatus",
+        "enum:DocumentType",
+        "enum:ExpenseType",
+        "enum:IncomeType",
+        "enum:OpportunityCategory",
+        "enum:OpportunityTranxType",
+        "enum:LoanStatusActive",
+        "enum:LoanStatusInactive",
+        "enum:FinhubContactCategoryName",
+        "enum:HousingSituation",
+        "enum:RelatedPartyRelationship",
+        "enum:AssetName",
+        "enum:ValueBasis",
+        "enum:RealEstatePurpose",
+        "enum:LiabilityName",
+        "enum:CreditCardType",
+        "enum:ContactWebhookSubscriptionType",
+        "enum:ContactWebhookEvent",
+        "enum:OpportunityWebhookSubscriptionType",
+        "enum:OpportunityWebhookEvent"
+      ]
+    },
+    {
+      "id": "layer:soft-enums-and-field-hazards",
+      "name": "Soft Enums & Field Hazards",
+      "description": "The 19 fields the contract types as plain strings but which are constrained in practice, plus 9 groups of format, casing and writability traps that no enum describes — epoch-or-string dates, booleans serialised as strings, money as a string on the extension routes, display-only fields, and the one field that must never reach a UI at all.",
+      "nodeIds": [
+        "soft-enum:opportunity-status",
+        "soft-enum:category-categoryname",
+        "soft-enum:contact-citizenshipcountry",
+        "soft-enum:contact-countryofresidency",
+        "soft-enum:contact-companyregisteredin",
+        "soft-enum:opportunityextensionrecord-key",
+        "soft-enum:opportunityextensionrecord-parenttype",
+        "soft-enum:livingexpenselineitem-type",
+        "soft-enum:otherincomelineitem-type",
+        "soft-enum:employment-employmentbasis",
+        "soft-enum:employment-employmentstatus",
+        "soft-enum:employment-employmenttype",
+        "soft-enum:employment-paygemployertype",
+        "soft-enum:address-type",
+        "soft-enum:asset-propertytype",
+        "soft-enum:asset-propertystatus",
+        "soft-enum:asset-propertytitletype",
+        "soft-enum:asset-realestatefinancetype",
+        "soft-enum:asset-motorvehicletype",
+        "concept:field-hazard:webpassword-never-render",
+        "concept:field-hazard:date-epoch-or-string",
+        "concept:field-hazard:boolean-as-string",
+        "concept:field-hazard:amount-as-string",
+        "concept:field-hazard:casing-duplicates",
+        "concept:field-hazard:readonly-hydrated-fields",
+        "concept:field-hazard:field-name-typo-is-the-contract",
+        "concept:field-hazard:extension-put-full-replace",
+        "concept:field-hazard:collection-reads-require-search"
+      ]
+    },
+    {
+      "id": "layer:ui-capability-boundary",
+      "name": "UI Capability Boundary",
+      "description": "20 Mercury Nexus UI surfaces mapped to what the public API can actually reach — 12 confirmed, 4 write-unverified, 2 partial, and 2 with no public route behind them. Plus the operational constraints that shape any client: no sandbox, no DELETE verb, group key + branch token, webhooks that miss bulk imports.",
+      "nodeIds": [
+        "domain:ui-capability-boundary",
+        "source:ui-to-public-api-mapping-20260721",
+        "capability:01-people-list-search",
+        "capability:02-person-record",
+        "capability:03-person-contact-methods",
+        "capability:04-person-address-history",
+        "capability:05-person-employment-history",
+        "capability:06-person-income-expenses",
+        "capability:07-person-identification",
+        "capability:08-opportunity-list-search",
+        "capability:09-opportunity-detail",
+        "capability:10-opportunity-contacts-applicant-cards",
+        "capability:11-financials-assets",
+        "capability:12-financials-debts",
+        "capability:13-financials-living-expenses",
+        "capability:14-financials-other-income-support-payments",
+        "capability:15-lead-source",
+        "capability:16-person-categories",
+        "capability:17-recycle-bin-delete",
+        "capability:18-change-status",
+        "capability:19-notes-tasks-attachments-documents",
+        "capability:20-client-portal-digisign-questionnaires-applyonlin",
+        "concept:operational:no-sandbox",
+        "concept:operational:no-delete-verb",
+        "concept:operational:credential-shape",
+        "concept:operational:webhooks-miss-bulk-import",
+        "concept:operational:lead-source-creates-taxonomy",
+        "concept:operational:no-category-discovery"
+      ]
+    },
+    {
+      "id": "layer:doc-vs-contract-conflicts",
+      "name": "Guide vs Contract Conflicts",
+      "description": "10 of 10 recorded conflicts between the published guides and the audited contract are still present — each re-verified against the committed contract at generation time. Includes the dependent option sets, where the guides partition an enum the contract declares flat.",
+      "nodeIds": [
+        "concept:doc-conflict:asset-name-business-entity-vs-equity",
+        "concept:doc-conflict:related-party-primary-applicant-casing",
+        "concept:doc-conflict:contact-search-lastmodified-vs-lastupdated",
+        "concept:doc-conflict:address-country-full-name-vs-code",
+        "concept:doc-conflict:search-count-default-25-vs-100",
+        "concept:doc-conflict:webhook-active-string-vs-boolean",
+        "concept:doc-conflict:search-params-not-in-contract",
+        "concept:doc-conflict:liability-type-subset",
+        "concept:doc-conflict:rate-limit-conflict",
+        "concept:doc-conflict:person-id-casing-outbound",
+        "concept:dependent-options:asset-name",
+        "concept:dependent-options:liability-name"
+      ]
+    },
+    {
       "id": "layer:field-quirks-and-live-data",
       "name": "Field-Level Quirks & Live Data",
       "description": "Spec bugs, format mismatches, undocumented fields, and live-CRM-constrained value sets — the knowledge that doesn't live in the formal schema at all.",
@@ -4369,6 +8182,104 @@
         "concept:motor-vehicle-year-typo",
         "schema:Address",
         "schema:Asset"
+      ]
+    },
+    {
+      "order": 11,
+      "title": "The enum layer: 32 value sets, only 29 of them enforced",
+      "description": "43 fields across the API are constrained to a fixed value set by the contract. Three more value sets — the active and closed pipeline stages, and the contact-category names — look exactly like enums and are catalogued alongside them, but the fields they describe (Opportunity.status, Category.categoryName) are plain strings on the wire. Rendering those as closed dropdowns breaks the first time the branch adds a stage. The distinction is carried on every enum node as the api-validated / catalog-only tag.",
+      "nodeIds": [
+        "domain:field-enum-model",
+        "enum:LoanStatusActive",
+        "enum:FinhubContactCategoryName",
+        "enum:AssetLiabilityType"
+      ],
+      "languageLesson": "\"Has a documented list of values\" and \"rejects values outside that list\" are independent properties. Conflating them is how a client ends up unable to represent data the server will happily store."
+    },
+    {
+      "order": 12,
+      "title": "From option count to control — and when to override it",
+      "description": "Two options is a radio, twelve is a dropdown, fifty needs type-to-filter and two hundred and fifty needs a typeahead that never renders the full list. That arithmetic gets you most of the way. It gets overridden twice: for free-text fields, where even a three-value catalog needs a creatable control; and for AssetLiabilityType, whose four values don't record a choice so much as decide which half of the form exists — realEstate reveals the address and mortgage groups, vehicle reveals the motorVehicle group, account reveals the BSB group.",
+      "nodeIds": [
+        "concept:ui-control-selection-rules",
+        "enum:Gender",
+        "enum:CountryCode",
+        "enum:DocumentType",
+        "enum:AssetLiabilityType"
+      ]
+    },
+    {
+      "order": 13,
+      "title": "Enums that collide, and the pairs you will wire up backwards",
+      "description": "Frequency and FrequencyLower are the same concept in two casings, and Annual maps to annually rather than annual, so a shared frequency control needs a word map, not toLowerCase(). Contact.employmentStatus is a 9-value enum while Employment.employmentStatus is free text holding Primary/Secondary/Previous — same name, different entity, different vocabulary. And Opportunity.transactionType carries OpportunityCategory while the adjacent tranxType carries OpportunityTranxType: near-identical names, unrelated value sets, adjacent in every payload.",
+      "nodeIds": [
+        "enum:Frequency",
+        "enum:FrequencyLower",
+        "enum:EmploymentStatusContact",
+        "enum:OpportunityCategory",
+        "enum:OpportunityTranxType"
+      ],
+      "languageLesson": "When two fields in the same payload have near-identical names, assume nothing from the naming and check which value set each one actually accepts — the cost of guessing wrong is data that validates and means the wrong thing."
+    },
+    {
+      "order": 14,
+      "title": "The traps that aren't enums",
+      "description": "A form gets these wrong regardless of how well it handles the value sets. Dates come back as epoch milliseconds or strings depending on the endpoint. isNCCPEnabled is sometimes the string \"true\". The extension line items carry amount as a string while every other money field in the API is a number. Asset.motorVehicleMake is display-only — the make is written through details. And Contact.webPassword shows up in GET responses: strip it at the wire boundary so it never reaches client state at all.",
+      "nodeIds": [
+        "concept:field-hazard:webpassword-never-render",
+        "concept:field-hazard:date-epoch-or-string",
+        "concept:field-hazard:amount-as-string",
+        "concept:field-hazard:readonly-hydrated-fields",
+        "concept:field-hazard:casing-duplicates"
+      ]
+    },
+    {
+      "order": 15,
+      "title": "The boundary: 2 UI surfaces with no API behind them",
+      "description": "A review of the full public Connective wiki collection — 288 articles enumerated, 175 retained — found no public REST resource family beyond Contacts, Opportunities, their documented children and the two financial extensions. Client Portal requests, DigiSign, documents and attachments, tasks, notes beyond creation-time notePadText, ApplyOnline, Open Banking, product comparison and reporting are all visible in Mercury Nexus and none of them has a documented route. That is the most useful thing this layer records: not what you can build, but what you must not promise. A visible feature is not evidence of an endpoint.",
+      "nodeIds": [
+        "domain:ui-capability-boundary",
+        "source:ui-to-public-api-mapping-20260721",
+        "capability:19-notes-tasks-attachments-documents",
+        "capability:20-client-portal-digisign-questionnaires-applyonlin"
+      ],
+      "languageLesson": "Mapping a UI to an API is as much about recording the absences as the matches. An integration that quietly infers an endpoint from a screen label fails at runtime; one that records the gap fails at design time, which is where you want it."
+    },
+    {
+      "order": 16,
+      "title": "Following the docs will send values the wire rejects (10 live conflicts)",
+      "description": "The published guides and the audited contract disagree in ways that produce invalid requests. The related-parties guide's worked example sends `Primary Applicant`; the enum is `Primary applicant`. The assets guide lists `Business Entity` where the enum has `Business Equity` — one string differing across an otherwise identical 19-value list. The person-creation example sends `country: \"Australia\"` against a 2-letter code enum. And the entire documented filter vocabulary travels through a `searchParams` query parameter the contract never declares, so a client generated purely from the contract can paginate but cannot filter. Each conflict here is re-checked against the committed contract on every regeneration, so a refresh that fixes one reports it as resolved rather than repeating a stale warning.",
+      "nodeIds": [
+        "concept:doc-conflict:related-party-primary-applicant-casing",
+        "concept:doc-conflict:asset-name-business-entity-vs-equity",
+        "concept:doc-conflict:address-country-full-name-vs-code",
+        "concept:doc-conflict:search-params-not-in-contract"
+      ],
+      "languageLesson": "When a worked example in the docs and a generated contract disagree on a literal string, neither is automatically right — but only one of them is what the running service checks against. Verify against the artifact the service was built from, and record the discrepancy rather than silently picking a side."
+    },
+    {
+      "order": 17,
+      "title": "Some option lists depend on another field",
+      "description": "`Asset.name` is a flat 19-value enum in the contract, but the guides partition it by `Asset.type`: `realEstate` admits only `Real Estate`, `vehicle` only `Motor Vehicle`, `account` five deposit-shaped names, `standard` the remaining twelve. `Liability.name` partitions the same way and accounts for all 16 of its values exactly. Offering the flat list lets a user build a combination no guide supports — and the Liability case is sharper still, because Liability shares the 4-value type enum but only two of those values are documented for it.",
+      "nodeIds": [
+        "concept:dependent-options:asset-name",
+        "concept:dependent-options:liability-name",
+        "enum:AssetName",
+        "enum:LiabilityName",
+        "concept:doc-conflict:liability-type-subset"
+      ]
+    },
+    {
+      "order": 18,
+      "title": "There is no sandbox",
+      "description": "Every call in this graph hits production data. Connective's current FAQ states no UAT environment exists, and API-created records appear in the normal Mercury Nexus interface — the 2021 Swagger file labelling itself \"Sandbox\" is documentation residue, not an environment. CRM deletion is `PUT { isDeleted: true }`; the only DELETE routes are webhook unregistration. Credentials are a group-wide `x-api-key` plus a per-branch path token, so the token selects which branch's data is visible. And webhooks do not fire for bulk contact imports, so a hook-only sync silently misses them.",
+      "nodeIds": [
+        "concept:operational:no-sandbox",
+        "concept:operational:no-delete-verb",
+        "concept:operational:credential-shape",
+        "concept:operational:webhooks-miss-bulk-import",
+        "concept:operational:lead-source-creates-taxonomy",
+        "concept:operational:no-category-discovery"
       ]
     }
   ]
